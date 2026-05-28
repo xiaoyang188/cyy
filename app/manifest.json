@@ -290,13 +290,7 @@
             "enable" : true
         },
         "sdkConfigs" : {
-            "maps" : {
-                "amap" : {
-                    "key" : "",
-                    "securityJsCode" : "",
-                    "serviceHost" : ""
-                }
-            }
+            "maps" : {}
         }
     }
 }

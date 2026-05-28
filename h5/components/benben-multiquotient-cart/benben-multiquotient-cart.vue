@@ -212,7 +212,7 @@ export default {
       let total = 0
       list.forEach((item) => {
         item.cart_list.forEach((j) => {
-          if (j.checked == true) {
+          if (j.checked == true && !isDisabled(j)) {
             // 价格区分会员用户
             let _price = this.filterGoodsPrice(j)
             total += Number(_price) * Number(j.num)
@@ -228,7 +228,7 @@ export default {
       if (list == undefined) return
       list.forEach((item) => {
         item.cart_list.forEach((j) => {
-          if (j.checked == true) {
+          if (j.checked == true && !isDisabled(j)) {
             total += Number(j.num)
           }
         })
@@ -348,16 +348,14 @@ export default {
       this.$emit('update:merchant-id', item.aid)
       this.$emit('goMerchant')
     },
-    // 判断店铺是否全选
+    // 判断店铺是否全选（仅统计可勾选商品）
     isMerchantCheck(item) {
-      let bool = false
-      if (this.isEditor && item.cart_list.findIndex((val) => !val.delChecked) == -1) {
-        bool = true
+      if (this.isEditor) {
+        return item.cart_list.length > 0 && item.cart_list.findIndex((val) => !val.delChecked) === -1
       }
-      if (!this.isEditor && item.cart_list.findIndex((val) => !val.checked) == -1) {
-        bool = true
-      }
-      return bool
+      const selectable = item.cart_list.filter((val) => !isDisabled(val))
+      if (!selectable.length) return false
+      return selectable.findIndex((val) => !val.checked) === -1
     },
     // 店铺选中状态处理
     check(item, i) {
@@ -365,8 +363,10 @@ export default {
       item.cart_list.forEach((j) => {
         if (this.isEditor) {
           j.delChecked = isChecked
-        } else {
+        } else if (!isDisabled(j)) {
           j.checked = isChecked
+        } else {
+          j.checked = false
         }
       })
     },
@@ -385,7 +385,17 @@ export default {
     //全选|取消全选
     checkAll() {
       const bool = !this.allChecked
-      this.cartListArr.forEach((item) => item.cart_list.forEach((j) => (this.isEditor ? (j.delChecked = bool) : (j.checked = bool))))
+      this.cartListArr.forEach((item) =>
+        item.cart_list.forEach((j) => {
+          if (this.isEditor) {
+            j.delChecked = bool
+          } else if (!isDisabled(j)) {
+            j.checked = bool
+          } else {
+            j.checked = false
+          }
+        })
+      )
     },
     /** @description 数量改变
      * @param {Object} e

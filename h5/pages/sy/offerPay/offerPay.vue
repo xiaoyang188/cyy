@@ -552,7 +552,7 @@ export default {
     this.getDetailFunc()
     this.getintegralDetailFunc()
     this.getTypeFunc()
-    
+
     this.setupOfferPayNativeSuccess()
   },
   onUnload() {

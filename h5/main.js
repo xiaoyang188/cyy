@@ -53,7 +53,7 @@ statusBar = e.statusBarHeight
 customBar = e.statusBarHeight + e.titleBarHeight
 // #endif
 let unitRatio = 750 / e.windowWidth
-let StatusBarRpx = statusBar * unitRatio+60
+let StatusBarRpx = statusBar * unitRatio + 60
 let CustomBarRpx = customBar * unitRatio
 let bottomSafeArea = e.safeAreaInsets.bottom
 // #ifdef H5

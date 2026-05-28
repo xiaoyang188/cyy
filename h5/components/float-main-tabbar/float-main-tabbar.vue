@@ -32,21 +32,28 @@
     <view
       v-if="mode === 'fab'"
       class="float-main-tabbar__fab-trigger"
-      :class="{ 'float-main-tabbar__fab-trigger--dragging': fabDragging }"
+      :class="{
+        'float-main-tabbar__fab-trigger--dragging': fabDragging,
+        'float-main-tabbar__fab-trigger--expanded': expanded,
+      }"
       :style="fabTriggerStyle"
+      @tap.stop="onFabTriggerTap"
       @touchstart.stop="onFabTouchStart"
       @touchmove.stop.prevent="onFabTouchMove"
       @touchend.stop="onFabTouchEnd"
       @touchcancel.stop="onFabTouchEnd"
     >
-      <view class="float-main-tabbar__fab-dots">
-        <text class="float-main-tabbar__fab-dot"></text>
-        <text class="float-main-tabbar__fab-dot"></text>
-        <text class="float-main-tabbar__fab-dot"></text>
-        <text class="float-main-tabbar__fab-dot"></text>
+      <view class="float-main-tabbar__fab-trigger-content">
+        <view v-if="!expanded" class="float-main-tabbar__fab-grid" key="fab-grid">
+          <view v-for="n in 4" :key="n" class="float-main-tabbar__fab-grid-cell"></view>
+        </view>
+        <view v-else class="float-main-tabbar__fab-close" key="fab-close">
+          <view class="float-main-tabbar__fab-close-line float-main-tabbar__fab-close-line--a"></view>
+          <view class="float-main-tabbar__fab-close-line float-main-tabbar__fab-close-line--b"></view>
+        </view>
       </view>
-      <text class="float-main-tabbar__fab-trigger-text">导航</text>
-      <text v-if="cartNum" class="float-main-tabbar__badge float-main-tabbar__badge--trigger">{{ cartNum }}</text>
+      <text v-if="!expanded" class="float-main-tabbar__fab-trigger-text">{{ $t('导航') }}</text>
+      <text v-if="cartNum && !expanded" class="float-main-tabbar__badge float-main-tabbar__badge--trigger">{{ cartNum }}</text>
     </view>
 
     <view class="float-main-tabbar__dock">
@@ -166,7 +173,7 @@ export default {
       localCartNum: 0,
       fabX: null,
       fabY: null,
-      fabSizePx: 46,
+      fabSizePx: 60,
       fabPanelWidthPx: 140,
       fabPanelHeightPx: 120,
       fabPanelBelow: false,
@@ -177,6 +184,7 @@ export default {
       fabDragging: false,
       fabDragMoved: false,
       fabDragStart: null,
+      _fabSuppressTap: false,
     }
   },
   watch: {
@@ -204,10 +212,10 @@ export default {
       this.windowHeight = info.windowHeight || 667
       this.safeBottomPx = info.safeAreaInsets?.bottom || 0
       this.statusBarPx = info.statusBarHeight || 0
-      this.fabSizePx = this.rpxToPx(92)
-      this.fabPanelWidthPx = this.rpxToPx(280)
+      this.fabSizePx = this.rpxToPx(112)
+      this.fabPanelWidthPx = this.rpxToPx(300)
       // 两行菜单 + 内边距的近似高度
-      this.fabPanelHeightPx = this.rpxToPx(222)
+      this.fabPanelHeightPx = this.rpxToPx(240)
 
       const margin = this.rpxToPx(24)
       const defaultX = this.windowWidth - margin - this.fabSizePx
@@ -266,7 +274,6 @@ export default {
         fabX: this.fabX,
         fabY: this.fabY,
       }
-      if (this.expanded) this.expanded = false
     },
     onFabTouchMove(e) {
       if (!this.fabDragStart) return
@@ -276,20 +283,29 @@ export default {
       const dy = point.y - this.fabDragStart.touchY
       if (!this.fabDragMoved && Math.abs(dx) < 6 && Math.abs(dy) < 6) return
       this.fabDragMoved = true
+      if (this.expanded) this.expanded = false
       this.fabX = this.clampFabX(this.fabDragStart.fabX + dx)
       this.fabY = this.clampFabY(this.fabDragStart.fabY + dy)
       this.updateFabPanelPlacement()
     },
     onFabTouchEnd() {
       if (!this.fabDragStart) return
-      if (this.fabDragMoved) {
+      const dragged = this.fabDragMoved
+      if (dragged) {
         this.saveFabPosition()
-      } else {
-        this.toggleExpanded()
       }
       this.fabDragging = false
-      this.fabDragMoved = false
       this.fabDragStart = null
+      this._fabSuppressTap = dragged
+    },
+    onFabTriggerTap() {
+      if (this._fabSuppressTap) {
+        this._fabSuppressTap = false
+        this.fabDragMoved = false
+        return
+      }
+      this.fabDragMoved = false
+      this.toggleExpanded()
     },
     iconSrc(item) {
       return this.activeKey === item.key ? item.iconOn : item.iconOff
@@ -419,62 +435,114 @@ export default {
   right: 24rpx;
   bottom: calc(24rpx + var(--benben-window-bottom, 0px));
   z-index: 1000;
-  width: 92rpx;
-  height: 92rpx;
-  border-radius: 46rpx;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 247, 249, 0.98) 100%);
-  border: 1rpx solid rgba(184, 36, 65, 0.12);
-  box-shadow: 0 12rpx 28rpx rgba(16, 24, 40, 0.12);
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: 56rpx;
+  background: #ffffff;
+  border: 2rpx solid rgba(184, 36, 65, 0.1);
+  box-shadow:
+    0 8rpx 24rpx rgba(16, 24, 40, 0.1),
+    0 2rpx 6rpx rgba(16, 24, 40, 0.06);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   touch-action: none;
+  overflow: visible;
   transition:
-    box-shadow 0.2s ease,
+    background 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
     transform 0.2s ease;
 }
 
 .float-main-tabbar__fab-trigger--dragging {
-  box-shadow: 0 16rpx 36rpx rgba(16, 24, 40, 0.18);
-  transform: scale(1.04);
-  opacity: 0.96;
+  box-shadow: 0 14rpx 32rpx rgba(16, 24, 40, 0.16);
+  transform: scale(1.03);
 }
 
-.float-main-tabbar__fab-dots {
-  width: 28rpx;
+.float-main-tabbar__fab-trigger--expanded {
+  background: #b82441;
+  border-color: #b82441;
+  box-shadow: 0 12rpx 32rpx rgba(184, 36, 65, 0.35);
+}
+
+.float-main-tabbar__fab-trigger-content {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.float-main-tabbar__fab-trigger--expanded .float-main-tabbar__fab-trigger-content {
+  width: 56rpx;
+  height: 56rpx;
+}
+
+.float-main-tabbar__fab-grid {
+  width: 40rpx;
+  height: 40rpx;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 4rpx;
+  gap: 8rpx;
 }
 
-.float-main-tabbar__fab-dot {
-  width: 10rpx;
-  height: 10rpx;
-  border-radius: 50%;
+.float-main-tabbar__fab-grid-cell {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 4rpx;
   background: #b82441;
 }
 
+.float-main-tabbar__fab-close {
+  position: relative;
+  width: 48rpx;
+  height: 48rpx;
+}
+
+.float-main-tabbar__fab-close-line {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 36rpx;
+  height: 4rpx;
+  margin-left: -18rpx;
+  margin-top: -2rpx;
+  border-radius: 4rpx;
+  background: #ffffff;
+}
+
+.float-main-tabbar__fab-close-line--a {
+  transform: rotate(45deg);
+}
+
+.float-main-tabbar__fab-close-line--b {
+  transform: rotate(-45deg);
+}
+
 .float-main-tabbar__fab-trigger-text {
-  margin-top: 6rpx;
-  font-size: 18rpx;
-  line-height: 1;
+  margin-top: 4rpx;
+  font-size: 20rpx;
+  line-height: 1.2;
   color: #b82441;
-  font-weight: 600;
+  font-weight: 500;
+  letter-spacing: 1rpx;
 }
 
 .float-main-tabbar__fab-panel {
   position: fixed;
   right: 24rpx;
-  bottom: calc(132rpx + var(--benben-window-bottom, 0px));
+  bottom: calc(152rpx + var(--benben-window-bottom, 0px));
   z-index: 999;
   touch-action: none;
-  width: 280rpx;
-  padding: 14rpx;
-  border-radius: 28rpx;
-  background: rgba(255, 255, 255, 0.98);
-  border: 1rpx solid rgba(184, 36, 65, 0.08);
-  box-shadow: 0 16rpx 40rpx rgba(16, 24, 40, 0.12);
+  width: 300rpx;
+  padding: 16rpx;
+  border-radius: 24rpx;
+  background: #ffffff;
+  border: 1rpx solid rgba(16, 24, 40, 0.06);
+  box-shadow: 0 12rpx 36rpx rgba(16, 24, 40, 0.14);
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10rpx;
@@ -502,8 +570,8 @@ export default {
 }
 
 .float-main-tabbar__fab-item {
-  min-height: 92rpx;
-  padding: 10rpx 8rpx;
+  min-height: 100rpx;
+  padding: 12rpx 8rpx;
   border-radius: 22rpx;
   display: flex;
   flex-direction: column;
@@ -517,13 +585,13 @@ export default {
 }
 
 .float-main-tabbar__fab-icon {
-  width: 38rpx;
-  height: 38rpx;
+  width: 44rpx;
+  height: 44rpx;
 }
 
 .float-main-tabbar__fab-text {
-  margin-top: 6rpx;
-  font-size: 20rpx;
+  margin-top: 8rpx;
+  font-size: 22rpx;
   color: #475467;
   line-height: 1.2;
 }
@@ -592,8 +660,12 @@ export default {
 }
 
 .float-main-tabbar__badge--trigger {
-  top: 0;
-  right: 0;
-  transform: translate(30%, -30%);
+  top: 4rpx;
+  right: 4rpx;
+  transform: none;
+  min-width: 32rpx;
+  line-height: 32rpx;
+  font-size: 22rpx;
+  border-radius: 16rpx;
 }
 </style>
