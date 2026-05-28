@@ -1,0 +1,802 @@
+/**
+ * interface.uts
+ * 插件接口定义文件
+ */
+
+// 通用回调参数
+export type CommonCallbackResult = {
+	errMsg : string
+}
+export type CommonErrorCallBackResult = {
+	errCode ?: number
+	errMsg : string
+}
+// 保持屏幕常亮参数
+export type KeepScreenOnOptions = {
+	keepScreenOn ?: boolean
+	success ?: (res : CommonCallbackResult) => void
+	fail ?: (res : any) => void
+	complete ?: (res : any) => void
+}
+
+// 保持屏幕常亮函数类型
+export type SetKeepScreenOn = (options : KeepScreenOnOptions) => void
+
+// 获取当前的地理位置参数
+export type GetLocationOptions = {
+	/**
+	 * 定位类型，可选值：wgs84（GPS坐标），gcj02（国测局坐标）
+	 */
+	type ?: string
+	/**
+	 * 传入 true 会返回高度信息，由于获取高度需要较高精确度，会减慢接口返回速度
+	 */
+	altitude ?: boolean
+	/**
+	 * 高精度定位超时时间(ms)，指定时间内返回最高精度，该值3000ms以上高精度定位才有效果
+	 */
+	highAccuracyExpireTime ?: number
+	/**
+	 * 开启高精度定位
+	 */
+	isHighAccuracy ?: boolean
+	/**
+	 * 成功回调
+	 */
+	success ?: (res : GetLocationSuccess) => void
+	/**
+	 * 失败回调
+	 */
+	fail ?: (res : any) => void
+	/**
+	 * 完成回调
+	 */
+	complete ?: (res : any) => void
+}
+
+// 获取当前的地理位置成功回调结果
+export type GetLocationSuccess = {
+	/**
+	 * 纬度，范围为 -90~90，负数表示南纬
+	 */
+	latitude : number
+	/**
+	 * 经度，范围为 -180~180，负数表示西经
+	 */
+	longitude : number
+	/**
+	 * 速度，单位 m/s
+	 */
+	speed : number
+	/**
+	 * 位置的精确度
+	 */
+	accuracy : number
+	/**
+	 * 高度，单位 m
+	 */
+	altitude ?: number
+	/**
+	 * 垂直精度，单位 m（Android 无法获取，返回 0）
+	 */
+	verticalAccuracy ?: number
+	/**
+	 * 水平精度，单位 m
+	 */
+	horizontalAccuracy ?: number
+	/**
+	 * 调用结果
+	 */
+	errMsg : string
+}
+
+// 获取当前的地理位置函数类型
+export type GetLocation = (options : GetLocationOptions) => void
+
+// 设置应用角标数字参数
+export type SetBadgeNumberOptions = {
+	badgeNumber : number,
+	/**
+	 * 成功回调
+	 */
+	success ?: (res : SetBadgeNumberSuccess) => void
+	/**
+	 * 失败回调
+	 */
+	fail ?: (res : CommonCallbackResult) => void
+	/**
+	 * 完成回调
+	 */
+	complete ?: (res : any) => void
+}
+
+// 设置应用角标数字成功回调结果
+export type SetBadgeNumberSuccess = {
+	errMsg : string
+}
+
+// 设置应用角标数字函数类型
+export type SetBadgeNumber = (options : SetBadgeNumberOptions) => void
+
+// 获取应用ID参数
+export type GetAppIdOptions = {
+	/**
+	 * 成功回调
+	 */
+	success ?: (res : GetAppIdSuccess) => void
+	/**
+	 * 失败回调
+	 */
+	fail ?: (res : any) => void
+	/**
+	 * 完成回调
+	 */
+	complete ?: (res : any) => void
+}
+
+// 获取应用ID成功回调结果
+export type GetAppIdSuccess = {
+	/**
+	 * 应用ID
+	 */
+	appId : string
+	/**
+	 * 调用结果
+	 */
+	errMsg : string
+}
+
+// 获取应用ID函数类型
+export type GetAppId = (options : GetAppIdOptions) => void
+
+// ============ 位置变化监听相关接口定义 ============
+
+// 位置变化回调结果
+export type OnLocationChangeCallbackResult = {
+	/**
+	 * 纬度，范围为 -90~90，负数表示南纬
+	 */
+	latitude : number
+	/**
+	 * 经度，范围为 -180~180，负数表示西经
+	 */
+	longitude : number
+	/**
+	 * 速度 (m/s)
+	 */
+	speed : number
+	/**
+	 * 位置的精确度
+	 */
+	accuracy : number
+	/**
+	 * 高度 (m)
+	 */
+	altitude ?: number
+	/**
+	 * 垂直精度 (m)
+	 */
+	verticalAccuracy ?: number
+	/**
+	 * 水平精度 (m)
+	 */
+	horizontalAccuracy ?: number
+	/**
+	 * 定位到的城市信息
+	 */
+	city ?: string
+	/**
+	 * 城市编码
+	 */
+	cityCode ?: string
+	/**
+	 * 街道名称
+	 */
+	street ?: string
+	/**
+	 * 国家
+	 */
+	country ?: string
+	/**
+	 * 国家代码
+	 */
+	countryCode ?: string
+	/**
+	 * 省份
+	 */
+	province ?: string
+	/**
+	 * 街道号码
+	 */
+	streetNumber ?: string
+	/**
+	 * 区
+	 */
+	district ?: string
+	/**
+	 * 是不是精确定位信息
+	 */
+	isFullAccuracy ?: boolean
+	/**
+	 * 海拔的精确度信息
+	 */
+	altitudeAccuracy ?: number
+}
+
+// 位置变化错误回调结果
+export type OnLocationChangeErrorCallbackResult = {
+	/**
+	 * 错误码
+	 */
+	errCode : number
+	/**
+	 * 错误信息
+	 */
+	errMsg : string
+}
+
+// 开始位置更新参数
+export type StartLocationUpdateOptions = {
+	/**
+	 * 定位类型，可选值：wgs84（GPS坐标），gcj02（国测局坐标）
+	 */
+	type ?: string
+	/**
+	 * 成功回调
+	 */
+	success ?: (res : CommonCallbackResult) => void
+	/**
+	 * 失败回调
+	 */
+	fail ?: (res : any) => void
+	/**
+	 * 完成回调
+	 */
+	complete ?: (res : any) => void
+}
+
+// 停止位置更新参数
+export type StopLocationUpdateOptions = {
+	/**
+	 * 成功回调
+	 */
+	success ?: (res : CommonCallbackResult) => void
+	/**
+	 * 失败回调
+	 */
+	fail ?: (res : any) => void
+	/**
+	 * 完成回调
+	 */
+	complete ?: (res : any) => void
+}
+export type StartAbilitySuccess = {
+	errMsg : string
+}
+
+export type StartAbilityFailResult = {
+	errCode : number,
+	errMsg : string
+}
+
+export type StartAbilityByTypeFailResult = {
+	errCode ?: number,
+	errName ?: string
+	errMsg : string
+}
+
+export type StartAbilityOptions = {
+	url : string
+	success ?: (res : StartAbilitySuccess) => void
+	fail ?: (err : StartAbilityFailResult) => void
+	complete ?: (res : any) => void
+}
+
+export type StartAbilityByNavigationOptions = {
+	originLatitude : number,
+	originLongitude : number,
+	originName : string,
+	destinationLatitude : number,
+	destinationLongitude : number,
+	destinationName : string,
+	success ?: (res : StartAbilitySuccess) => void
+	fail ?: (err : StartAbilityByTypeFailResult) => void
+	complete ?: (res : any) => void
+}
+
+export type LoacationOptions = {
+	latitude : number,
+	longitude : number,
+}
+export type LocationChoosingOptionsCallBackResult = {
+	location : LoacationOptions,
+	searchEnabled : boolean,
+	showNearbyPoi : boolean,
+	success ?: (res : ChoosingLocationResult) => void,
+	fail ?: (err : CommonCallbackResult) => void,
+	complete ?: (res : any) => void
+}
+
+export type ChoosingLocationResult = {
+	errMsg : string,
+	siteId : string,
+	location : LoacationOptions,
+	name : string,
+	address : string,
+	zoom : number,
+	// addressInfo:string
+}
+export enum BluetoothStateEnum {
+	STATE_ERR = -1,
+	STATE_OFF = 0,
+	STATE_TURNING_ON = 1,
+	STATE_ON = 2,
+	STATE_TURNING_OFF = 3,
+	STATE_BLE_TURNING_ON = 4,
+	STATE_BLE_ON = 5,
+	STATE_BLE_TURNING_OFF = 6
+}
+
+export type GetBluetoothStateCallbackResult = {
+	success ?: (res : BluetoothStateEnum) => void,
+	fail ?: (err : CommonCallbackResult) => void,
+	complete ?: (res : any) => void
+}
+// 位置变化监听器函数类型
+export type OnLocationChangeCallback = (result : OnLocationChangeCallbackResult) => void
+export type OnLocationChangeErrorCallback = (result : OnLocationChangeErrorCallbackResult) => void
+
+// 位置变化监听函数类型
+export type OnLocationChange = (callback : OnLocationChangeCallback) => void
+export type OffLocationChange = (callback ?: OnLocationChangeCallback) => void
+export type OnLocationChangeError = (callback : OnLocationChangeErrorCallback) => void
+export type OffLocationChangeError = (callback ?: OnLocationChangeErrorCallback) => void
+export type StartLocationUpdate = (options : StartLocationUpdateOptions) => void
+export type StopLocationUpdate = (options : StopLocationUpdateOptions) => void
+export type StartAbility = (options : StartAbilityOptions) => void
+export type StartAbilityByNavigation = (options : StartAbilityByNavigationOptions) => void
+export type LocationChoosing = (options : LocationChoosingOptionsCallBackResult) => void
+export type GetBluetoothState = (options : GetBluetoothStateCallbackResult) => void
+
+// 蓝牙状态变化回调结果
+export type OnBluetoothStateChangeCallbackResult = {
+	/**
+	 * 蓝牙状态
+	 */
+	state : BluetoothStateEnum
+	/**
+	 * 错误信息
+	 */
+	errMsg ?: string
+}
+
+// 蓝牙状态变化监听器函数类型
+export type OnBluetoothStateChangeCallback = (result : OnBluetoothStateChangeCallbackResult) => void
+export type OnBluetoothStateChangeErrorCallback = (result : CommonCallbackResult) => void
+
+// 蓝牙状态变化监听函数类型
+export type OnBluetoothStateChange = (callback : OnBluetoothStateChangeCallback) => void
+export type OffBluetoothStateChange = (callback ?: OnBluetoothStateChangeCallback) => void
+export type OnBluetoothStateChangeError = (callback : OnBluetoothStateChangeErrorCallback) => void
+export type OffBluetoothStateChangeError = (callback ?: OnBluetoothStateChangeErrorCallback) => void
+
+// 请求全局权限开关参数
+export type RequestGlobalSwitchOptions = {
+	/**
+	 * 成功回调
+	 */
+	success ?: (res : CommonCallbackResult) => void
+	/**
+	 * 失败回调
+	 */
+	fail ?: (res : any) => void
+	/**
+	 * 完成回调
+	 */
+	complete ?: (res : any) => void
+}
+
+// 请求全局权限开关函数类型
+// switchType: 0-相机，1-麦克风，2-位置
+export type RequestGlobalSwitch = (switchType : number, options ?: RequestGlobalSwitchOptions) => void
+
+// 位置服务状态变化回调结果
+export type OnLocationEnabledChangeCallbackResult = {
+	/**
+	 * 位置服务是否启用
+	 */
+	enabled : boolean
+	/**
+	 * 错误信息
+	 */
+	errMsg ?: string
+}
+
+// 位置服务状态变化参数
+export type OnLocationEnabledChangeOptions = {
+	/**
+	 * 成功回调
+	 */
+	success ?: (res : CommonCallbackResult) => void
+	/**
+	 * 失败回调
+	 */
+	fail ?: (res : any) => void
+	/**
+	 * 完成回调
+	 */
+	complete ?: (res : any) => void
+}
+
+// 位置服务状态变化监听器函数类型
+export type OnLocationEnabledChangeCallback = (result : OnLocationEnabledChangeCallbackResult) => void
+export type OnLocationEnabledChangeErrorCallback = (result : CommonCallbackResult) => void
+
+// 位置服务状态变化监听函数类型
+export type OnLocationEnabledChange = (callback : OnLocationEnabledChangeCallback) => void
+export type OffLocationEnabledChange = (callback ?: OnLocationEnabledChangeCallback) => void
+export type OnLocationEnabledChangeError = (callback : OnLocationEnabledChangeErrorCallback) => void
+export type OffLocationEnabledChangeError = (callback ?: OnLocationEnabledChangeErrorCallback) => void
+
+// 检查位置服务是否启用参数
+export type IsLocationEnabledCallbackResult = {
+	/**
+	 * 成功回调
+	 */
+	success ?: (res : boolean) => void
+	/**
+	 * 失败回调
+	 */
+	fail ?: (err : CommonCallbackResult) => void
+	/**
+	 * 完成回调
+	 */
+	complete ?: (res : any) => void
+}
+
+// 检查位置服务是否启用函数类型
+export type IsLocationEnabled = (options : IsLocationEnabledCallbackResult) => void
+
+// 媒体类型
+export type MediaType = 'network' | 'local'
+
+// 媒体文件类型
+export type MediaFileType = 'image' | 'video'
+
+// 网络图片下载进度信息
+export type DownloadProgressInfo = {
+	/**
+	 * 已下载的字节数
+	 */
+	downloadedBytes : number
+	/**
+	 * 总字节数，可能为 -1 表示未知
+	 */
+	totalBytes : number
+	/**
+	 * 下载进度百分比 (0-100)，当 totalBytes 未知时为 -1
+	 */
+	progress : number
+}
+
+// 保存媒体文件到相册参数
+export type SaveImageToAlbumOptions = {
+	/**
+	 * 媒体文件路径，支持网络文件(http/https)和本地沙盒目录文件
+	 */
+	imageUrl : string
+	/**
+	 * 媒体文件类型，'image' 表示图片，'video' 表示视频
+	 * 如果不传此参数，会根据文件扩展名自动判断
+	 */
+	fileType ?: MediaFileType
+	/**
+	 * 媒体来源类型，'network' 表示网络文件，'local' 表示本地文件
+	 * 如果不传此参数，会根据 imageUrl 自动判断
+	 */
+	mediaType ?: MediaType
+	/**
+	 * 网络文件下载开始回调（仅对网络文件有效）
+	 */
+	onDownloadStart ?: () => void
+	/**
+	 * 网络文件下载完成回调（仅对网络文件有效）
+	 */
+	onDownloadComplete ?: (filePath : string) => void
+	/**
+	 * 成功回调
+	 */
+	success ?: (res : SaveImageToAlbumResult) => void
+	/**
+	 * 失败回调
+	 */
+	fail ?: (err : SaveImageToAlbumErrorResult) => void
+	/**
+	 * 完成回调
+	 */
+	complete ?: (res : any) => void
+}
+
+// 保存媒体文件到相册成功结果
+export type SaveImageToAlbumResult = {
+	/**
+	 * 错误码，0表示成功
+	 */
+	errCode : number
+	/**
+	 * 错误信息
+	 */
+	errMsg : string
+	/**
+	 * 保存后的文件路径
+	 */
+	savedPath ?: string
+}
+
+// 保存媒体文件到相册失败结果
+export type SaveImageToAlbumErrorResult = {
+	/**
+	 * 错误码
+	 */
+	errCode : number
+	/**
+	 * 错误信息
+	 */
+	errMsg : string
+}
+
+// 保存媒体文件到相册函数类型
+export type SaveImageToAlbum = (options : SaveImageToAlbumOptions) => Promise<SaveImageToAlbumResult>
+
+// ============ 保存文件到Download目录相关接口定义 ============
+
+// 保存文件到Download目录参数
+export type SaveToDownloadOptions = {
+	/**
+	 * 文件内容，可以是字符串或Uint8Array（当使用content时）
+	 */
+	content ?: string | Uint8Array
+	/**
+	 * 文件URL，支持网络URL或本地文件路径（当使用fileUrl时）
+	 */
+	fileUrl ?: string
+	/**
+	 * 文件名，包含扩展名
+	 */
+	fileName : string
+	/**
+	 * 文件MIME类型，如 'text/plain', 'application/json' 等
+	 */
+	mimeType ?: string
+	/**
+	 * 媒体类型，'network' 表示网络文件，'local' 表示本地文件
+	 * 如果不指定，会根据 fileUrl 自动判断
+	 */
+	mediaType ?: MediaType
+	/**
+	 * 下载开始回调（仅网络文件有效）
+	 */
+	onDownloadStart ?: () => void
+	/**
+	 * 下载完成回调（仅网络文件有效）
+	 */
+	onDownloadComplete ?: (filePath : string) => void
+	/**
+	 * 成功回调
+	 */
+	success ?: (res : SaveToDownloadResult) => void
+	/**
+	 * 失败回调
+	 */
+	fail ?: (err : SaveToDownloadErrorResult) => void
+	/**
+	 * 完成回调
+	 */
+	complete ?: (res : any) => void
+}
+
+// 保存文件到Download目录成功结果
+export type SaveToDownloadResult = {
+	/**
+	 * 错误码，0表示成功
+	 */
+	errCode : number
+	/**
+	 * 错误信息
+	 */
+	errMsg : string
+	/**
+	 * 保存后的文件路径
+	 */
+	savedPath ?: string
+}
+
+// 保存文件到Download目录失败结果
+export type SaveToDownloadErrorResult = {
+	/**
+	 * 错误码
+	 */
+	errCode : number
+	/**
+	 * 错误信息
+	 */
+	errMsg : string
+}
+
+// 保存文件到Download目录函数类型
+export type SaveToDownload = (options : SaveToDownloadOptions) => Promise<SaveToDownloadResult>
+
+// ============ 碰一碰分享相关接口定义 ============
+
+// 碰一碰分享数据类型
+export type KnockShareData = {
+	/**
+	 * 分享内容，可以是链接、文本等
+	 */
+	content : string
+	/**
+	 * 分享卡片标题
+	 */
+	title ?: string
+	/**
+	 * 分享卡片描述
+	 */
+	description ?: string
+	thumbnailUri ?: string
+}
+
+// 碰一碰分享监听回调函数类型
+export type OnKnockShareCallback = (shareData : KnockShareData) => void
+
+export type onDataReceiveOptions = {
+	dataReceive ?: (content : string) => void,
+	receiveEnd ?: () => void
+}
+
+export type onDataReceiveCallback = (options : onDataReceiveOptions) => void
+
+export type OnShareDataOptions = {
+	dataReceive ?: (record : UTSJSONObject[]) => void,
+	error ?: (err : any) => void
+}
+
+export type OnShareDataCallback = (options : OnShareDataOptions) => void
+
+export type UTSWant = {
+	deviceId : string
+	bundleName : string
+	moduleName : string
+	abilityName : string
+	action : string
+	entities : Array<string>
+	uri : string
+	type : string
+	parameters : UTSJSONObject
+	flags : number
+}
+export type OnNewWantOptions = {
+	receiveShare : boolean
+	onNewWant ?: (want : UTSWant) => void
+	onShare ?: (data : UTSJSONObject[]) => void
+	error ?: (err : any) => void
+}
+export type OnNewWantCallback = (options : OnNewWantOptions) => void
+
+export type HarmonyURL = {
+	hash : string
+	host : string
+	hostname : string
+	href : string
+	origin : string
+	password : string
+	pathname : string
+	port : string
+	protocol : string
+	search : string
+	params : UTSJSONObject,
+	username : string
+}
+
+export type RequestSystemPermissionOptions = {
+	permissions : string[]
+	accept ?: (allRight : boolean, grantedList : Array<string>) => void
+	refuse ?: (doNotAskAgain : boolean, grantedList : Array<string>) => void
+	error ?: (err : any) => void
+}
+
+export type IsNotificationEnabledOptions = {
+	success ?: (enabled : boolean) => void,
+	fail ?: (err : any) => void
+}
+
+export type RequestEnableNotificationOptions={
+	success ?: () => void,
+	fail ?: (err : any) => void
+}
+export type OpenNotificationSettingsOptions={
+	success ?: () => void,
+	fail ?: (err : any) => void
+}
+
+export type onOsThemeChangeOptions={
+	themeChange?:(theme:string)=>void
+}
+
+export type GeoAddress={
+	latitude:number,
+	longitude:number,
+	locale:string,
+	placeName:string,
+	countryCode:string,
+	countryName:string,
+	administrativeArea:string,
+	subAdministrativeArea:string,
+	locality:string,
+	subLocality:string,
+	roadName:string,
+	subRoadName:string,
+	premises:string,
+	postalCode:string,
+	phoneNumber:string,
+	addressUrl:string,
+	descriptions:Array<string>,
+	descriptionsSize:number
+}
+
+export type ReverseGeoCodeRequest={
+	locale?:string,
+	country?:string,
+	latitude:number,
+	longitude:number,
+	maxItems?:number,
+	success?:(result:Array<GeoAddress>)=>void,
+	fail?:(err:any)=>void
+}
+export type CleanCacheSuccessResult = {
+	percentage: number,
+	errMsg: string
+}
+
+export type CleanCacheFailResult = {
+	errMsg: string,
+	errCode?: number
+}
+
+export type CleanCacheCompleteResult = {
+	errMsg: string
+}
+
+export type CleanCacheOptions={
+	success?:(result:CleanCacheSuccessResult)=>void,
+	fail?:(err:CleanCacheFailResult)=>void,
+	complete?:(result:CleanCacheCompleteResult)=>void
+}
+
+export type SaveToFilesDirOptions = {
+	tempFilePath: string,
+	fileName: string,
+	success?: (savedFilePath: string) => void,
+	fail?: (err: any) => void
+}
+
+// ============ Canvas合成图片相关接口定义 ============
+export type MergeImageItem = {
+	url: string,
+	x: number,
+	y: number,
+	width: number,
+	height: number,
+	shape?: string // 'rect' | 'circle'
+}
+
+export type MergeWithCanvasOptions = {
+	width: number,
+	height: number,
+	images: Array<MergeImageItem>,
+	success?: (res: MergeWithCanvasSuccess) => void,
+	fail?: (err: any) => void
+}
+
+export type MergeWithCanvasSuccess = {
+	tempFilePath: string
+}

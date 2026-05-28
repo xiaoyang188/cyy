@@ -1,0 +1,37 @@
+import { BusinessError } from '@kit.BasicServicesKit';
+import { common } from '@kit.AbilityKit';
+import { sceneMap } from '@kit.MapKit';
+import { AppStorageV2,UIContext  } from '@kit.ArkUI';
+import { LoacationOptions, LocationChoosingOptionsCallBackResult, ChoosingLocationResult, LocationChoosing,CommonCallbackResult } from "../../interface.uts"
+
+export const chooseLocation : LocationChoosing = function (options : LocationChoosingOptionsCallBackResult) {
+	let locationChoosingOptions : sceneMap.LocationChoosingOptions = {
+		location: { latitude: options.location.latitude, longitude: options.location.longitude },
+		searchEnabled: options.searchEnabled,
+		showNearbyPoi: options.showNearbyPoi
+	};
+	sceneMap.chooseLocation(AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext() as common.UIAbilityContext, locationChoosingOptions)
+		.then((data:sceneMap.LocationChoosingResult) => {
+			console.info("ChooseLocation", "Succeeded in choosing location.");
+			// let addressInfo = JSON.parseObject(JSON.stringify(data.addressComponent)!)
+			let res : ChoosingLocationResult = {
+				errMsg: 'chooseLocation:ok';
+				siteId: data.siteId;
+				location: { latitude:data.location.latitude,longitude:data.location.longitude } as LoacationOptions;
+				name: data.name;
+				address: data.address;
+				zoom: data.zoom;
+				// addressInfo: JSON.stringify(addressInfo)
+			} as ChoosingLocationResult
+			options.success?.(res)
+			options.complete?.(res)
+		})
+		.catch((err : BusinessError) => {
+			console.error("ChooseLocation", `Failed to choose Location, code: ${err.code}, message: ${err.message}`);
+			let errResult:CommonCallbackResult={
+				errMsg:JSON.stringify(err)
+			}as CommonCallbackResult
+			options.fail?.(errResult)
+			options.complete?.(errResult)
+		});
+}

@@ -1,0 +1,149 @@
+/**
+ * interface.uts
+ * uts插件接口定义文件，按规范定义接口文件可以在HBuilderX中更好的做到语法提示
+ */
+
+/**
+ * getPreferences 异步函数的参数
+ */
+export type GetPreferencesOptions = {
+  name : string
+  success ?: (res : GetPreferencesResult) => void
+  fail ?: (res : PreferencesFail) => void
+  complete ?: (res : any) => void
+}
+
+/**
+ * setPreferences 异步函数的参数
+ */
+export type SetPreferencesOptions = {
+  name : string
+  key : string
+  value : any
+  success ?: (res : SetPreferencesResult) => void
+  fail ?: (res : PreferencesFail) => void
+  complete ?: (res : any) => void
+}
+
+/**
+ * deletePreferences 异步函数的参数
+ */
+export type DeletePreferencesOptions = {
+  name : string
+  success ?: (res : DeletePreferencesResult) => void
+  fail ?: (res : PreferencesFail) => void
+  complete ?: (res : any) => void
+}
+
+/**
+ * clearPreferences 异步函数的参数
+ */
+export type ClearPreferencesOptions = {
+  name : string
+  success ?: (res : ClearPreferencesResult) => void
+  fail ?: (res : PreferencesFail) => void
+  complete ?: (res : any) => void
+}
+
+/**
+ * getPreferencesValue 异步函数的参数
+ */
+export type GetPreferencesValueOptions = {
+  name : string
+  key : string
+  defaultValue ?: any
+  success ?: (res : GetPreferencesValueResult) => void
+  fail ?: (res : PreferencesFail) => void
+  complete ?: (res : any) => void
+}
+
+/**
+ * deletePreferencesValue 异步函数的参数
+ */
+export type DeletePreferencesValueOptions = {
+  name : string
+  key : string
+  success ?: (res : DeletePreferencesValueResult) => void
+  fail ?: (res : PreferencesFail) => void
+  complete ?: (res : any) => void
+}
+
+/**
+ * getPreferences 函数返回结果
+ */
+export type GetPreferencesResult = {
+  success : boolean,
+  data ?: any
+}
+
+/**
+ * setPreferences 函数返回结果
+ */
+export type SetPreferencesResult = {
+  success : boolean
+}
+
+/**
+ * deletePreferences 函数返回结果
+ */
+export type DeletePreferencesResult = {
+  success : boolean
+}
+
+/**
+ * clearPreferences 函数返回结果
+ */
+export type ClearPreferencesResult = {
+  success : boolean
+}
+
+/**
+ * getPreferencesValue 函数返回结果
+ */
+export type GetPreferencesValueResult = {
+  success : boolean,
+  value ?: any
+}
+
+/**
+ * deletePreferencesValue 函数返回结果
+ */
+export type DeletePreferencesValueResult = {
+  success : boolean
+}
+
+/**
+ * 同步函数统一返回结果
+ */
+export type PreferencesSyncResult = {
+  success : boolean,
+  data : any,
+  errMsg : string
+}
+
+/**
+ * 错误码
+ * 根据uni错误码规范要求，建议错误码以90开头
+ * - 9010001 获取Preferences失败
+ * - 9010002 设置Preferences失败
+ * - 9010003 删除Preferences失败
+ * - 9010004 清空Preferences失败
+ * - 9010005 参数错误
+ * - 9010006 删除Preferences键值失败
+ */
+export type PreferencesErrorCode = 9010001 | 9010002 | 9010003 | 9010004 | 9010005 | 9010006;
+
+/**
+ * Preferences 的错误回调参数
+ */
+export interface PreferencesFail extends IUniError {
+  errCode : PreferencesErrorCode
+};
+
+/* 异步函数定义 */
+export type GetPreferences = (options : GetPreferencesOptions) => void
+export type SetPreferences = (options : SetPreferencesOptions) => void
+export type DeletePreferences = (options : DeletePreferencesOptions) => void
+export type ClearPreferences = (options : ClearPreferencesOptions) => void
+export type GetPreferencesValue = (options : GetPreferencesValueOptions) => void
+export type DeletePreferencesValue = (options : DeletePreferencesValueOptions) => void

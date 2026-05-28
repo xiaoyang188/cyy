@@ -1,0 +1,39 @@
+import window from '@ohos.window';
+import { Want, bundleManager, common } from '@kit.AbilityKit';
+import { KeepScreenOptions, KeepScreenAPI, GetAmapAppId } from '../interface.uts';
+
+// 异步实现屏幕常亮控制
+export const ahmSetKeepScreenOn : KeepScreenAPI = function (options : KeepScreenOptions) {
+	const context = getContext() as common.BaseContext;
+	console.log("鸿蒙原生调用")
+	window.getLastWindow(context).then((windowStage : window.Window) => {
+		windowStage.setWindowKeepScreenOn(options.keepOn).then(() => {
+			options.success?.();  // 调用成功回调
+		}).catch((err : Error) => {
+			options.fail?.(err.message);  // 调用失败回调
+		});
+	}).catch((err : Error) => {
+		options.fail?.(err.message);
+	});
+};
+
+export const getAmapAppId : GetAmapAppId = function () : string {
+	let flag = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_SIGNATURE_INFO;
+	let bundleInfo = bundleManager.getBundleInfoForSelfSync(flag)
+	let appId = bundleInfo.signatureInfo.appId;
+	console.log("appid", appId)
+	return appId
+};
+
+
+import './amap.ets'
+import {
+	testLog, uniMoveCenterCamera, uniAddCircle, uniDestroyMap, uniClearMap, uniRemoveCircle, uniAddPolygon, uniRemovePolygon,
+	uniAddPolyline, uniRemovePolyline,uniAddMarker,uniRemoveMarker,uniAddCustomMarker,uniRemoveCustomMarker,uniShowUserLocation,
+	uniSetUserLocationListener,uniChangeLocationShowType,uniGetCameraPosition
+} from './amap.ets'
+export {
+	testLog, uniMoveCenterCamera, uniAddCircle, uniDestroyMap, uniClearMap, uniRemoveCircle, uniAddPolygon, uniRemovePolygon,
+	uniAddPolyline, uniRemovePolyline,uniAddMarker,uniRemoveMarker,uniAddCustomMarker,uniRemoveCustomMarker,uniShowUserLocation,
+	uniSetUserLocationListener,uniChangeLocationShowType,uniGetCameraPosition
+}

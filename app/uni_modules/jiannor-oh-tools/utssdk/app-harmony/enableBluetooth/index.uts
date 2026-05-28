@@ -1,0 +1,14 @@
+import { access } from '@kit.ConnectivityKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+
+export function enableBluetooth(){
+	try {
+	    if(access.getState()==access.BluetoothState.STATE_OFF){
+			access.enableBluetooth();
+		}else{
+			console.info('Bluetooth is started');
+		}
+	} catch (err) {
+	    console.error('errCode: ' + (err as BusinessError).code + ', errMessage: ' + (err as BusinessError).message);
+	}
+}

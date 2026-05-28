@@ -1,0 +1,291 @@
+/**
+ * checkBluetoothPermission 模块
+ * 检查蓝牙权限
+ */
+
+import {
+  CheckBluetoothPermissionOptions,
+  CheckBluetoothPermissionResult,
+  CheckBluetoothPermission,
+  CheckBluetoothPermissionSync,
+  RequestBluetoothPermissionOptions,
+  RequestBluetoothPermissionResult,
+  RequestBluetoothPermission,
+  EnableBluetoothOptions,
+  EnableBluetoothResult,
+  EnableBluetooth
+} from '../../interface.uts';
+import { BluetoothFailImpl } from '../../unierror.uts';
+import { abilityAccessCtrl, bundleManager, Permissions } from '@kit.AbilityKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { access } from '@kit.ConnectivityKit';
+import { AppStorageV2,UIContext  } from '@kit.ArkUI';
+
+const TAG = 'checkBluetoothPermission';
+
+/**
+ * 检查是否拥有蓝牙权限
+ * @param options 检查参数
+ */
+export const checkBluetoothPermission: CheckBluetoothPermission = function (options: CheckBluetoothPermissionOptions) {
+  try {
+    console.info(TAG, 'checkBluetoothPermission called');
+    
+    // 获取应用上下文
+    const context = AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext();
+    if (!context) {
+      const error = new BluetoothFailImpl(10008); // system error
+      console.error(TAG, 'Failed to get application context');
+      options.fail?.(error);
+      options.complete?.(error);
+      return;
+    }
+    
+    // 获取应用信息
+    bundleManager.getBundleInfoForSelf(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION)
+      .then((bundleInfo) => {
+        const tokenId = bundleInfo.appInfo.accessTokenId;
+        const atManager = abilityAccessCtrl.createAtManager();
+        
+        // 检查蓝牙权限
+        const permission: Permissions = 'ohos.permission.ACCESS_BLUETOOTH';
+        const grantStatus = atManager.checkAccessTokenSync(tokenId, permission);
+        
+        const granted = grantStatus === abilityAccessCtrl.GrantStatus.PERMISSION_GRANTED;
+        
+        const result: CheckBluetoothPermissionResult = {
+          authorizationStatus: granted ? 'authorized' : 'denied',
+          bluetooth: {
+            authorized: granted,
+            denied: !granted
+          },
+          location: {
+            authorized: true, // HarmonyOS 不需要单独的位置权限
+            denied: false
+          },
+          granted: granted,
+          errMsg: 'checkBluetoothPermission:ok'
+        };
+        
+        options.success?.(result);
+        options.complete?.(result);
+        
+        console.info(TAG, 'checkBluetoothPermission success, granted:', granted);
+      })
+      .catch((err: BusinessError) => {
+        console.error(TAG, 'getBundleInfoForSelf failed:', err);
+        const error = new BluetoothFailImpl(10008); // system error
+        options.fail?.(error);
+        options.complete?.(error);
+      });
+      
+  } catch (err) {
+    console.error(TAG, 'checkBluetoothPermission failed:', err);
+    const error = new BluetoothFailImpl(10008); // system error
+    options.fail?.(error);
+    options.complete?.(error);
+  }
+};
+
+/**
+ * 同步检查是否拥有蓝牙权限
+ * @returns 权限检查结果
+ */
+export const checkBluetoothPermissionSync: CheckBluetoothPermissionSync = function (): CheckBluetoothPermissionResult {
+  try {
+    console.info(TAG, 'checkBluetoothPermissionSync called');
+    
+    // 获取应用上下文
+    const context = AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext();
+    if (!context) {
+      console.error(TAG, 'Failed to get application context');
+      return {
+        authorizationStatus: 'denied',
+        bluetooth: {
+          authorized: false,
+          denied: true
+        },
+        location: {
+          authorized: true,
+          denied: false
+        },
+        granted: false,
+        errMsg: 'checkBluetoothPermissionSync:fail system error'
+      };
+    }
+    
+    // 获取应用信息（同步方式）
+    const bundleInfo = bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
+    const tokenId = bundleInfo.appInfo.accessTokenId;
+    const atManager = abilityAccessCtrl.createAtManager();
+    
+    // 检查蓝牙权限
+    const permission: Permissions = 'ohos.permission.ACCESS_BLUETOOTH';
+    const grantStatus = atManager.checkAccessTokenSync(tokenId, permission);
+    
+    const granted = grantStatus === abilityAccessCtrl.GrantStatus.PERMISSION_GRANTED;
+    
+    console.info(TAG, 'checkBluetoothPermissionSync success, granted:', granted);
+    
+    return {
+      authorizationStatus: granted ? 'authorized' : 'denied',
+      bluetooth: {
+        authorized: granted,
+        denied: !granted
+      },
+      location: {
+        authorized: true, // HarmonyOS 不需要单独的位置权限
+        denied: false
+      },
+      granted: granted,
+      errMsg: 'checkBluetoothPermissionSync:ok'
+    };
+    
+  } catch (err) {
+    console.error(TAG, 'checkBluetoothPermissionSync failed:', err);
+    return {
+      authorizationStatus: 'denied',
+      bluetooth: {
+        authorized: false,
+        denied: true
+      },
+      location: {
+        authorized: true,
+        denied: false
+      },
+      granted: false,
+      errMsg: 'checkBluetoothPermissionSync:fail system error'
+    };
+  }
+};
+
+/**
+ * 申请蓝牙权限
+ * @param options 申请参数
+ */
+export const requestBluetoothPermission: RequestBluetoothPermission = function (options: RequestBluetoothPermissionOptions) {
+  try {
+    console.info(TAG, 'requestBluetoothPermission called');
+    
+    // 获取应用上下文
+    const context = AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext();
+    if (!context) {
+      const error = new BluetoothFailImpl(10008); // system error
+      console.error(TAG, 'Failed to get application context');
+      options.fail?.(error);
+      options.complete?.(error);
+      return;
+    }
+    
+    // 获取应用信息
+    bundleManager.getBundleInfoForSelf(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION)
+      .then((bundleInfo) => {
+        const tokenId = bundleInfo.appInfo.accessTokenId;
+        const atManager = abilityAccessCtrl.createAtManager();
+        
+        // 先检查当前权限状态
+        const permission: Permissions = 'ohos.permission.ACCESS_BLUETOOTH';
+        const grantStatus = atManager.checkAccessTokenSync(tokenId, permission);
+        
+        if (grantStatus === abilityAccessCtrl.GrantStatus.PERMISSION_GRANTED) {
+          // 权限已授予
+          const result: RequestBluetoothPermissionResult = {
+            authorizationStatus: 'authorized',
+            bluetooth: {
+              authorized: true,
+              denied: false
+            },
+            location: {
+              authorized: true, // HarmonyOS 不需要单独的位置权限
+              denied: false
+            },
+            granted: true,
+            errMsg: 'requestBluetoothPermission:ok'
+          };
+          
+          options.success?.(result);
+          options.complete?.(result);
+          console.info(TAG, 'requestBluetoothPermission success, already granted');
+          return;
+        }
+        
+        // 申请权限
+        atManager.requestPermissionsFromUser(context, [permission])
+          .then((data) => {
+            const granted = data.authResults[0] === abilityAccessCtrl.GrantStatus.PERMISSION_GRANTED;
+            
+            const result: RequestBluetoothPermissionResult = {
+              authorizationStatus: granted ? 'authorized' : 'denied',
+              bluetooth: {
+                authorized: granted,
+                denied: !granted
+              },
+              location: {
+                authorized: true, // HarmonyOS 不需要单独的位置权限
+                denied: false
+              },
+              granted: granted,
+              errMsg: granted==true ? 'requestBluetoothPermission:ok' : 'requestBluetoothPermission:fail permission denied'
+            };
+            
+            if (granted) {
+              options.success?.(result);
+            } else {
+              const error = new BluetoothFailImpl(10004); // permission denied
+              options.fail?.(error);
+            }
+            options.complete?.(result);
+            
+            console.info(TAG, 'requestBluetoothPermission completed, granted:', granted);
+          })
+          .catch((err: BusinessError) => {
+            console.error(TAG, 'requestPermissionsFromUser failed:', err);
+            const error = new BluetoothFailImpl(10008); // system error
+            options.fail?.(error);
+            options.complete?.(error);
+          });
+          
+      })
+      .catch((err: BusinessError) => {
+        console.error(TAG, 'getBundleInfoForSelf failed:', err);
+        const error = new BluetoothFailImpl(10008); // system error
+        options.fail?.(error);
+        options.complete?.(error);
+      });
+      
+  } catch (err) {
+    console.error(TAG, 'requestBluetoothPermission failed:', err);
+    const error = new BluetoothFailImpl(10008); // system error
+    options.fail?.(error);
+    options.complete?.(error);
+  }
+};
+
+/**
+ * 开启系统蓝牙开关
+ * @param options 开启参数
+ */
+export const enableBluetooth: EnableBluetooth = function (options: EnableBluetoothOptions) {
+  try {
+    console.info(TAG, 'enableBluetooth called');
+    
+    // 直接使用HarmonyOS的access.enableBluetooth API开启蓝牙
+    access.enableBluetooth();
+    
+    // 开启成功
+    const result: EnableBluetoothResult = {
+      enabled: true,
+      errMsg: 'enableBluetooth:ok'
+    };
+    
+    options.success?.(result);
+    options.complete?.(result);
+    console.info(TAG, 'enableBluetooth success');
+      
+  } catch (err) {
+    console.error(TAG, 'enableBluetooth failed:', err);
+    const error = new BluetoothFailImpl(10008); // system error
+    options.fail?.(error);
+    options.complete?.(error);
+  }
+};

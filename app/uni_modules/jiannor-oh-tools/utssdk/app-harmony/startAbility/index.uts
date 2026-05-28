@@ -1,0 +1,46 @@
+import { Want, common } from '@kit.AbilityKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { AppStorageV2,UIContext  } from '@kit.ArkUI';
+import { StartAbility, StartAbilityFailResult, StartAbilityOptions, StartAbilitySuccess } from "../../interface.uts";
+
+export const startAbility : StartAbility = function (options : StartAbilityOptions) {
+	try{
+		let want : Want = {
+			uri: options.url
+		}
+		let context = AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext() as common.UIAbilityContext
+		context.startAbility(want, (err : BusinessError) => {
+			if (err.code) {
+				// 处理业务逻辑错误
+				console.error(`startAbility failed,code is ${err.code},message is ${err.message}`);
+				
+				let errResult:StartAbilityFailResult={
+					errCode:err.code,
+					errMsg:err.message
+				}as StartAbilityFailResult
+				
+				options.fail?.(errResult);
+				options.complete?.(errResult);
+				return
+			}
+			// 执行正常业务
+			console.info('startAbility succeed')
+			let result:StartAbilitySuccess={
+				errMsg:"startAbility:ok"
+			}as StartAbilitySuccess
+			
+			options.success?.(result);
+			options.complete?.(result);
+		})
+	}catch(err){
+		
+		let errResult:StartAbilityFailResult={
+			errCode:5001,
+			errMsg:err
+		}as StartAbilityFailResult
+		
+		options.fail?.(errResult);
+		options.complete?.(errResult);
+	}
+
+}

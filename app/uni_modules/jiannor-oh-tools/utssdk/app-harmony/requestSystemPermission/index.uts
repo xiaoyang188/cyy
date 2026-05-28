@@ -1,0 +1,25 @@
+import { RequestSystemPermissionOptions } from "../../interface.uts"
+
+export function requestSystemPermission(options : RequestSystemPermissionOptions) {
+
+
+	try {
+		if (options.permissions.length == 0 || options.permissions == null || undefined) {
+			let result : UTSJSONObject = {
+				errMsg: "The 'permissions' field cannot be empty"
+			}
+			options.error?.(result)
+			return
+		}
+
+		UTSHarmony.requestSystemPermission(options.permissions,
+			(allRight : boolean, grantedList : Array<string>) => {
+				options.accept?.(allRight, grantedList)
+			}, (doNotAskAgain : boolean, grantedList : Array<string>) => {
+				options.refuse?.(doNotAskAgain, grantedList)
+			})
+
+	} catch (err) {
+		options.error?.(err)
+	}
+}

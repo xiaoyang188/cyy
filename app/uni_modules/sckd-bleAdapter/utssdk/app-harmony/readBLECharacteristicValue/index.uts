@@ -1,0 +1,79 @@
+import {
+  ReadBLECharacteristicValueOptions,
+  CommonCallbackResult,
+  ReadBLECharacteristicValue
+} from '../../interface.uts';
+
+import { BluetoothFailImpl } from '../../unierror.uts';
+import { ble } from '@kit.ConnectivityKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { getAdapterInitialized } from '../openBluetoothAdapter/index.uts';
+import { getBleConnection } from '../global.uts';
+import { emitBLECharacteristicValueChange } from '../onBLECharacteristicValueChange/index.uts';
+
+const TAG = 'readBLECharacteristicValue';
+
+/**
+ * 读取低功耗蓝牙设备特征值
+ */
+export const readBLECharacteristicValue: ReadBLECharacteristicValue = function (options: ReadBLECharacteristicValueOptions) {
+  try {
+    const isAdapterInitialized = getAdapterInitialized();
+    
+    if (!isAdapterInitialized) {
+      const failResult = new BluetoothFailImpl(10000); // not init
+      options.fail?.(failResult);
+      options.complete?.(failResult);
+      return;
+    }
+    
+    const gattClient: ble.GattClientDevice | null = getBleConnection(options.deviceId);
+    if (!gattClient) {
+      const failResult = new BluetoothFailImpl(10006); // no connection
+      options.fail?.(failResult);
+      options.complete?.(failResult);
+      return;
+    }
+    
+    // 构造特征值描述符
+    const characteristic: ble.BLECharacteristic = {
+      serviceUuid: options.serviceId,
+      characteristicUuid: options.characteristicId,
+      characteristicValue: new ArrayBuffer(0),
+      descriptors: []
+    };
+    
+    // 读取特征值
+    gattClient.readCharacteristicValue(characteristic, (err: BusinessError, data: ble.BLECharacteristic) => {
+      if (err) {
+        console.error(TAG, 'readCharacteristicValue failed:', err);
+        const failResult = new BluetoothFailImpl(10005); // no characteristic
+        options.fail?.(failResult);
+        options.complete?.(failResult);
+        return;
+      }
+      
+      // 触发特征值变化事件
+      emitBLECharacteristicValueChange({
+        deviceId: options.deviceId,
+        serviceId: options.serviceId,
+        characteristicId: options.characteristicId,
+        value: data.characteristicValue
+      });
+      
+      const result: CommonCallbackResult = {
+        errMsg: 'readBLECharacteristicValue:ok'
+      };
+      
+      options.success?.(result);
+      options.complete?.(result);
+      
+      console.info(TAG, 'readBLECharacteristicValue success');
+    });
+  } catch (err) {
+    console.error(TAG, 'readBLECharacteristicValue failed:', err);
+    const failResult = new BluetoothFailImpl(10008); // system error
+    options.fail?.(failResult);
+    options.complete?.(failResult);
+  }
+};

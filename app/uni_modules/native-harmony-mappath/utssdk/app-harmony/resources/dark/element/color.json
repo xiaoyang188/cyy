@@ -1,0 +1,12 @@
+{
+  "color": [
+    {
+      "name": "info_window",
+      "value": "#000000"
+    },
+	{
+		"name": "text",
+		"value": "#FFFFFF"
+	}
+  ]
+}

@@ -1,0 +1,32 @@
+import { notificationManager } from '@kit.NotificationKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { IsNotificationEnabledOptions, CommonErrorCallBackResult } from '../../interface.uts';
+
+export function isNotificationEnabled(options : IsNotificationEnabledOptions) {
+	try {
+		if (!canIUse('SystemCapability.Notification.Notification')) {
+			let result : CommonErrorCallBackResult = {
+				errMsg: "This device does not support the notificationManager capability."
+			} as CommonErrorCallBackResult
+			options.fail?.(result)
+		}
+
+		notificationManager.isNotificationEnabled().then((data : boolean) => {
+			console.info(`isNotificationEnabled success, data: ${JSON.stringify(data)}`);
+			options.success?.(data)
+		}).catch((err : BusinessError) => {
+			console.error(`isNotificationEnabled failed, code is ${err.code}, message is ${err.message}`);
+			let result : CommonErrorCallBackResult = {
+				errCode: err.code,
+				errMsg: err.message
+			} as CommonErrorCallBackResult
+			options.fail?.(result)
+		});
+	} catch (err) {
+		console.log("isNotificationEnabled uniModules", err)
+		let result : CommonErrorCallBackResult = {
+			errMsg: String(err)
+		} as CommonErrorCallBackResult
+		options.fail?.(result)
+	}
+}

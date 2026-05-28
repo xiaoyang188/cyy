@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="./css/index.css" />
+  </head>
+  <body>
+    <!-- 返回按钮 -->
+    <div class="flex align-center justify-between padding-tb-sm padding-lr bg-transparent" style="padding-top: 5px">
+      <button id="backBtn">
+        <img class="box-20" src="./img/icon_back.png" />
+      </button>
+      <div class="text-center flex-sub" id="title"></div>
+      <button id="confirmBtn" class="btn-confirm"></button>
+    </div>
+    <div id="map" style="height: 50vh">
+      <img class="loadinggif" src="./img/loading.gif" />
+    </div>
+    <div class="fixed">
+      <div class="flex justify-between align-center padding-lr padding-tb-sm">
+        <input type="text" id="searchInput" class="search-input" placeholder="搜索地点" />
+        <div class="padding-left-sm">
+          <button id="searchBtn">
+            <span class="text-blue" id="d"></span>
+          </button>
+        </div>
+      </div>
+      <!-- 添加搜索联想 -->
+      <div class="search-container">
+        <ul id="searchResult" class="search-result"></ul>
+      </div>
+    </div>
+
+    <script src="./js/jquery-3.2.1.min.js"></script>
+    <script src="./js/google-map.js"></script>
+    <script src="./js/uni.webview.1.5.4.js"></script>
+    <script>
+      let selectedPoint = {}
+      let center = {}
+      let key = ''
+      let mapId = ''
+      let googleMap = ''
+      let lang = 'zh-CN'
+      let a = '地图选点',
+        b = '确定',
+        c = '搜索地点',
+        d = '搜索'
+      const searchInput = document.getElementById('searchInput')
+
+      document.addEventListener('UniAppJSBridgeReady', function () {
+        let obj = plus.webview.currentWebview()
+        key = obj.key
+        mapId = obj.mapId
+        lang = obj.language || 'zh-CN'
+        if (obj.langObj) {
+          document.getElementById('title').innerText = obj.langObj.a
+          document.getElementById('confirmBtn').innerText = obj.langObj.b
+          document.getElementById('searchInput').placeholder = obj.langObj.c
+          document.getElementById('d').innerText = obj.langObj.d
+        }
+        if (obj.params && typeof obj.params === 'object' && obj.params.latitude && obj.params.longitude) {
+          center.lat = parseFloat(obj.params.latitude)
+          center.lng = parseFloat(obj.params.longitude)
+          if (obj.params.name) {
+            center.name = obj.params.name
+            searchInput.value = obj.params.name
+          }
+          init()
+        } else {
+          getCurrentPosition().then(() => {
+            init()
+          })
+        }
+      })
+
+      /** 获取当前所在位置 */
+      function getCurrentPosition() {
+        return new Promise((resolve, reject) => {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              function (position) {
+                var coords = position.coords
+                center.lat = coords.latitude
+                center.lng = coords.longitude
+                resolve()
+              },
+              function (err) {
+                console.log('navigator.geolocation error')
+                alert(err)
+                center.lat = 38.9001875
+                center.lng = -77.03658209999999
+                reject('navigator.geolocation error')
+              },
+              {
+                enableHighAccuracy: true, //是否要求高精度的地理位置信息
+                timeout: 10000, //对地理位置信息的获取操作做超时限制，如果再该事件内未获取到地理位置信息，将返回错误
+                maximumAge: 60 * 1000, //设置缓存有效时间，在该时间段内，获取的地理位置信息还是设置此时间段之前的那次获得的信息，超过这段时间缓存的位置信息会被废弃
+              }
+            )
+          }
+        })
+      }
+      async function init(flag) {
+        uni.getEnv(async function (res) {
+          googleMap = new GooleMap({
+            nodeName: '#map',
+            key,
+            mapId,
+            zoom: 11,
+            origin: {
+              lat: center.lat,
+              lng: center.lng,
+            },
+            needSearch: true,
+            // 是否需要导航
+            needNavigation: false,
+            markers: [],
+            language: lang
+          })
+
+          const place = await googleMap.setPlace({
+            lat: center.lat,
+            lng: center.lng,
+          })
+          const places = await googleMap.searchPlace(place.formattedAddress)
+          if (places.length) {
+            places.forEach((place) => {
+              addSearchResult(place)
+            })
+          }
+          if (flag) {
+            search()
+          }
+        })
+      }
+      // 搜索框回车事件
+      // —————————————————————————— 搜索相关业务逻辑 start ——————————————————————————
+      searchInput.addEventListener('keyup', (e) => {
+        // 给手机端输入框回车事件
+        if (searchInput.value.trim() === '') {
+          return
+        }
+        // 手机的回车搜索
+        if (e.keyCode === 13) {
+          search()
+        }
+      })
+      const searchBtn = document.getElementById('searchBtn')
+      searchBtn.addEventListener('click', () => {
+        search()
+      })
+      const ul = document.getElementById('searchResult')
+      async function search() {
+        const places = await googleMap.searchPlace(searchInput.value)
+        if (ul.children.length) {
+          while (ul.firstChild) {
+            ul.removeChild(ul.firstChild)
+          }
+        }
+        if (places.length) {
+          places.forEach((place, index) => {
+            addSearchResult(place, index)
+          })
+        }
+      }
+      // —————————————————————————— 搜索相关业务逻辑   end ——————————————————————————
+
+      // 添加搜索联想
+      function addSearchResult(place, index) {
+        const li = document.createElement('li')
+        li.className = 'flex justify-between align-center border-bottom padding-tb-sm'
+        li.innerHTML = `
+          <div>
+            <div class="text-15 weight-500">${place.displayName}</div>
+            <div class="text-df text-888">${place.formattedAddress}</div>
+          </div>
+          <img class="box-25 hidden" src="./img/icon_checked.png" id="select-icon" />
+        `
+        li.addEventListener('click', () => {
+          // 添加搜索结果
+          googleMap.clearMarkers()
+          const latLng = {
+            lat: place.location.lat(),
+            lng: place.location.lng(),
+          }
+          const icons = document.querySelectorAll('#select-icon')
+          icons.forEach((icon) => {
+            icon.classList.add('hidden')
+          })
+          li.querySelector('#select-icon').classList.remove('hidden')
+          li.querySelector('#select-icon').classList.add('block')
+          selectedPoint = {
+            longitude: latLng.lng,
+            latitude: latLng.lat,
+            address: place.formattedAddress,
+            name: place.displayName,
+          }
+          googleMap.setPlace(latLng)
+          // 移动地图
+          googleMap.moveTo(latLng.lat, latLng.lng)
+        })
+        requestAnimationFrame(() => {
+          ul.appendChild(li)
+        })
+      }
+
+      // 返回
+      function back() {
+        window.history.back()
+      }
+
+      // 顶部左上角-返回按钮
+      document.getElementById('backBtn').addEventListener('click', () => {
+        let obj = {
+          type: 'back',
+        }
+        let str = encodeURIComponent(JSON.stringify(obj))
+        location.href = `googlemap://?${str}`
+      })
+
+      // 顶部右上角-确定按钮
+      document.getElementById('confirmBtn').addEventListener('click', () => {
+        let obj = {
+          type: 'placeSelected',
+          ...selectedPoint,
+        }
+        let str = encodeURIComponent(JSON.stringify(obj))
+        location.href = `googlemap://?${str}`
+      })
+    </script>
+  </body>
+</html>

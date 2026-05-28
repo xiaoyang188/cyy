@@ -1,0 +1,437 @@
+<template>
+	<view class="container">
+		<view v-if="isShowGuild===6" @click="closeGuild" class="mask"
+			:style="{ height: mapHeight+'px',width :screenWidth+'px'}">
+			<view style="position: relative;" :style="{ height: mapHeight+'px',width :screenWidth+'px'}">
+				<view style="position: absolute;height: 120rpx;display: flex;flex-direction:column;
+				justify-content: start;align-items: center;" :style="scaleTopType">
+					<view style="width: 200rpx;height: 80rpx;background-color: rgba(255, 88, 88, 1);border-radius: 30rpx;display: flex;flex-direction: row;
+					justify-content: center;align-items: center;position: relative;">
+						<cover-image src="/static/xixin/wifi0.png"
+							style="width: 35rpx;height: 35rpx;margin-right: 9rpx;">
+						</cover-image>
+						<text style="color: rgb(255, 255, 255);">{{wifiName}}</text>
+					</view>
+					<view style="width: 5rpx;height: 40rpx;background-color: rgb(229, 156, 134);"></view>
+				</view>
+				<view @click="skipGuild" class="col_start" style="position:absolute;top: 120rpx;left:100rpx">
+					<image src="/static/imgs/home/skip.png" style="width: 70rpx;height: 70rpx;"></image>
+					<text style="margin-top: 3rpx;color: #ffffff;font-size: 20rpx;">跳过引导</text>
+				</view>
+				<view class="row_center"
+					style="width: 750rpx;height: 200rpx;position: absolute;top: 400rpx;left: 0rpx;">
+					<view class="col_start">
+						<text style="color: #ffffff;font-size: 40rpx;font-weight: 700;">滑动地图把wifi移动到家的位置</text>
+						<image src="/static/imgs/home/arrowHead.png" style="width: 100rpx;height: 100rpx;"></image>
+					</view>
+				</view>
+				<view class="row_center" style="width: 750rpx;height: 200rpx;position: absolute;left: 0rpx;"
+					:style="{top:this.mapHeight * 0.72-20+'px'}">
+					<view class="col_start">
+						<text style="color: #ffffff;font-size: 40rpx;font-weight: 700;">WIFI移动完成后点击保存</text>
+						<image src="/static/imgs/home/arrowHead.png" style="width: 100rpx;height: 100rpx;"></image>
+					</view>
+				</view>
+				<view
+					style="height: 300rpx;flex-direction: column;justify-content: space-between;justify-content: space-between;align-items: center;"
+					:style="labelMarginTop">
+					<view class="row_center" style="height: 140rpx;" :style="labelWidth">
+						<image></image>
+					</view>
+					<button @click="sureChange" style="margin-top: 30rpx; height: 80rpx;background-image: linear-gradient(to right, rgba(255, 88, 88, 1), rgba(240, 152, 25, 1));border-radius: 30px;display: flex;flex-direction: row;
+					justify-content: center;align-items: center;width: 600rpx;">
+						<text style="font-size: 35rpx; color: aliceblue;">保存</text>
+					</button>
+					<view style="display: flex;flex-direction: row;height: 50rpx;" :style="labelWidth">
+
+					</view>
+				</view>
+			</view>
+		</view>
+		<view :style="{ height: mapHeight+'px' }">
+			<map id='map' class="map" :show-location="false" enable-overlooking='true' :markers="markers" :scale="18"
+				@regionchange="regionchange">
+				<view style="position: relative;">
+					<view
+						style=" position: absolute;left: 18px;top:120rpx;display: flex;flex-direction: column;align-items: center;background-color: rgb(255,255,255);border-radius: 30rpx;">
+						<image @click="returnParent" src="/static/icons/public/icon-back.png"
+							style="width: 60rpx;height: 60rpx;"></image>
+					</view>
+					<view
+						style="height: 420rpx; flex-direction: column;justify-content:flex-start;align-items: center;"
+						:style="labelMarginTop">
+						<view style="height: 140rpx;background-color: rgb(255, 255, 255);border-radius: 10px;
+						display: flex;flex-direction: column;justify-content: space-around;align-items: flex-start" :style="labelWidth">
+							<view style="padding-left: 15rpx;"><text style="font-size: 30rpx;">请将WiFi移动到正确的位置：</text>
+							</view>
+							<view
+								style="padding-left: 15rpx;display: flex;flex-direction: row;align-items: center;justify-content: start;">
+								<cover-image src="/static/xixin/railPoint.png"
+									style="width: 40rpx;height: 40rpx;margin-right: 15rpx;"></cover-image>
+								<text
+									style=" font-size: 30rpx; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;color: rgb(229, 156, 134);">{{locateName}}</text>
+							</view>
+						</view>
+						<!-- 新增：楼层输入框 -->
+						<view v-if="serialCode.substring(0,2)==='ae'" style="margin-top: 20rpx;" :style="labelWidth">
+							<view
+								style="display: flex;flex-direction: row;align-items: center;background: #fff;border-radius: 10rpx;padding: 15rpx;">
+								<text style="font-size: 30rpx;color: #333;margin-right: 15rpx;">楼层：</text>
+								<input v-model="floor" type="number" style="flex: 1;font-size: 30rpx;height: 60rpx;"
+									placeholder="请输入楼层（整数）"  />
+								<text style="font-size: 30rpx;color: #999;margin-left: 15rpx;">层</text>
+							</view>
+						</view>
+						<button @click="sureChange" style="margin-top: 30rpx; height: 80rpx;background-image: linear-gradient(to right, rgba(255, 88, 88, 1), rgba(240, 152, 25, 1));border-radius: 30px;display: flex;flex-direction: row;
+						justify-content: center;align-items: center;width: 600rpx;">
+							<text style="font-size: 35rpx; color: aliceblue;">保存</text>
+						</button>
+						<view style="display: flex;flex-direction: row;" :style="labelWidth">
+							<view style="display: flex;flex-direction: column;height: 50rpx;position: relative;">
+								<view class="scale-border"><text
+										style="color: rgba(0, 0, 0, 0);margin-left: 10rpx;margin-right: 30rpx;">{{scaleShow}}</text>
+								</view>
+								<view style="position: absolute;left: 10px;">{{scaleShow}}</view>
+							</view>
+						</view>
+					</view>
+					<view style="position: absolute;height: 120rpx;display: flex;flex-direction:column;
+					justify-content: start;align-items: center;" :style="scaleTopType">
+						<view style="width: 200rpx;height: 80rpx;background-color: rgba(255, 88, 88, 1);border-radius: 30rpx;display: flex;flex-direction: row;
+						justify-content: center;align-items: center;position: relative;">
+							<cover-image src="/static/xixin/wifi0.png"
+								style="width: 35rpx;height: 35rpx;margin-right: 9rpx;">
+							</cover-image>
+							<text style="color: rgb(255, 255, 255);">{{wifiName}}</text>
+						</view>
+						<view style="width: 5rpx;height: 40rpx;background-color: rgb(229, 156, 134);"></view>
+					</view>
+				</view>
+			</map>
+		</view>
+	</view>
+</template>
+
+<script>
+	import util from '../../../../common/util';
+	import logger from '/common/logger.js'
+	import {
+		wgs84_to_gcj02
+	} from '/common/wgs84ToGcj02';
+	import {
+		getDeviceInfo,getHomeWifi,setHomeWifi
+	} from '@/api/api/device.js'
+	export default {
+		data() {
+			return {
+				rute: '',
+				scaleArray: ['1000km', '500km', '200km', '100km', '50km', '30km', '20km', '10km', '5km', '2km', '1km',
+					'500m', '200m', '100m', '50m', '25m', '10m', '5m'
+				],
+				scaleShow: '',
+				locateName: '',
+				scaleTopType: '',
+				labelTopType: '',
+				serialCode: '',
+				wifiName: '',
+				wifiData: '',
+				navHeight: 0, // 导航栏高度百分比
+				mapHeight: 100, // 地图高度百分比
+				mapviz: false,
+				latitude: 39.9096045,
+				longitude: 116.3972282,
+				marginTopHeight: 0,
+				labelMarginTop: 0,
+				labelWidth: 0,
+				isAdd: false,
+				center: {
+					la: 39.9096045,
+					lo: 116.3972282
+				},
+				markers: [{
+					id: 0,
+					latitude: 39.9096045,
+					longitude: 116.3972282,
+					iconPath: "/static/xixin/owner.png",
+					width: 30,
+					height: 30
+				}],
+				isShowGuild: 0,
+				screenWidth: '375',
+				floor: '', // 默认楼层为1层
+				floorError: '' // 楼层输入错误提示
+			}
+		},
+		onLoad(paramater) {
+			let data = JSON.parse(paramater.data)
+			console.log('paramater data', data)
+			let name = data.wifiData.wifi_ssid
+			this.wifiName = name.substring(0, 6) + '...'
+			this.wifiData = data.wifiData
+			this.isAdd = data.isAdd
+			this.rute = data.rute
+			this.serialCode = data.serialCode
+			this.markers[0].longitude = data.lo
+			this.markers[0].latitude = data.la
+			let screenheight = uni.getSystemInfoSync().screenHeight;
+			let screenwidth = uni.getSystemInfoSync().screenWidth;
+			this.screenWidth = screenwidth
+			var A = Number(screenheight);
+			var B = Number(this.navHeight);
+			console.log('A B', A, B)
+			this.navHeight = A * B / 100;
+			this.mapHeight = (A * this.mapHeight) / 100;
+			this.marginTopHeight = this.mapHeight * 0.5;
+			this.labelMarginTop = this.mapHeight * 0.72;
+			console.log('w h', this.navHeight, this.mapHeight)
+			this._mapContext = uni.createMapContext("map", this);
+			this.labelWidth = {
+				width: screenwidth * 0.9 + 'px'
+			}
+			switch (uni.getSystemInfoSync().platform) {
+				case 'android':
+					console.log('运行Android上');
+					this.scaleTopType = {
+						margin: (this.marginTopHeight - 60).toString() + 'px 0px 0px 0px',
+						width: screenwidth + 'px'
+					}
+					this.labelMarginTop = {
+						margin: (this.labelMarginTop).toString() + 'px 0xpx 0px 0px',
+						width: screenwidth + 'px'
+					}
+
+					break;
+				case 'ios':
+					console.log('运行iOS上');
+					this.scaleTopType = {
+						top: (this.marginTopHeight - 60).toString() + 'px',
+						width: screenwidth + 'px'
+					}
+					this.labelMarginTop = {
+						top: (this.labelMarginTop).toString() + 'px',
+						width: screenwidth + 'px'
+					}
+				case 'harmonyos':
+					console.log('运行HarmonyOS上');
+					break
+				default:
+					console.log('运行在开发者工具上');
+					break;
+					console.log('end onload')
+			}
+			this.isShowGuild = uni.getStorageSync("isGuild")
+			if (this.isShowGuild === 5)
+				this.isShowGuild = 6
+			uni.setStorageSync('isGuild', this.isShowGuild)
+			console.log('this.isShowGuild', this.isShowGuild)
+
+		},
+		onShow() {
+			//暂时先拿定位器位置
+			let that = this
+			let la = this.markers[0].la
+			let lo = this.markers[0].lo
+			setTimeout(() => {
+				that._mapContext.moveToLocation({
+					longitude: lo,
+					latitude: la,
+					success: (res) => {
+						// console.log('跳转地图中心点成功');
+					},
+					fail: (err) => {
+						// console.log('跳转地图中心点失败');
+					}
+				})
+			}, 200)
+		},
+		methods: {
+			checkFloorInput() {
+				// 清空错误提示
+				this.floorError = '';
+				if (!this.floor || this.floor === '') {
+					this.floorError ='请输入正确楼层'
+					uni.showToast({
+						title: '请输入正确楼层',
+						icon: 'none',
+						duration: 2000
+					});
+					return;
+				}
+				// 转换为数字
+				let num = Number(this.floor);
+				// 检查是否为有效数字且是整数
+				if (isNaN(num) || !Number.isInteger(num)) {
+					this.floorError = '楼层必须为整数';
+					uni.showToast({
+						title: '楼层必须输入整数',
+						icon: 'none',
+						duration: 2000
+					});
+				}
+			},
+			closeGuild() {
+				this.isShowGuild = 0
+			},
+			skipGuild() {
+				this.isShowGuild = 0
+				uni.setStorageSync("isGuild", 0)
+			},
+			sureChange() {
+				if(this.serialCode.substring(0,2)=='ae')
+				{
+					this.checkFloorInput();
+					if (this.floorError) {
+						return; // 有错误则不提交
+					}
+					this.wifiData.floor = this.floor; // 新增：添加楼层信息
+				}
+				// 将楼层信息添加到wifiData中
+				this.wifiData.wifi_location.lo = this.center.lo
+				this.wifiData.wifi_location.la = this.center.la
+				// console.log('我点击了确认提交', wifilis)
+				setHomeWifi(this.wifiData).then((res) => {
+					console.log('require wifi list success', res)
+					uni.showToast({
+						title: '设置完成',
+						icon: 'success'
+					})
+					setTimeout(() => {
+						if (this.rute === "add") {
+							uni.navigateBack({
+								delta: 4
+							});
+						} else {
+							this.returnParent()
+						}
+					}, 1000)
+				}).catch((err) => {
+					console.error(err)
+					uni.showToast({
+						icon: 'none',
+						title: "请求未成功，请稍后在试"
+					})
+				})
+			},
+			returnParent() {
+				getApp().backParents();
+			},
+			regionchange() {
+				let that = this
+				this._mapContext.getScale({
+					success: (res) => {
+						// console.log('获取缩放尺度',res)
+						let index = Math.trunc(res.scale) - 3
+						// console.log('index',index)
+						that.scaleShow = that.scaleArray[index]
+						// console.log('that.mapScale',that.scaleShow)
+					},
+					fail: (err) => {
+
+					}
+				})
+				this._mapContext.getCenterLocation({
+					success: function(res) {
+						// console.log('res.longitude', res.longitude);
+						// console.log('res.latitude', res.latitude);
+						that.center.la = res.latitude
+						that.center.lo = res.longitude
+						//根据经纬度获取详细地理名
+						let str =
+							'https://restapi.amap.com/v3/geocode/regeo?key=9f8eb22902ff76102e32ba52c7dee1e6&radius=2000&extensions=all&batch=false&roadlevel=0&location=' +
+							res.longitude + ',' + res.latitude
+						uni.request({
+							url: str,
+							data: {},
+							method: 'GET',
+							success: res => {
+								uni.hideLoading()
+								this.toMapping = false;
+								// console.log('res.data.', res)
+								if (res.data.status === '1') {
+									if (res.data.regeocode.pois.length > 0) {
+										// var name = res.data.regeocode.roads[0].name;
+										var pois = res.data.regeocode.pois;
+										var item = pois[0];
+										for (var i = 1; i < pois.length; i++) {
+											if (parseFloat(pois[i].distance) < parseFloat(item
+													.distance)) {
+												item = pois[i];
+												// console.log('min distance', pois[i].distance, pois[
+												// 	i].address)
+											}
+										}
+										let name = item.name
+										if (name.length > 18)
+											name = name.substring(0, 15) + "...";
+										that.locateName = name + '附近';
+										// console.log('name', that.locateName);
+										// console.log('res.data.regeocode.roads[0]', res.data)
+									} else {
+										uni.showToast({
+											icon: 'none',
+											title: '未找到地理位置'
+										})
+									}
+
+								}
+							},
+							fail: res => {
+								uni.hideLoading()
+								this.toMapping = false;
+								console.log('获取标记位置失败', res);
+								uni.showToast({
+									icon: 'none',
+									title: '未找到地理位置，可稍后重试'
+								})
+							},
+						})
+					},
+					fail: function(err) {
+						console.error(err);
+					}
+				});
+
+			}
+		}
+	}
+</script>
+
+<style>
+	@import"/assets/css/seetings-row.css";
+
+	.map {
+		flex: 1;
+	}
+
+	.scale-border {
+		text-align: center;
+		margin-top: 15px;
+		height: 10%;
+		border-bottom: 2px solid #0d0d0d;
+		border-left: 2px solid #0d0d0d;
+		border-right: 2px solid #0d0d0d;
+	}
+
+	.mask {
+		position: fixed;
+		bottom: 0;
+		right: 0;
+		left: 0;
+		top: 0;
+		z-index: 100;
+		background-color: rgba(0, 0, 0, 0.6);
+	}
+
+	input[type="number"] {
+		padding: 0 10rpx;
+		border: none;
+		outline: none;
+	}
+
+	.floor-error {
+		font-size: 24rpx;
+		color: #ff5733;
+		margin-top: 5rpx;
+		padding-left: 15rpx;
+	}
+</style>

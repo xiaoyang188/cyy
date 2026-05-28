@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+  <meta charset="UTF-8" />
+  <title class="title"></title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+  <style type="text/css">
+    html,
+    body {
+      margin: 0;
+    }
+
+    body {
+      -webkit-user-select: none;
+      /* Safari */
+      -moz-user-select: none;
+      /* Firefox */
+      -ms-user-select: none;
+      /* IE10+/Edge */
+      user-select: none;
+      /* 标准属性 */
+    }
+
+    .permission_content {
+      width: 90%;
+      box-sizing: border-box;
+      margin: 0 auto 5px;
+      padding: 0 15px;
+      background-color: #fff;
+      max-height: 98px;
+      overflow-y: scroll;
+      border-radius: 5px;
+      line-height: 1.5;
+      box-shadow: 0 4px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .app_update_content {
+      width: 80%;
+      position: absolute;
+      left: 50%;
+      top: 45%;
+      transform: translate(-50%, -50%);
+      box-sizing: border-box;
+      padding: 0 15px;
+      background-color: #fff;
+      border-radius: 5px;
+      line-height: 1.5;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .tips-item {
+      padding: 10px 0;
+    }
+
+    .title {
+      font-size: 16px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .center {
+      font-size: 14px;
+      padding: 10px;
+      max-height: 300px;
+      overflow-y: scroll;
+    }
+
+    .tips-item:last-child {
+      border-bottom: none;
+    }
+
+    .flex {
+      display: flex;
+    }
+
+    .flex-sub {
+      flex: 1;
+    }
+
+    .align-center {
+      align-items: center;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .padding {
+      padding: 10px;
+    }
+
+    .abutton {
+      border: none !important;
+      background-color: #fff;
+      padding: 5px;
+      font-size: 15px;
+    }
+
+    .text-gray {
+      color: #999;
+    }
+
+    .text-green {
+      color: #42b983;
+    }
+
+    .borderr {
+      border-right: 1px solid #efefef;
+    }
+
+    .progress-bar {
+      display: none;
+      width: 90%;
+      margin: 0 auto;
+      height: 10px;
+      border-radius: 10px;
+      background-color: #f6f6f6;
+
+      .progress-center {
+        height: 100%;
+        background-color: #0055ff;
+        border-radius: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 权限提示弹窗内容 -->
+  <div id="permisson_wrapper"></div>
+  <!-- APP热更新提示弹窗内容 -->
+  <div id="app_update_wrapper"></div>
+  <script src="./js/uni.webview.1.5.4.js"></script>
+  <script type="text/javascript">
+    // ———————————————————— 接收进度 方法 ————————————————————
+    function showProgress(info) {
+      if (info > 0) {
+        document.getElementById('progress-bar').style.display = 'block'
+      }
+      document.getElementById('walkbar').style.width = info + '%'
+    }
+
+    document.addEventListener('UniAppJSBridgeReady', () => {
+      let { permissionInfo, updateInfo } = plus.webview.currentWebview()
+
+      // ———————————————————— 权限 弹窗 ————————————————————
+      if (permissionInfo) {
+        const permissionWrapper = document.getElementById('permisson_wrapper')
+        permissionWrapper.innerHTML = permissionInfo
+      }
+
+      // ———————————————————— 热更新 弹窗 ————————————————————
+      if (updateInfo) {
+        const appUpdateWrapper = document.getElementById('app_update_wrapper')
+        appUpdateWrapper.innerHTML = updateInfo
+        appUpdateWrapper.addEventListener('click', (event) => {
+          if (event.target.id === 'cancel_btn') {
+            location.href = 'updateapp://cancel_btn'
+          }
+          if (event.target.id === 'confirm_btn') {
+            location.href = 'updateapp://confirm_btn'
+          }
+        })
+      }
+    })
+  </script>
+</body>
+
+</html>

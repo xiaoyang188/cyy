@@ -1,0 +1,67 @@
+
+import { AppStorageV2,UIContext  } from '@kit.ArkUI';
+import { common } from '@kit.AbilityKit';
+import { StartAbilityByTypeFailResult,  StartAbilitySuccess,StartAbilityByNavigationOptions,StartAbilityByNavigation } from "../../interface.uts";
+
+export const startAbilityByNavigation:StartAbilityByNavigation=function(options:StartAbilityByNavigationOptions) {
+	const context = AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext() as common.UIAbilityContext;
+	let wantParam : Record<string, Object> = {
+		'sceneType': 1,
+		'destinationLatitude': options.destinationLatitude,
+		'destinationLongitude': options.destinationLongitude,
+		'destinationName': options.destinationName,
+		'destinationPoiIds': {
+			1: '1001', // key为1代表花瓣地图，value需为花瓣地图POI
+			2: '2002', // key为2代表高德地图，value需为高德地图POI
+			3: '3003'  // key为3代表百度地图，value需为百度地图POI
+		} as Record<number, string>,
+		'originName': options.originName,
+		'originLatitude': options.originLatitude,
+		'originLongitude': options.originLongitude,
+		'originPoiIds': {
+			1: '1101', // key为1代表花瓣地图，value需为花瓣地图POI
+			2: '2202', // key为2代表高德地图，value需为高德地图POI
+			3: '3303'  // key为3代表百度地图，value需为百度地图POI
+		} as Record<number, string>,
+		'vehicleType': 0
+	};
+	let abilityStartCallback : common.AbilityStartCallback = {
+		onError: (code : number, name : string, message : string) => {
+			console.log(`onError code ${code} name: ${name} message: ${message}`);
+			
+			let errResult:StartAbilityByTypeFailResult={
+				errCode:code,
+				errName:name,
+				errMsg:message
+			}as StartAbilityByTypeFailResult
+			
+			options.fail?.(errResult);
+			options.complete?.(errResult);
+		},
+		onResult: (result) => {
+			console.log(`onResult result: ${JSON.stringify(result)}`);
+			options.complete?.(JSON.stringify(result));
+		}
+	}
+
+	context.startAbilityByType("navigation", wantParam, abilityStartCallback,
+		(err) => {
+			if (err) {
+				console.error(`startAbilityByType fail, err: ${JSON.stringify(err)}`);
+				let errResult:StartAbilityByTypeFailResult={
+					errMsg:JSON.stringify(err)
+				}as StartAbilityByTypeFailResult
+				
+				options.fail?.(errResult);
+				options.complete?.(errResult);
+			} else {
+				console.log(`startAbilityByType success`);
+				let result:StartAbilitySuccess={
+					errMsg:"startAbilityByType:ok"
+				}as StartAbilitySuccess
+				
+				options.success?.(result);
+				options.complete?.(result);
+			}
+		});
+}

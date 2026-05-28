@@ -1,0 +1,82 @@
+/**
+ * 获取BLE设备信号强度(RSSI)
+ * HarmonyOS平台实现
+ */
+
+import { ble } from '@kit.ConnectivityKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { getBleConnection } from '../global.uts';
+import { BluetoothFailImpl } from '../../unierror.uts';
+/**
+ * 获取BLE设备RSSI选项
+ */
+export interface GetBLEDeviceRSSIOptions {
+	/** 蓝牙设备 id */
+	deviceId : string;
+	/** 接口调用成功的回调函数 */
+	success ?: (result : GetBLEDeviceRSSISuccessResult) => void;
+	/** 接口调用失败的回调函数 */
+	fail ?: (result : UniError) => void;
+	/** 接口调用结束的回调函数（调用成功、失败都会执行） */
+	complete ?: (result : any) => void;
+}
+
+/**
+ * 获取BLE设备RSSI成功回调结果
+ */
+export interface GetBLEDeviceRSSISuccessResult {
+	/** 信号强度，单位 dBm */
+	RSSI : number;
+	/** 错误信息 */
+	errMsg : string;
+}
+
+/**
+ * 获取蓝牙低功耗设备的信号强度 (Received Signal Strength Indicator, RSSI)
+ * @param options 获取RSSI选项
+ */
+export function getBLEDeviceRSSI(options : GetBLEDeviceRSSIOptions) : void {
+	try {
+		// 验证参数
+		if (!options.deviceId) {
+			const error = new UniError("uni-getBLEDeviceRSSI", 10001, "getBLEDeviceRSSI:fail parameter error, deviceId is required");
+			options.fail?.(error);
+			options.complete?.(error);
+			return;
+		}
+		const gattClient : ble.GattClientDevice | null = getBleConnection(options.deviceId);
+		
+		if (!gattClient) {
+		  const failResult = new BluetoothFailImpl(10006); // no connection
+		  options.fail?.(failResult);
+		  options.complete?.(failResult);
+		  return;
+		}
+		// 调用HarmonyOS原生API获取RSSI
+		gattClient.getRssiValue((err : BusinessError, rssi : number) => {
+			if (err) {
+				console.error('getBLEDeviceRSSI failed, error code: ' + err.code + ', message: ' + err.message);
+				const error = new UniError("uni-getBLEDeviceRSSI", err.code, `getBLEDeviceRSSI:fail ${err.message}`);
+				options.fail?.(error);
+				options.complete?.(error);
+				return;
+			}
+
+			// 成功获取RSSI
+			const result : GetBLEDeviceRSSISuccessResult = {
+				RSSI: rssi,
+				errMsg: "getBLEDeviceRSSI:ok"
+			};
+
+			console.log('getBLEDeviceRSSI success, RSSI: ' + rssi);
+			options.success?.(result);
+			options.complete?.(result);
+		});
+
+	} catch (error) {
+		console.error('getBLEDeviceRSSI exception: ', error);
+		const uniError = new UniError("uni-getBLEDeviceRSSI", -1, `getBLEDeviceRSSI:fail ${error}`);
+		options.fail?.(uniError);
+		options.complete?.(uniError);
+	}
+}

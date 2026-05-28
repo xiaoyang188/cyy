@@ -1,0 +1,700 @@
+/**
+ * 引用 iOS 系统库
+ */
+import { UserDefaults } from "Foundation";
+
+/* 引入 interface.uts 文件中定义的变量 */
+import {
+	GetPreferencesOptions,
+	SetPreferencesOptions,
+	DeletePreferencesOptions,
+	ClearPreferencesOptions,
+	GetPreferencesValueOptions,
+	DeletePreferencesValueOptions,
+	GetPreferencesResult,
+	SetPreferencesResult,
+	DeletePreferencesResult,
+	ClearPreferencesResult,
+	GetPreferencesValueResult,
+	DeletePreferencesValueResult,
+	GetPreferences,
+	SetPreferences,
+	DeletePreferences,
+	ClearPreferences,
+	GetPreferencesValue,
+	DeletePreferencesValue,
+	PreferencesSyncResult
+} from '../interface.uts';
+
+/* 引入 unierror.uts 文件中定义的变量 */
+import { PreferencesFailImpl } from '../unierror';
+
+/**
+ * UserDefaults实例缓存
+ */
+const userDefaultsMap = new Map<string, UserDefaults>();
+
+/**
+ * 获取UserDefaults实例
+ */
+function getUserDefaults(name : string) : UserDefaults {
+	if (userDefaultsMap.has(name)) {
+		return userDefaultsMap.get(name)!;
+	}
+
+	const userDefaults = UserDefaults(suiteName = name) ?? UserDefaults.standard;
+	userDefaultsMap.set(name, userDefaults);
+	return userDefaults;
+}
+
+//#ifdef UNI-APP-X
+/**
+ * 获取Preferences实例
+ *
+ * uni-app项目中（vue/nvue）调用示例：
+ * 1、引入方法声明 import { getPreferences } from "@/uni_modules/jiannor-preference"
+ * 2、方法调用
+ * getPreferences({
+ *   name: 'myPrefs',
+ *   success: (res) => {
+ *      console.log(res)
+ *   }
+ * });
+ * 
+ * uni-app x项目（uvue）中调用示例：
+ * 1、引入方法及参数声明 import { getPreferences, GetPreferencesOptions } from "@/uni_modules/jiannor-preference";
+ * 2、方法调用
+ * getPreferences({
+ *   name: 'myPrefs',
+ *   success: (res) => {
+ *      console.log(res)
+ *   }
+ * });
+ * 
+ * @uniPlatform {
+ *   "app": {
+ *     "android": {
+ *       "osVer": "5.0",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     },
+ *     "ios": {
+ *       "osVer": "12.0",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     },
+ *     "harmony": {
+ *       "osVer": "x",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     }
+ *   }
+ * }
+ * @uniVersion 4.25
+ * @uniVueVersion 2,3
+ * @autotest { generated: true }
+ */
+export const getPreferences : GetPreferences = function (options : GetPreferencesOptions) {
+	// 参数校验
+	if (options.name == null || options.name.length == 0) {
+		const error = new PreferencesFailImpl(9010001);
+		options.fail?.(error);
+		options.complete?.(error);
+		return;
+	}
+
+	try {
+		// 获取UserDefaults实例
+		const userDefaults = getUserDefaults(options.name);
+
+		const result : GetPreferencesResult = {
+			success: true,
+			data: userDefaults
+		};
+		options.success?.(result);
+		options.complete?.(result);
+	} catch (error) {
+		console.error(`Failed to get preferences. Error:${error}`);
+		const err = new PreferencesFailImpl(9010001);
+		options.fail?.(err);
+		options.complete?.(err);
+	}
+}
+
+export function getPreferencesSync(name : string) : PreferencesSyncResult {
+
+	let result : PreferencesSyncResult = {
+		success: false,
+		data: "",
+		errMsg: ""
+	}
+
+	if (name == null || name.length == 0) {
+		const error = new PreferencesFailImpl(9010005);
+		console.error("getPreferencesSync参数错误: name为空或无效", error);
+		result.success= false;
+		result.errMsg=error.errMsg
+		return result
+	}
+	try {
+		const userDefaults = getUserDefaults(name);
+		result.success= true;
+		result.data=userDefaults
+		return result
+	} catch (error) {
+		console.error("getPreferencesSync捕获错误:", error);
+		const err = new PreferencesFailImpl(9010001);
+		result.success = false;
+		result.errMsg = err.errMsg
+		return result
+	}
+}
+//#endif
+
+/**
+ * 设置Preferences键值对
+ *
+ * uni-app项目中（vue/nvue）调用示例：
+ * 1、引入方法声明 import { setPreferences } from "@/uni_modules/jiannor-preference"
+ * 2、方法调用
+ * setPreferences({
+ *   name: 'myPrefs',
+ *   key: 'username',
+ *   value: 'john',
+ *   success: (res) => {
+ *      console.log(res)
+ *   }
+ * });
+ * 
+ * @uniPlatform {
+ *   "app": {
+ *     "android": {
+ *       "osVer": "5.0",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     },
+ *     "ios": {
+ *       "osVer": "12.0",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     },
+ *     "harmony": {
+ *       "osVer": "x",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     }
+ *   }
+ * }
+ * @uniVersion 4.25
+ * @uniVueVersion 2,3
+ * @autotest { generated: true }
+ */
+export const setPreferences : SetPreferences = function (options : SetPreferencesOptions) {
+	// 参数校验
+	if (options.name == null || options.name.length == 0) {
+		const error = new PreferencesFailImpl(9010002);
+		options.fail?.(error);
+		options.complete?.(error);
+		return;
+	}
+
+	if (options.key == null || options.key.length == 0) {
+		const error = new PreferencesFailImpl(9010002);
+		options.fail?.(error);
+		options.complete?.(error);
+		return;
+	}
+
+	try {
+		// 获取UserDefaults实例
+		const userDefaults = getUserDefaults(options.name);
+
+		// 设置键值对
+		userDefaults.set(options.value, forKey = options.key);
+		userDefaults.synchronize();
+
+		const result : SetPreferencesResult = {
+			success: true
+		};
+		options.success?.(result);
+		options.complete?.(result);
+	} catch (error) {
+		console.error(`Failed to set preferences. Error:${error}`);
+		const err = new PreferencesFailImpl(9010002);
+		options.fail?.(err);
+		options.complete?.(err);
+	}
+}
+
+export function setPreferencesSync(name : string, key : string, value : string) : PreferencesSyncResult {
+	let result : PreferencesSyncResult = {
+		success: false,
+		data: "",
+		errMsg: ""
+	}
+
+	if (name == null || name.length == 0) {
+		const error = new PreferencesFailImpl(9010005);
+		console.error("setPreferencesSync参数错误: name或key为空或无效", error);
+		result.success = false;
+		result.errMsg = error.errMsg
+		return result
+	}
+
+	if (key == null || key.length == 0) {
+		const error = new PreferencesFailImpl(9010005);
+		console.error("setPreferencesSync参数错误: key为空或无效", error);
+		result.success = false;
+		result.errMsg = error.errMsg
+		return result
+	}
+
+	if (value == null) {
+		const error = new PreferencesFailImpl(9010005);
+		console.error("setPreferencesSync参数错误: value为空或无效", error);
+		result.success = false;
+		result.errMsg = error.errMsg
+		return result
+	}
+
+	try {
+		const userDefaults = getUserDefaults(name);
+
+		// 设置键值对
+		userDefaults.set(value, forKey = key);
+		userDefaults.synchronize();
+		console.log("setPreferencesSync写入成功")
+		result.success = true;
+		result.data = null;
+		return result
+	} catch (error) {
+		console.error("setPreferencesSync捕获错误:", error);
+		const err = new PreferencesFailImpl(9010002);
+		console.error("setPreferencesSync抛出错误:", err);
+		result.success = false;
+		result.errMsg = err.errMsg
+		return result
+	}
+}
+/**
+ * 获取Preferences键值
+ *
+ * uni-app项目中（vue/nvue）调用示例：
+ * 1、引入方法声明 import { getPreferencesValue } from "@/uni_modules/jiannor-preference"
+ * 2、方法调用
+ * getPreferencesValue({
+ *   name: 'myPrefs',
+ *   key: 'username',
+ *   success: (res) => {
+ *      console.log(res.value)
+ *   }
+ * });
+ * 
+ * @uniPlatform {
+ *   "app": {
+ *     "android": {
+ *       "osVer": "5.0",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     },
+ *     "ios": {
+ *       "osVer": "12.0",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     },
+ *     "harmony": {
+ *       "osVer": "x",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     }
+ *   }
+ * }
+ * @uniVersion 4.25
+ * @uniVueVersion 2,3
+ * @autotest { generated: true }
+ */
+export const getPreferencesValue : GetPreferencesValue = function (options : GetPreferencesValueOptions) {
+	// 参数校验
+	if (options.name == null || options.name.length == 0) {
+		const error = new PreferencesFailImpl(9010004);
+		options.fail?.(error);
+		options.complete?.(error);
+		return;
+	}
+
+	if (options.key == null || options.key.length == 0) {
+		const error = new PreferencesFailImpl(9010004);
+		options.fail?.(error);
+		options.complete?.(error);
+		return;
+	}
+
+	try {
+		// 获取UserDefaults实例
+		const userDefaults = getUserDefaults(options.name);
+
+		// 获取键值
+		const value = userDefaults.object(forKey = options.key);
+
+		const result : GetPreferencesValueResult = {
+			success: true,
+			value: value
+		};
+		options.success?.(result);
+		options.complete?.(result);
+	} catch (error) {
+		console.error(`Failed to get preferences value. Error:${error}`);
+		const err = new PreferencesFailImpl(9010004);
+		options.fail?.(err);
+		options.complete?.(err);
+	}
+}
+
+export function getPreferencesValueSync(name : string, key : string, defaultValue : any) : PreferencesSyncResult {
+	let result : PreferencesSyncResult = {
+		success: false,
+		data: "",
+		errMsg: ""
+	}
+
+	if (name == null || name.length == 0) {
+		const error = new PreferencesFailImpl(9010005);
+		console.error("getPreferencesValueSync参数错误: name为空或无效", error);
+		result.success = false;
+		result.errMsg = error.errMsg
+		return result
+	}
+
+	if (key == null || key.length == 0) {
+		const error = new PreferencesFailImpl(9010005);
+		console.error("getPreferencesValueSync参数错误: name为空或无效", error);
+		result.success = false;
+		result.errMsg = error.errMsg
+		return result
+	}
+
+	try {
+		const userDefaults = getUserDefaults(name);
+
+		// 获取键值
+		const value = userDefaults.object(forKey = key);
+
+		result.success = true;
+		result.data = value;
+		return result
+	} catch (error) {
+		console.error("getPreferencesValueSync捕获错误:", error);
+		const err = new PreferencesFailImpl(9010001);
+		console.error("getPreferencesValueSync抛出错误:", err);
+		result.success = false;
+		result.errMsg = err.errMsg
+		return result
+	}
+}
+
+/**
+ * 删除Preferences键值
+ *
+ * uni-app项目中（vue/nvue）调用示例：
+ * 1、引入方法声明 import { deletePreferencesValue } from "@/uni_modules/jiannor-preference"
+ * 2、方法调用
+ * deletePreferencesValue({
+ *   name: 'myPrefs',
+ *   key: 'username',
+ *   success: (res) => {
+ *      console.log(res)
+ *   }
+ * });
+ * 
+ * @uniPlatform {
+ *   "app": {
+ *     "android": {
+ *       "osVer": "5.0",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     },
+ *     "ios": {
+ *       "osVer": "12.0",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     },
+ *     "harmony": {
+ *       "osVer": "x",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     }
+ *   }
+ * }
+ * @uniVersion 4.25
+ * @uniVueVersion 2,3
+ * @autotest { generated: true }
+ */
+export const deletePreferencesValue : DeletePreferencesValue = function (options : DeletePreferencesValueOptions) {
+	// 参数校验
+	if (options.name == null || options.name.length == 0) {
+		const error = new PreferencesFailImpl(9010006);
+		options.fail?.(error);
+		options.complete?.(error);
+		return;
+	}
+
+	if (options.key == null || options.key.length == 0) {
+		const error = new PreferencesFailImpl(9010006);
+		options.fail?.(error);
+		options.complete?.(error);
+		return;
+	}
+
+	try {
+		// 获取UserDefaults实例
+		const userDefaults = getUserDefaults(options.name);
+
+		// 删除键值
+		userDefaults.removeObject(forKey = options.key);
+		userDefaults.synchronize();
+
+		const result : DeletePreferencesValueResult = {
+			success: true
+		};
+		options.success?.(result);
+		options.complete?.(result);
+	} catch (error) {
+		console.error(`Failed to delete preferences value. Error:${error}`);
+		const err = new PreferencesFailImpl(9010006);
+		options.fail?.(err);
+		options.complete?.(err);
+	}
+}
+
+export function deletePreferencesValueSync(name : string, key : string) : PreferencesSyncResult {
+	let result : PreferencesSyncResult = {
+		success: false,
+		data: "",
+		errMsg: ""
+	}
+
+	if (name == null || name.length == 0) {
+		const error = new PreferencesFailImpl(9010005);
+		console.error("deletePreferencesValueSync参数错误: name为空或无效", error);
+		result.success = false;
+		result.errMsg = error.errMsg
+		return result
+	}
+
+	if (key == null || key.length == 0) {
+		const error = new PreferencesFailImpl(9010005);
+		console.error("deletePreferencesValueSync参数错误: name为空或无效", error);
+		result.success = false;
+		result.errMsg = error.errMsg
+		return result
+	}
+
+	try {
+		const userDefaults = getUserDefaults(name);
+
+		// 删除键值
+		userDefaults.removeObject(forKey = key);
+		userDefaults.synchronize();
+		console.log("deletePreferencesValueSync删除成功")
+		result.success = true;
+		result.data = null;
+		return result
+	} catch (error) {
+		console.error("deletePreferencesValueSync捕获错误:", error);
+		const err = new PreferencesFailImpl(9010001);
+		console.error("deletePreferencesValueSync抛出错误:", err);
+		result.success = false;
+		result.errMsg = err.errMsg
+		return result
+	}
+}
+
+/**
+ * 清空Preferences
+ *
+ * uni-app项目中（vue/nvue）调用示例：
+ * 1、引入方法声明 import { clearPreferences } from "@/uni_modules/jiannor-preference"
+ * 2、方法调用
+ * clearPreferences({
+ *   name: 'myPrefs',
+ *   success: (res) => {
+ *      console.log(res)
+ *   }
+ * });
+ * 
+ * @uniPlatform {
+ *   "app": {
+ *     "android": {
+ *       "osVer": "5.0",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     },
+ *     "ios": {
+ *       "osVer": "12.0",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     },
+ *     "harmony": {
+ *       "osVer": "x",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     }
+ *   }
+ * }
+ * @uniVersion 4.25
+ * @uniVueVersion 2,3
+ * @autotest { generated: true }
+ */
+export const clearPreferences : ClearPreferences = function (options : ClearPreferencesOptions) {
+	// 参数校验
+	if (options.name == null || options.name.length == 0) {
+		const error = new PreferencesFailImpl(9010005);
+		options.fail?.(error);
+		options.complete?.(error);
+		return;
+	}
+
+	try {
+		// 获取UserDefaults实例
+		const userDefaults = getUserDefaults(options.name);
+
+		// 获取所有键并删除
+		const dictionary = userDefaults.dictionaryRepresentation();
+		const keys = dictionary.keys;
+
+		for (const key in keys) {
+			userDefaults.removeObject(forKey = key);
+		}
+
+		userDefaults.synchronize();
+
+		const result : ClearPreferencesResult = {
+			success: true
+		};
+		options.success?.(result);
+		options.complete?.(result);
+	} catch (error) {
+		console.error(`Failed to clear preferences. Error:${error}`);
+		const err = new PreferencesFailImpl(9010005);
+		options.fail?.(err);
+		options.complete?.(err);
+	}
+}
+
+export function clearPreferencesSync(name : string) : PreferencesSyncResult {
+	let result : PreferencesSyncResult = {
+		success: false,
+		data: "",
+		errMsg: ""
+	}
+
+	if (name == null || name.trim() == '') {
+		const err = new PreferencesFailImpl(9010005);
+		console.error("clearPreferencesSync参数错误: name为空或无效", err);
+		result.success = false;
+		result.errMsg = err.errMsg
+		return result
+	}
+
+	try {
+		const userDefaults = getUserDefaults(name);
+
+		// 获取所有键并删除
+		const dictionary = userDefaults.dictionaryRepresentation();
+		const keys = dictionary.keys;
+
+		for (const key in keys) {
+			userDefaults.removeObject(forKey = key);
+		}
+
+		userDefaults.synchronize();
+		result.success = true;
+		result.data = null;
+		return result
+	} catch (error) {
+		console.error("clearPreferencesSync捕获错误:", error);
+		const err = new PreferencesFailImpl(9010004);
+		console.error("clearPreferencesSync抛出错误:", err);
+		result.success = false;
+		result.errMsg = err.errMsg
+		return result
+	}
+}
+/**
+ * 删除Preferences文件
+ *
+ * uni-app项目中（vue/nvue）调用示例：
+ * 1、引入方法声明 import { deletePreferences } from "@/uni_modules/jiannor-preference"
+ * 2、方法调用
+ * deletePreferences({
+ *   name: 'myPrefs',
+ *   success: (res) => {
+ *      console.log(res)
+ *   }
+ * });
+ * 
+ * @uniPlatform {
+ *   "app": {
+ *     "android": {
+ *       "osVer": "5.0",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     },
+ *     "ios": {
+ *       "osVer": "12.0",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     },
+ *     "harmony": {
+ *       "osVer": "x",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     }
+ *   }
+ * }
+ * @uniVersion 4.25
+ * @uniVueVersion 2,3
+ * @autotest { generated: true }
+ */
+export const deletePreferences : DeletePreferences = function (options : DeletePreferencesOptions) {
+	// 参数校验
+	if (options.name == null || options.name.length == 0) {
+		const error = new PreferencesFailImpl(9010003);
+		options.fail?.(error);
+		options.complete?.(error);
+		return;
+	}
+
+	try {
+		// 获取UserDefaults实例
+		const userDefaults = getUserDefaults(options.name);
+
+		// 获取所有键并删除
+		const dictionary = userDefaults.dictionaryRepresentation();
+		const keys = dictionary.keys;
+
+		for (const key in keys) {
+			userDefaults.removeObject(forKey = key);
+		}
+
+		userDefaults.synchronize();
+
+		// 从缓存中移除
+		userDefaultsMap.delete(options.name);
+
+		const result : DeletePreferencesResult = {
+			success: true
+		};
+		options.success?.(result);
+		options.complete?.(result);
+	} catch (error) {
+		console.error(`Failed to delete preferences. Error:${error}`);
+		const err = new PreferencesFailImpl(9010003);
+		options.fail?.(err);
+		options.complete?.(err);
+	}
+}
+
+/**
+ * 更多插件开发的信息详见：https://uniapp.dcloud.net.cn/plugin/uts-plugin.html
+ */

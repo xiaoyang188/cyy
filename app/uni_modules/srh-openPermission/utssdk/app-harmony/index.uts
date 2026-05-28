@@ -1,0 +1,14 @@
+
+import { abilityAccessCtrl, Context, Permissions, common, PermissionRequestResult } from '@kit.AbilityKit';
+import { AppStorageV2,UIContext  } from '@kit.ArkUI';
+
+export async function openPermission(permission:Permissions): Promise<PermissionRequestResult> {
+	
+	let permissionName: Permissions = permission ? permission : 'ohos.permission.ACCESS_BLUETOOTH';
+	let atManager : abilityAccessCtrl.AtManager = abilityAccessCtrl.createAtManager();
+	let context : Context = AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext() as common.UIAbilityContext;
+	
+	let data:PermissionRequestResult = await atManager.requestPermissionsFromUser(context, [permissionName])//ohos.permission.ACCESS_BLUETOOTH
+
+	return data;	
+}

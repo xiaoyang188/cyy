@@ -1,0 +1,67 @@
+import { ble } from '@kit.ConnectivityKit';
+import { BluetoothDevice } from '../interface.uts';
+
+// 全局变量管理
+let discoveredDevices: BluetoothDevice[] = [];
+let bleConnections: Map<string, ble.GattClientDevice> = new Map();
+let bleScanner:ble.BleScanner;
+let isAdapterInitialized:boolean=false
+
+// 设备发现相关
+export function getDiscoveredDevices(): BluetoothDevice[] {
+  return discoveredDevices;
+}
+
+export function setDiscoveredDevices(devices: BluetoothDevice[]): void {
+  discoveredDevices = devices;
+}
+
+export function addDiscoveredDevice(device: BluetoothDevice): void {
+  const existingIndex = discoveredDevices.findIndex(d => d.deviceId === device.deviceId);
+  if (existingIndex >= 0) {
+    discoveredDevices[existingIndex] = device; // 更新设备信息
+  } else {
+    discoveredDevices.push(device);
+  }
+}
+
+export function clearDiscoveredDevices(): void {
+  discoveredDevices = [];
+}
+
+// BLE连接管理
+export function getBleConnections(): Map<string, ble.GattClientDevice> {
+  return bleConnections;
+}
+
+export function setBleConnection(deviceId: string, gattClient: ble.GattClientDevice): void {
+  bleConnections.set(deviceId, gattClient);
+}
+
+export function getBleConnection(deviceId: string): ble.GattClientDevice | null {
+  return bleConnections.get(deviceId) || null;
+}
+
+export function removeBleConnection(deviceId: string): void {
+  bleConnections.delete(deviceId);
+}
+
+export function clearBleConnections(): void {
+  bleConnections.clear();
+}
+
+export function getBleScannerGlobal(): ble.BleScanner | null {
+  return bleScanner;
+}
+
+export function getAdapterInitializedGlobal(): boolean {
+  return isAdapterInitialized;
+}
+
+export function setBleScannerGlobal(scanner: ble.BleScanner | null): void {
+  bleScanner = scanner!;
+}
+
+export function setAdapterInitializedGlobal(initialized: boolean): void {
+  isAdapterInitialized = initialized!;
+}

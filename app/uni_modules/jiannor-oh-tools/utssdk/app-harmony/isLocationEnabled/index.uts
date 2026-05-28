@@ -1,0 +1,23 @@
+import { BusinessError } from '@kit.BasicServicesKit';
+import { geoLocationManager } from '@kit.LocationKit';
+import { IsLocationEnabledCallbackResult, IsLocationEnabled, CommonCallbackResult } from "../../interface.uts"
+
+export const isLocationEnabled: IsLocationEnabled = function(options: IsLocationEnabledCallbackResult) {
+	try {
+		let locationEnabled = geoLocationManager.isLocationEnabled();
+		console.info('Location enabled status: ' + locationEnabled);
+		
+		// 调用成功回调
+		options.success?.(locationEnabled);
+		options.complete?.(locationEnabled);
+	} catch (err) {
+		console.error("errCode:" + (err as BusinessError).code + ", message:" + (err as BusinessError).message);
+		
+		let errResult: CommonCallbackResult = {
+			errMsg: JSON.stringify(err)
+		} as CommonCallbackResult
+		
+		options.fail?.(errResult);
+		options.complete?.(errResult);
+	}
+}

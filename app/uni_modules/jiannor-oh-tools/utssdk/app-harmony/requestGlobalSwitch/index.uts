@@ -1,0 +1,64 @@
+import { abilityAccessCtrl, Context, common } from '@kit.AbilityKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { RequestGlobalSwitch, RequestGlobalSwitchOptions, CommonCallbackResult } from "../../interface.uts";
+
+export const requestGlobalSwitch: RequestGlobalSwitch = function(switchType: number, options?: RequestGlobalSwitchOptions) {
+	try {
+		// 创建权限管理器
+		let atManager: abilityAccessCtrl.AtManager = abilityAccessCtrl.createAtManager();
+		// 获取上下文
+		let context: Context = getContext() as common.UIAbilityContext;
+		
+		// 根据传入的switchType确定权限类型
+		let switchTypeEnum: abilityAccessCtrl.SwitchType;
+		let switchName: string;
+		
+		switch (switchType) {
+			case 0:
+				switchTypeEnum = abilityAccessCtrl.SwitchType.CAMERA;
+				switchName = '相机';
+				break;
+			case 1:
+				switchTypeEnum = abilityAccessCtrl.SwitchType.MICROPHONE;
+				switchName = '麦克风';
+				break;
+			case 2:
+				switchTypeEnum = abilityAccessCtrl.SwitchType.LOCATION;
+				switchName = '位置';
+				break;
+			default:
+				throw new Error(`不支持的权限类型: ${switchType}`);
+		}
+		
+		// 请求打开全局权限开关
+		atManager.requestGlobalSwitch(context, switchTypeEnum).then((data: Boolean) => {
+			console.info(`requestGlobalSwitch ${switchName} result: ` + data);
+			
+			// 执行成功回调
+			let result: CommonCallbackResult = {
+				errMsg: `requestGlobalSwitch:ok`
+			} as CommonCallbackResult
+			
+			options?.success?.(result);
+			options?.complete?.(result);
+		}).catch((err: BusinessError) => {
+			console.error(`requestGlobalSwitch ${switchName} failed, errCode: ` + err.code + ', errMessage: ' + err.message);
+			
+			let errResult: CommonCallbackResult = {
+				errMsg: `requestGlobalSwitch failed: ${err.message}`
+			} as CommonCallbackResult
+			
+			options?.fail?.(errResult);
+			options?.complete?.(errResult);
+		});
+	} catch (err) {
+		console.error('requestGlobalSwitch error:', err)
+		
+		let errResult: CommonCallbackResult = {
+			errMsg: `requestGlobalSwitch error: ${err}`
+		} as CommonCallbackResult
+		
+		options?.fail?.(errResult);
+		options?.complete?.(errResult);
+	}
+}

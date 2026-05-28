@@ -1,0 +1,195 @@
+/* 蓝牙适配器插件错误处理 */
+import { BluetoothErrorCode, BluetoothFail } from "./interface.uts"
+
+/**
+ * 错误主题
+ */
+export const UniErrorSubject = 'sckd-bleAdapter';
+
+/**
+ * 蓝牙错误信息映射
+ * @UniError
+ */
+export const BluetoothErrors: Map<BluetoothErrorCode, string> = new Map([
+  [0, 'ok'],
+  [-1, 'already connect'],
+  [10000, 'not init'],
+  [10001, 'not available'],
+  [10002, 'no device'],
+  [10003, 'connection fail'],
+  [10004, 'no service'],
+  [10005, 'no characteristic'],
+  [10006, 'no connection'],
+  [10007, 'property not support'],
+  [10008, 'system error'],
+  [10009, 'system not support'],
+  [10010, 'already connect'],
+  [10011, 'need pin'],
+  [10012, 'operate time out'],
+  [10013, 'invalid_data']
+]);
+
+/**
+ * 蓝牙错误对象实现
+ */
+export class BluetoothFailImpl extends UniError implements BluetoothFail {
+  override errCode: BluetoothErrorCode;
+  
+  /**
+   * 错误对象构造函数
+   */
+  constructor(errCode: BluetoothErrorCode) {
+    super();
+    this.errSubject = UniErrorSubject;
+    this.errCode = errCode;
+    this.errMsg = BluetoothErrors.get(errCode) ?? "unknown error";
+  }
+}
+
+/**
+ * 检查蓝牙权限错误对象实现
+ */
+export class CheckBluetoothPermissionFailImpl extends UniError implements BluetoothFail {
+  override errCode: BluetoothErrorCode;
+  constructor(errCode: BluetoothErrorCode) {
+    super();
+    this.errSubject = UniErrorSubject;
+    this.errCode = errCode;
+    this.errMsg = BluetoothErrors.get(errCode) ?? "unknown error";
+  }
+}
+
+/**
+ * 请求蓝牙权限错误对象实现
+ */
+export class RequestBluetoothPermissionFailImpl extends UniError implements BluetoothFail {
+  override errCode: BluetoothErrorCode;
+  constructor(errCode: BluetoothErrorCode) {
+    super();
+    this.errSubject = UniErrorSubject;
+    this.errCode = errCode;
+    this.errMsg = BluetoothErrors.get(errCode) ?? "unknown error";
+  }
+}
+
+/**
+ * 启用蓝牙错误对象实现
+ */
+export class EnableBluetoothFailImpl extends UniError implements BluetoothFail {
+  override errCode: BluetoothErrorCode;
+  constructor(errCode: BluetoothErrorCode) {
+    super();
+    this.errSubject = UniErrorSubject;
+    this.errCode = errCode;
+    this.errMsg = BluetoothErrors.get(errCode) ?? "unknown error";
+  }
+}
+
+/**
+ * 关闭BLE连接错误对象实现
+ */
+export class CloseBLEConnectionFailImpl extends UniError implements BluetoothFail {
+  override errCode: BluetoothErrorCode;
+  constructor(errCode: BluetoothErrorCode) {
+    super();
+    this.errSubject = UniErrorSubject;
+    this.errCode = errCode;
+    this.errMsg = BluetoothErrors.get(errCode) ?? "unknown error";
+  }
+}
+
+/**
+ * 获取BLE设备服务错误对象实现
+ */
+export class GetBLEDeviceServicesFailImpl extends UniError implements BluetoothFail {
+  override errCode: BluetoothErrorCode;
+  constructor(errCode: BluetoothErrorCode) {
+    super();
+    this.errSubject = UniErrorSubject;
+    this.errCode = errCode;
+    this.errMsg = BluetoothErrors.get(errCode) ?? "unknown error";
+  }
+}
+
+/**
+ * 获取BLE设备特征值错误对象实现
+ */
+export class GetBLEDeviceCharacteristicsFailImpl extends UniError implements BluetoothFail {
+  override errCode: BluetoothErrorCode;
+  constructor(errCode: BluetoothErrorCode) {
+    super();
+    this.errSubject = UniErrorSubject;
+    this.errCode = errCode;
+    this.errMsg = BluetoothErrors.get(errCode) ?? "unknown error";
+  }
+}
+
+/**
+ * 通知BLE特征值变化错误对象实现
+ */
+export class NotifyBLECharacteristicValueChangeFailImpl extends UniError implements BluetoothFail {
+  override errCode: BluetoothErrorCode;
+  
+  constructor(errCode: BluetoothErrorCode) {
+    super();
+    this.errSubject = UniErrorSubject;
+    this.errCode = errCode;
+    this.errMsg = BluetoothErrors.get(errCode) ?? "unknown error";
+  }
+}
+
+/**
+ * 获取已连接蓝牙设备错误对象实现
+ */
+export class GetConnectedBluetoothDevicesFailImpl extends UniError implements BluetoothFail {
+  override errCode: BluetoothErrorCode;
+  
+  constructor(errCode: BluetoothErrorCode) {
+    super();
+    this.errSubject = UniErrorSubject;
+    this.errCode = errCode;
+    this.errMsg = BluetoothErrors.get(errCode) ?? "unknown error";
+  }
+}
+
+/**
+ * 读取BLE特征值错误对象实现
+ */
+export class ReadBLECharacteristicValueFailImpl extends UniError implements BluetoothFail {
+  override errCode: BluetoothErrorCode;
+  
+  constructor(errCode: BluetoothErrorCode) {
+    super();
+    this.errSubject = UniErrorSubject;
+    this.errCode = errCode;
+    this.errMsg = BluetoothErrors.get(errCode) ?? "unknown error";
+  }
+}
+
+/**
+ * 写入BLE特征值错误对象实现
+ */
+export class WriteBLECharacteristicValueFailImpl extends UniError implements BluetoothFail {
+  override errCode: BluetoothErrorCode;
+  
+  constructor(errCode: BluetoothErrorCode) {
+    super();
+    this.errSubject = UniErrorSubject;
+    this.errCode = errCode;
+    this.errMsg = BluetoothErrors.get(errCode) ?? "unknown error";
+  }
+}
+
+/**
+ * 设置BLE MTU错误对象实现
+ */
+export class SetBLEMTUFailImpl extends UniError implements BluetoothFail {
+  override errCode: BluetoothErrorCode;
+  
+  constructor(errCode: BluetoothErrorCode) {
+    super();
+    this.errSubject = UniErrorSubject;
+    this.errCode = errCode;
+    this.errMsg = BluetoothErrors.get(errCode) ?? "unknown error";
+  }
+}

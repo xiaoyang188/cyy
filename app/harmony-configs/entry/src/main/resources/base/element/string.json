@@ -1,0 +1,28 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "module description"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "$string:app_name"
+    },
+    {
+      "name": "scan_bluetooth",
+      "value": "扫描附近的智能项圈设备，估计手机和智能项圈的距离"
+    },
+	{
+	  "name": "bluetooth",
+	  "value": "使用蓝牙连接智能项圈设备"
+	},
+	{
+		"name": "location",
+		"value": "获取手机的当前位置，可以在地图上更直观的显示手机和宠物的位置关系。"
+	}
+  ]
+}

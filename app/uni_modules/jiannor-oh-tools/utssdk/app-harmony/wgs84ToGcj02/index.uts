@@ -1,0 +1,10 @@
+import { map, mapCommon } from '@kit.MapKit';
+
+export function wgs84ToGcj02(lng : number, lat : number):number[]{
+	let wgs84Position : mapCommon.LatLng = {
+		latitude: lat,
+		longitude: lng
+	} as mapCommon.LatLng
+	let gcj02Position: mapCommon.LatLng = map.convertCoordinateSync(mapCommon.CoordinateType.WGS84, mapCommon.CoordinateType.GCJ02, wgs84Position);
+	return [gcj02Position.longitude,gcj02Position.latitude]
+}

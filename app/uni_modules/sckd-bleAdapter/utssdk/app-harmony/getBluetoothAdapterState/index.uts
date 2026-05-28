@@ -1,0 +1,46 @@
+import {
+  GetBluetoothAdapterStateOptions,
+  GetBluetoothAdapterStateResult,
+  GetBluetoothAdapterState
+} from '../../interface.uts';
+
+import { BluetoothFailImpl } from '../../unierror.uts';
+import { ble, access } from '@kit.ConnectivityKit';
+import { getAdapterInitialized } from '../openBluetoothAdapter/index.uts';
+
+const TAG = 'getBluetoothAdapterState';
+
+/**
+ * 获取蓝牙适配器状态
+ */
+export const getBluetoothAdapterState: GetBluetoothAdapterState = function (options: GetBluetoothAdapterStateOptions={}) {
+  try {
+    const isAdapterInitialized = getAdapterInitialized();
+    
+    if (!isAdapterInitialized) {
+      const failResult = new BluetoothFailImpl(10000); // not init
+      options.fail?.(failResult);
+      options.complete?.(failResult);
+      return;
+    }
+    
+    // 获取蓝牙状态
+    const bluetoothState: access.BluetoothState = access.getState();
+    
+    const result: GetBluetoothAdapterStateResult = {
+      available: bluetoothState === access.BluetoothState.STATE_ON,
+      discovering: false, // HarmonyOS 中需要通过其他方式获取扫描状态
+      errMsg: 'getBluetoothAdapterState:ok'
+    };
+    
+    options.success?.(result);
+    options.complete?.(result);
+    
+    console.info(TAG, 'getBluetoothAdapterState success');
+  } catch (err) {
+    console.error(TAG, 'getBluetoothAdapterState failed:', err);
+    const failResult = new BluetoothFailImpl(10008); // system error
+    options.fail?.(failResult);
+    options.complete?.(failResult);
+  }
+};

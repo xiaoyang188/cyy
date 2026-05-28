@@ -1,0 +1,15 @@
+import './map.ets'
+import {
+	uniAddMarker, uniAddCircle, uniAddPolyline, uniAddPolygon, uniRemoveMarker, uniRemoveCircle,
+	uniRemovePolyline, uniRemovePolygon, uniUpdateCamera, uniGetCameraPosition, uniClearMap, uniGetMarkerMap,
+	uniGetCircleMap, uniGetPolylineMap, uniGetPolygonMap, uniFromScreenLocation, uniUpdateMarkerPosition, uniRemoveMarkerByMapId,
+	uniRemoveCircleByMapId, uniRemovePolylineByMapId, uniRemovePolygonByMapId, uniUpdateMarkerIcon, uniShowMyLocation, uniSetMapType, uniUpdateCameraAnimate,
+	uniClearAllMarkers, uniHasMarker, uniHasCircle, uniHasPolyline, uniHasPolygon,uniClearAllPolylines,uniInfoWindowEnable,uniGetMarkerArray,uniSetPolygonPoint,uniSetMarkerRotation,uniUpdateCirclePosition,uniMapShow,uniMapHide
+} from "./map.ets"
+export {
+	uniAddMarker, uniAddCircle, uniAddPolyline, uniAddPolygon, uniRemoveMarker, uniRemoveCircle,
+	uniRemovePolyline, uniRemovePolygon, uniUpdateCamera, uniGetCameraPosition, uniClearMap, uniGetMarkerMap,
+	uniGetCircleMap, uniGetPolylineMap, uniGetPolygonMap, uniFromScreenLocation, uniUpdateMarkerPosition, uniRemoveMarkerByMapId,
+	uniRemoveCircleByMapId, uniRemovePolylineByMapId, uniRemovePolygonByMapId, uniUpdateMarkerIcon, uniShowMyLocation, uniSetMapType, uniUpdateCameraAnimate,
+	uniClearAllMarkers, uniHasMarker, uniHasCircle, uniHasPolyline, uniHasPolygon,uniClearAllPolylines,uniInfoWindowEnable,uniGetMarkerArray,uniSetPolygonPoint,uniSetMarkerRotation,uniUpdateCirclePosition,uniMapShow,uniMapHide
+}

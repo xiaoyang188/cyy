@@ -1,0 +1,164 @@
+import {
+	CreateBLEConnectionOptions,
+	CommonCallbackResult,
+	CreateBLEConnection
+} from '../../interface.uts';
+
+import { BluetoothFailImpl } from '../../unierror.uts';
+import { ble, constant } from '@kit.ConnectivityKit';
+import { getAdapterInitialized } from '../openBluetoothAdapter/index.uts';
+import { getBleConnections, setBleConnection, removeBleConnection } from '../global.uts';
+import { emitBLEConnectionStateChange } from '../onBLEConnectionStateChange/index.uts';
+
+const TAG = 'createBLEConnection';
+
+// 默认连接超时时间 (毫秒)
+const DEFAULT_TIMEOUT = 20000;
+/**
+ * 连接低功耗蓝牙设备
+ */
+export const createBLEConnection : CreateBLEConnection = function (options : CreateBLEConnectionOptions) {
+	try {
+		const isAdapterInitialized = getAdapterInitialized();
+
+		if (!isAdapterInitialized) {
+			const failResult = new BluetoothFailImpl(10000); // not init
+			options.fail?.(failResult);
+			options.complete?.(failResult);
+			return;
+		}
+
+		if (!options.deviceId) {
+			const failResult = new BluetoothFailImpl(10013); // invalid_data
+			options.fail?.(failResult);
+			options.complete?.(failResult);
+			return;
+		}
+
+		const bleConnections = getBleConnections();
+
+		// 检查是否已连接
+		if (bleConnections.has(options.deviceId)) {
+			const failResult = new BluetoothFailImpl(10010); // already connect
+			options.fail?.(failResult);
+			options.complete?.(failResult);
+			return;
+		}
+
+		// 创建 GATT 客户端
+		const gattClient : ble.GattClientDevice = ble.createGattClientDevice(options.deviceId);
+
+		// 连接状态标记
+		let isConnected = false;
+		let isCallbackCalled = false;
+		let timeoutId : number | null = null;
+
+		// 获取超时时间，默认 10 秒
+		const timeout = options.timeout ?? DEFAULT_TIMEOUT;
+
+		// 清理函数
+		const cleanup = () => {
+			if (timeoutId !== null) {
+				clearTimeout(timeoutId);
+				timeoutId = null;
+			}
+		};
+
+		// 启动超时计时器
+		const startTimeout = () => {
+			cleanup();
+			timeoutId = setTimeout(() => {
+				timeoutId = null;
+				if (!isConnected && !isCallbackCalled) {
+					isCallbackCalled = true;
+					
+					console.error(TAG, 'createBLEConnection timeout for device:', options.deviceId);
+					
+					// 尝试断开连接
+					try {
+						gattClient.disconnect();
+						gattClient.close();
+					} catch (e) {
+						console.error(TAG, 'Error disconnecting after timeout:', e);
+					}
+					
+					// 移除连接记录
+					removeBleConnection(options.deviceId);
+					
+					const failResult = new BluetoothFailImpl(10012); // operate time out
+					options.fail?.(failResult);
+					options.complete?.(failResult);
+				}
+			}, timeout);
+		};
+
+		// 设置连接状态监听
+		gattClient.on('BLEConnectionStateChange', (state : ble.BLEConnectionChangeState) => {
+			console.info(TAG, 'BLE connection state changed:', state);
+			
+			if (state.state === constant.ProfileConnectionState.STATE_CONNECTED) {
+				// 连接成功
+				isConnected = true;
+				cleanup();
+				
+				if (!isCallbackCalled) {
+					isCallbackCalled = true;
+					
+					// 保存连接
+					setBleConnection(options.deviceId, gattClient);
+					
+					const result : CommonCallbackResult = {
+						errMsg: 'createBLEConnection:ok'
+					};
+					
+					options.success?.(result);
+					options.complete?.(result);
+					
+					console.info(TAG, 'createBLEConnection success for device:', options.deviceId);
+				}
+				
+				// 触发连接状态变化事件
+				emitBLEConnectionStateChange({
+					deviceId: options.deviceId,
+					connected: true
+				});
+			} else if (state.state === constant.ProfileConnectionState.STATE_CONNECTING) {
+				// 连接中，重置超时
+				console.info(TAG, 'BLE connecting, reset timeout');
+				startTimeout();
+			} else if (state.state === constant.ProfileConnectionState.STATE_DISCONNECTED) {
+				// 连接断开
+				cleanup();
+				
+				if (!isCallbackCalled && !isConnected) {
+					// 连接失败（从未连接成功就断开了）
+					isCallbackCalled = true;
+					
+					const failResult = new BluetoothFailImpl(10003); // connection fail
+					options.fail?.(failResult);
+					options.complete?.(failResult);
+					
+					console.error(TAG, 'createBLEConnection failed: disconnected before connected');
+				}
+				
+				// 触发连接状态变化事件
+				emitBLEConnectionStateChange({
+					deviceId: options.deviceId,
+					connected: false
+				});
+			}
+		});
+		// 设置连接超时
+		startTimeout();
+
+		// 连接设备
+		gattClient.connect();
+
+		console.info(TAG, 'createBLEConnection started for device:', options.deviceId, 'timeout:', timeout);
+	} catch (err) {
+		console.error(TAG, 'createBLEConnection failed:', err);
+		const failResult = new BluetoothFailImpl(10003); // connection fail
+		options.fail?.(failResult);
+		options.complete?.(failResult);
+	}
+};

@@ -1,0 +1,42 @@
+import {
+  StartLocationUpdate,
+  StartLocationUpdateOptions,
+  CommonCallbackResult
+} from '../../interface.uts';
+import { startLocationMonitoring } from '../onLocationChange/index.uts';
+
+const TAG = 'startLocationUpdate';
+
+/**
+ * 开启应用进入前台时接收位置消息
+ * 需结合 onLocationChange 使用
+ */
+export const startLocationUpdate: StartLocationUpdate = function (options: StartLocationUpdateOptions) {
+  console.info(TAG, 'startLocationUpdate called with options:', options);
+  
+  // 默认参数
+  const type = options.type || 'wgs84';
+  
+  // 开始位置监听
+  startLocationMonitoring(type)
+    .then(() => {
+      const result: CommonCallbackResult = {
+        errMsg: 'startLocationUpdate:ok'
+      };
+      
+      console.info(TAG, 'startLocationUpdate success');
+      options.success?.(result);
+      options.complete?.(result);
+    })
+    .catch((error) => {
+      console.error(TAG, 'startLocationUpdate failed:', error);
+      
+      const failResult = {
+        errMsg: `startLocationUpdate:fail ${error.errMsg || error.message || '开始位置更新失败'}`,
+        errCode: error.errCode || -1
+      };
+      
+      options.fail?.(failResult);
+      options.complete?.(failResult);
+    });
+};

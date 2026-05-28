@@ -1,0 +1,22 @@
+# Mac
+.DS_Store
+**/.DS_Store
+
+# vim/vi
+*.swp
+*.apk
+*.ipa
+*.aab
+unpackage/dist
+# JavaScript
+node_modules/
+.node_modules/
+.eslintcache
+# python
+*.pyc
+" " 
+/unpackage/
+/.codebuddy/
+/.hbuilderx/
+/uniCloud/
+/pages/home/old_home.vue

@@ -1,0 +1,89 @@
+/**
+ * setBLEMTU 模块
+ * 设置蓝牙最大传输单元
+ */
+
+import {
+  SetBLEMTUOptions,
+  SetBLEMTUSuccess,
+  CommonCallbackResult,
+  BluetoothFail
+} from '../../interface.uts';
+import { BluetoothFailImpl } from '../../unierror.uts';
+import { ble } from '@kit.ConnectivityKit';
+import { getAdapterInitialized } from '../openBluetoothAdapter/index.uts';
+import { getBleConnection } from '../global.uts';
+
+const TAG = 'setBLEMTU';
+
+/**
+ * 设置蓝牙最大传输单元
+ * @param options 设置参数
+ */
+export const setBLEMTU = function (options: SetBLEMTUOptions) {
+  try {
+    console.info(TAG, 'setBLEMTU called with options:', JSON.stringify(options));
+    
+    // 参数验证
+    if (!options.deviceId) {
+      const error = new BluetoothFailImpl(10001);
+      options.fail?.(error);
+      options.complete?.(error);
+      return;
+    }
+    
+    if (!options.mtu || options.mtu < 23 || options.mtu > 512) {
+      const error = new BluetoothFailImpl(10002);
+      options.fail?.(error);
+      options.complete?.(error);
+      return;
+    }
+    
+    // 检查适配器是否已初始化
+    const isAdapterInitialized: boolean = getAdapterInitialized();
+    if (!isAdapterInitialized) {
+      const error = new BluetoothFailImpl(10000);
+      console.error(TAG, 'BLE adapter not initialized');
+      options.fail?.(error);
+      options.complete?.(error);
+      return;
+    }
+    
+    // 获取GATT客户端
+    const gattClient: ble.GattClientDevice | null = getBleConnection(options.deviceId);
+    if (!gattClient) {
+      const error = new BluetoothFailImpl(10003);
+      console.error(TAG, 'Device not connected:', options.deviceId);
+      options.fail?.(error);
+      options.complete?.(error);
+      return;
+    }
+    
+    try {
+      // 设置MTU
+      gattClient.setBLEMtuSize(options.mtu);
+      
+      const result: SetBLEMTUSuccess = {
+        mtu: options.mtu,
+        errMsg: 'setBLEMTU:ok'
+      };
+      if (options.success) {
+        options.success(result);
+      }
+      if (options.complete) {
+        options.complete(result);
+      }
+    } catch (err) {
+      const error = new BluetoothFailImpl(10005);
+      console.error(TAG, 'setBLEMTU error:', err);
+      options.fail?.(error);
+      options.complete?.(error);
+    }
+    
+  } catch (err) {
+    const error = new BluetoothFailImpl(10006);
+    console.error(TAG, 'setBLEMTU unexpected error:', err);
+    options.fail?.(error);
+    options.complete?.(error);
+  }
+};

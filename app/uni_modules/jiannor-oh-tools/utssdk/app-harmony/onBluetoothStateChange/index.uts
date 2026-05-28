@@ -1,0 +1,108 @@
+import { BusinessError } from '@kit.BasicServicesKit';
+import { access } from '@kit.ConnectivityKit';
+// import { AppStorageV2,UIContext  } from '@kit.ArkUI';
+import {
+	OnBluetoothStateChange,
+	OnBluetoothStateChangeCallback,
+	OnBluetoothStateChangeCallbackResult,
+	OffBluetoothStateChange,
+	BluetoothStateEnum,
+	CommonCallbackResult
+} from "../../interface.uts"
+
+// 存储蓝牙状态变化回调函数的数组
+let bluetoothStateCallbacks: OnBluetoothStateChangeCallback[] = [];
+
+// 是否已经注册了蓝牙状态变化监听
+let isListenerRegistered = false;
+
+// 状态转换函数
+function convertBluetoothState(state: access.BluetoothState): BluetoothStateEnum {
+	switch (state) {
+		case access.BluetoothState.STATE_OFF:
+			return BluetoothStateEnum.STATE_OFF;
+		case access.BluetoothState.STATE_TURNING_ON:
+			return BluetoothStateEnum.STATE_TURNING_ON;
+		case access.BluetoothState.STATE_ON:
+			return BluetoothStateEnum.STATE_ON;
+		case access.BluetoothState.STATE_TURNING_OFF:
+			return BluetoothStateEnum.STATE_TURNING_OFF;
+		case access.BluetoothState.STATE_BLE_TURNING_ON:
+			return BluetoothStateEnum.STATE_BLE_TURNING_ON;
+		case access.BluetoothState.STATE_BLE_ON:
+			return BluetoothStateEnum.STATE_BLE_ON;
+		case access.BluetoothState.STATE_BLE_TURNING_OFF:
+			return BluetoothStateEnum.STATE_BLE_TURNING_OFF;
+		default:
+			return BluetoothStateEnum.STATE_ERR;
+	}
+}
+
+// 蓝牙状态变化处理函数
+function handleBluetoothStateChange(state: access.BluetoothState) {
+	const result: OnBluetoothStateChangeCallbackResult = {
+		state: convertBluetoothState(state),
+		errMsg: 'bluetooth state changed'
+	};
+	
+	// 通知所有注册的回调函数
+	bluetoothStateCallbacks.forEach(callback => {
+		try {
+			callback(result);
+		} catch (err) {
+			console.error('Error in bluetooth state change callback:', err);
+		}
+	});
+}
+
+// 注册蓝牙状态变化监听
+function registerBluetoothStateListener() {
+	if (!isListenerRegistered) {
+		try {
+			access.on('stateChange', handleBluetoothStateChange);
+			isListenerRegistered = true;
+			console.log('Bluetooth state listener registered');
+		} catch (err) {
+			console.error('Failed to register bluetooth state listener:', err);
+		}
+	}
+}
+
+// 取消注册蓝牙状态变化监听
+function unregisterBluetoothStateListener() {
+	if (isListenerRegistered && bluetoothStateCallbacks.length === 0) {
+		try {
+			access.off('stateChange', handleBluetoothStateChange);
+			isListenerRegistered = false;
+			console.log('Bluetooth state listener unregistered');
+		} catch (err) {
+			console.error('Failed to unregister bluetooth state listener:', err);
+		}
+	}
+}
+
+// 监听蓝牙状态变化
+export const onBluetoothStateChange: OnBluetoothStateChange = function(callback: OnBluetoothStateChangeCallback) {
+	// const context = AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext();
+	// console.log("AppStorageV2",context)
+	if (bluetoothStateCallbacks.indexOf(callback) === -1) {
+		bluetoothStateCallbacks.push(callback);
+		registerBluetoothStateListener();
+	}
+};
+
+// 取消监听蓝牙状态变化
+export const offBluetoothStateChange: OffBluetoothStateChange = function(callback?: OnBluetoothStateChangeCallback) {
+	if (callback) {
+		const index = bluetoothStateCallbacks.indexOf(callback);
+		if (index > -1) {
+			bluetoothStateCallbacks.splice(index, 1);
+		}
+	} else {
+		// 如果没有指定回调函数，则清空所有回调
+		bluetoothStateCallbacks.length = 0;
+	}
+	
+	// 如果没有回调函数了，取消注册监听器
+	unregisterBluetoothStateListener();
+};

@@ -1,0 +1,38 @@
+import {
+  StopLocationUpdate,
+  StopLocationUpdateOptions,
+  CommonCallbackResult
+} from '../../interface.uts';
+import { stopLocationMonitoring } from '../onLocationChange/index.uts';
+
+const TAG = 'stopLocationUpdate';
+
+/**
+ * 关闭监听实时位置变化，前台、后台定位都会停止
+ */
+export const stopLocationUpdate: StopLocationUpdate = function (options: StopLocationUpdateOptions) {
+  console.info(TAG, 'stopLocationUpdate called');
+  
+  try {
+    // 停止位置监听
+    stopLocationMonitoring();
+    
+    const result: CommonCallbackResult = {
+      errMsg: 'stopLocationUpdate:ok'
+    };
+    
+    console.info(TAG, 'stopLocationUpdate success');
+    options.success?.(result);
+    options.complete?.(result);
+  } catch (error) {
+    console.error(TAG, 'stopLocationUpdate failed:', error);
+    
+    const failResult = {
+      errMsg: `stopLocationUpdate:fail ${error.message || '停止位置更新失败'}`,
+      errCode: -1
+    };
+    
+    options.fail?.(failResult);
+    options.complete?.(failResult);
+  }
+};

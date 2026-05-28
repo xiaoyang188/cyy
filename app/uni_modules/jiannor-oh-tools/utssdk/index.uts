@@ -1,0 +1,21 @@
+/**
+ * sckd-bleAdapter 蓝牙适配器插件主入口
+ * 统一导出所有平台的蓝牙功能
+ */
+
+// 导出接口定义
+export * from './interface.uts';
+
+
+
+// #ifdef APP-ANDROID
+export * from './app-android/index.uts';
+// #endif
+
+// #ifdef APP-IOS
+export * from './app-ios/index.uts';
+// #endif
+
+// #ifdef APP-HARMONY
+export * from './app-harmony/index.uts';
+// #endif

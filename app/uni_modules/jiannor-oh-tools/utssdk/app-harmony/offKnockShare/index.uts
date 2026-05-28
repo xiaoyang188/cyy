@@ -1,0 +1,15 @@
+import {offKnockShareNative} from "./offKnockShare.ets"
+/**
+ * 监听碰一碰分享事件
+ * @param callback 分享数据回调函数
+ */
+export function offKnockShare() {
+	try {
+		
+		offKnockShareNative()
+
+		console.log('onKnockShare unregistered successfully')
+	} catch (error) {
+		console.error('Failed to unregister onKnockShare:', error)
+	}
+}

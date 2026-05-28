@@ -1,0 +1,30 @@
+import { SetBadgeNumberOptions, SetBadgeNumber, SetBadgeNumberSuccess, CommonCallbackResult } from "../../interface.uts";
+import { BusinessError } from '@kit.BasicServicesKit';
+import { notificationManager } from "@kit.NotificationKit"
+
+export const setBadgeNumber : SetBadgeNumber = function (options : SetBadgeNumberOptions) {
+
+	try {
+		notificationManager.setBadgeNumber(options.badgeNumber).then(() => {
+			console.info(`Succeeded in setting badge number.`);
+			let result : SetBadgeNumberSuccess = {
+				errMsg: "setBadgeNumber:ok"
+			}
+			options.success?.(result);
+			options.complete?.(result);
+		}).catch((err : BusinessError) => {
+			console.error(`Failed to set badge number. Code is ${err.code}, message is ${err.message}`);
+			let result : CommonCallbackResult = {
+				errMsg: `setBadgeNumber:${JSON.stringify(err)}`
+			};
+			options.fail?.(result);
+			options.complete?.(result);
+		});
+	} catch (err) {
+		let result : CommonCallbackResult = {
+			errMsg: `setBadgeNumber:${JSON.stringify(err)}`
+		};
+		options.fail?.(result);
+		options.complete?.(result);
+	}
+}

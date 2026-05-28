@@ -1,0 +1,203 @@
+/**
+ * iOS 平台蓝牙状态监听实现
+ * 纯 UTS 实现，使用 CoreBluetooth 框架
+ */
+import { FileManager } from 'Foundation';
+import { DispatchQueue } from 'Dispatch';
+import { CBCentralManager, CBCentralManagerDelegate } from 'CoreBluetooth';
+import {onOsThemeChangeOptions} from "../interface.uts"
+import { SaveToFilesDirOptions, MergeWithCanvasOptions, MergeWithCanvasSuccess } from '../interface.uts';
+
+
+// 蓝牙状态常量 (与 Android 保持一致)
+const STATE_ERR = -1
+const STATE_OFF = 0
+const STATE_TURNING_ON = 1
+const STATE_ON = 2
+const STATE_TURNING_OFF = 3
+const STATE_BLE_TURNING_ON = 4
+const STATE_BLE_ON = 5
+const STATE_BLE_TURNING_OFF = 6
+
+// iOS CBManagerState 原始值 (兼容 iOS 10.0 以下)
+const CB_STATE_UNKNOWN : Int = 0
+const CB_STATE_RESETTING : Int = 1
+const CB_STATE_UNSUPPORTED : Int = 2
+const CB_STATE_UNAUTHORIZED : Int = 3
+const CB_STATE_POWERED_OFF : Int = 4
+const CB_STATE_POWERED_ON : Int = 5
+
+export const BluetoothState = {
+	STATE_ERR,
+	STATE_OFF,
+	STATE_TURNING_ON,
+	STATE_ON,
+	STATE_TURNING_OFF,
+	STATE_BLE_TURNING_ON,
+	STATE_BLE_ON,
+	STATE_BLE_TURNING_OFF
+}
+
+// 回调类型
+type BluetoothStateChangeResult = {
+	state : number
+	errMsg ?: string
+}
+type BluetoothStateChangeCallback = (result : BluetoothStateChangeResult) => void
+
+// 存储回调函数
+let bluetoothStateCallbacks : BluetoothStateChangeCallback[] = [];
+let centralManager : CBCentralManager | null = null;
+let bluetoothDelegate : BluetoothManagerDelegate | null = null;
+
+// iOS 蓝牙状态转换为统一状态
+function convertBluetoothState(stateRawValue : Int) : number {
+	if (stateRawValue == CB_STATE_POWERED_OFF) {
+		return STATE_OFF;
+	} else if (stateRawValue == CB_STATE_POWERED_ON) {
+		return STATE_ON;
+	} else if (stateRawValue == CB_STATE_RESETTING) {
+		return STATE_TURNING_ON;
+	} else {
+		return STATE_ERR;
+	}
+}
+
+// 蓝牙管理代理类
+class BluetoothManagerDelegate implements CBCentralManagerDelegate {
+	centralManagerDidUpdateState(central : CBCentralManager) : void {
+		const stateRawValue = central.state.rawValue;
+		const convertedState = convertBluetoothState(stateRawValue);
+		const result : BluetoothStateChangeResult = {
+			state: convertedState,
+			errMsg: 'bluetooth state changed'
+		};
+
+		for (let i = 0; i < bluetoothStateCallbacks.length; i++) {
+			try {
+				bluetoothStateCallbacks[i](result);
+			} catch (err) {
+				console.error('Bluetooth callback error:', err);
+			}
+		}
+	}
+}
+
+// 注册监听
+function registerBluetoothStateListener() : void {
+	if (centralManager == null) {
+		try {
+			bluetoothDelegate = new BluetoothManagerDelegate();
+			centralManager = new CBCentralManager(delegate = bluetoothDelegate, queue = null);
+			console.log('iOS Bluetooth state listener registered');
+		} catch (err) {
+			console.error('Failed to register bluetooth listener:', err);
+		}
+	}
+}
+
+// 取消注册
+function unregisterBluetoothStateListener() : void {
+	if (bluetoothStateCallbacks.length == 0 && centralManager != null) {
+		centralManager = null;
+		bluetoothDelegate = null;
+		console.log('iOS Bluetooth state listener unregistered');
+	}
+}
+
+// 监听蓝牙状态变化
+export function onBluetoothStateChange(callback : BluetoothStateChangeCallback) : void {
+	bluetoothStateCallbacks.push(callback);
+	registerBluetoothStateListener();
+}
+
+// 取消监听 (清除所有回调)
+export function offBluetoothStateChange(callback ?: BluetoothStateChangeCallback | null) : void {
+	bluetoothStateCallbacks = [];
+	unregisterBluetoothStateListener();
+}
+
+export function getOsTheme() {
+	try {
+		let isDark = Tools.isDarkMode()
+		if (isDark) {
+			return 'dark'
+		} else {
+			return 'light'
+		}
+	} catch (err) {
+		return 'light'
+	}
+}
+
+export function onOsThemeChange(callback:(theme:string)=>void):string{
+	let id=Tools.onOsThemeChange((theme)=>{
+		callback(theme)
+	})
+	return id
+}
+
+export function offOsThemeChange(id:string){
+	Tools.offOsThemeChange(id)
+}
+
+export function getStaticPath(path:string){
+	return UTSiOS.convert2AbsFullPath(path)
+}
+
+export function saveToFilesDir(options: SaveToFilesDirOptions) {
+	let sourcePath = options.tempFilePath;
+	// 处理 uni 路径 (例如 _doc/)
+	if (sourcePath!.startsWith("_doc/") || sourcePath!.startsWith("_www/") || sourcePath!.startsWith("_downloads/") || sourcePath!.startsWith("_documents/")) {
+		sourcePath = UTSiOS.convert2AbsFullPath(sourcePath!);
+	}
+	Tools.saveToFilesDir(
+		tempFilePath = sourcePath!,
+		fileName = options.fileName,
+		success = (path: string) => {
+			options.success?.(path)
+		},
+		fail = (errMsg: string, code: Int) => {
+			options.fail?.({ errMsg: errMsg, code: code })
+		}
+	)
+}
+
+export function mergeWithCanvas(options: MergeWithCanvasOptions) {
+	let width = options.width;
+	let height = options.height;
+	let images: Array<Map<string, any>> = new Array<Map<string, any>>();
+	for (let i = 0; i < options.images.length; i++) {
+		let item = options.images[i];
+		let url = item.url;
+		if (url == null || url!.trim() == '') {
+			continue;
+		}
+		if (url!.startsWith('file://')) {
+			url = url!.substring(7);
+		} else if (url!.startsWith('/static/') || url!.startsWith('_doc/') || !url!.startsWith('/')) {
+			url = UTSiOS.convert2AbsFullPath(url!);
+		}
+		let m = new Map<string, any>();
+		m.set("url", url);
+		m.set("x", item.x);
+		m.set("y", item.y);
+		m.set("width", item.width);
+		m.set("height", item.height);
+		m.set("shape", item.shape ?? '');
+		images.push(m);
+	}
+	let docRoot = UTSiOS.convert2AbsFullPath('_doc/');
+	Tools.mergeWithCanvas(
+		width = (Math.floor(width!) as number).toInt(),
+		height = (Math.floor(height!) as number).toInt(),
+		images = images,
+		docRoot = docRoot,
+		success = (path: string) => {
+			options.success?.({ tempFilePath: path } as MergeWithCanvasSuccess);
+		},
+		fail = (err: string) => {
+			options.fail?.({ errMsg: err });
+		}
+	)
+}

@@ -1,0 +1,70 @@
+import { sensor } from '@kit.SensorServiceKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+
+import {
+    OnCompassChangeCallback, StartCompassOption, StopCompassOption,
+    ApiCommonResult, OnCompassChangeListenerResult,
+} from '../interface.uts';
+
+
+// 存放回调的列表
+const callbacks = new Array<OnCompassChangeCallback>();
+
+
+export function onCompassChange(listener : OnCompassChangeCallback) : void {
+    if (callbacks.indexOf(listener) != -1) {
+        return; // 不重复注册
+    }
+    callbacks.push(listener);
+}
+
+export function offCompassChange(listener : OnCompassChangeCallback) : void {
+    let idx = callbacks.indexOf(listener);
+    if (idx == -1) {
+        return; // 不存在的回调
+    }
+    callbacks.splice(idx, 1); // 删除指定位置的回调
+}
+
+export function startCompass(option ?: StartCompassOption) : void {
+    try {
+        const okMsg = "startCompass:ok";
+        sensor.on(sensor.SensorId.ORIENTATION, (data : sensor.OrientationResponse) => {
+            // Alpha (α): 设备围绕 Z 轴（垂直轴）的旋转角度，范围是 0° 到 360°，代表设备在水平面上的朝向。
+            // console.info('Succeeded in the device rotating at an angle around the Z axis: ' + data.alpha);
+            callbacks.forEach((cbk: OnCompassChangeCallback) => {
+                cbk({
+                    accuracy: data.accuracy,
+                    direction: data.alpha,
+                } as OnCompassChangeListenerResult);
+            });
+
+            // 以下坐标值暂时不需要关心
+            // console.info('Succeeded in the device rotating at an angle around the X axis: ' + data.beta);
+            // console.info('Succeeded in the device rotating at an angle around the Y axis: ' + data.gamma);
+        }, { interval: 200000000 } as sensor.Options); // 200ms一次的频率换算出来就是5hz
+        // 回调通知api调用成功
+        option?.success?.({ errMsg : okMsg} as ApiCommonResult);
+        option?.complete?.({ errMsg : okMsg} as ApiCommonResult);
+    } catch (error) {
+        let e : BusinessError = error as BusinessError;
+        let errMsg: string = `startCompass:fail ${e.message}`;
+        option?.fail?.({ errMsg : errMsg} as UniError);
+        option?.complete?.({ errMsg : errMsg} as ApiCommonResult);
+    }
+}
+
+export function stopCompass(option ?: StopCompassOption) : void {
+    try {
+        const okMsg = "stopCompass:ok";
+        sensor.off(sensor.SensorId.ORIENTATION);
+        // 回调通知api调用成功
+        option?.success?.({ errMsg : okMsg} as ApiCommonResult);
+        option?.complete?.({ errMsg : okMsg} as ApiCommonResult);
+    } catch (error) {
+        let e : BusinessError = error as BusinessError;
+        let errMsg: string = `startCompass:fail ${e.message}`;
+        option?.fail?.({ errMsg : errMsg} as UniError);
+        option?.complete?.({ errMsg : errMsg} as ApiCommonResult);
+    }
+}

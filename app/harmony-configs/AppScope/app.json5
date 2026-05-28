@@ -1,0 +1,10 @@
+{
+  "app": {
+    "bundleName": "com.cyy.toyball",
+    "vendor": "example",
+    "versionCode": 207,
+    "versionName": "2.0.7",
+    "icon": "$media:layered_image",
+    "label": "$string:app_name"
+  }
+}

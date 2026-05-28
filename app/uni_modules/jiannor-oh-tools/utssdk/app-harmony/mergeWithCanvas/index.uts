@@ -1,0 +1,140 @@
+import { MergeWithCanvasOptions, MergeWithCanvasSuccess, MergeImageItem } from '../../interface.uts';
+import { image } from '@kit.ImageKit';
+import { fileIo as fs } from '@kit.CoreFileKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { common } from '@kit.AbilityKit';
+import { AppStorageV2, UIContext } from '@kit.ArkUI';
+
+// 定义加载结果类型
+type LoadResult = {
+    pixelMap: image.PixelMap
+    item: MergeImageItem
+}
+
+export function mergeWithCanvas(options: MergeWithCanvasOptions) {
+  try {
+    const width = options.width;
+    const height = options.height;
+    
+    // 创建离屏Canvas
+    const offCanvas = new OffscreenCanvas(width, height);
+    const offContext = offCanvas.getContext("2d");
+
+    if (!offContext) {
+        options.fail?.({ errMsg: "Failed to create offscreen context" });
+        return;
+    }
+
+    // 异步加载所有图片
+    const loadPromises = options.images.map(async (item): Promise<LoadResult> => {
+        try {
+            // 处理路径：如果是 /static 开头，转换为绝对路径
+            let url = item.url;
+            if (url.startsWith('/static/')) {
+                url = UTSHarmony.convert2AbsFullPath(url);
+            } else if (url.startsWith('_doc/')) {
+                 // 处理 _doc 路径 (uniapp 缓存路径通常是 _doc/...)
+                 url = UTSHarmony.convert2AbsFullPath(url);
+            }
+
+            // 打开文件
+            let file = fs.openSync(url, fs.OpenMode.READ_ONLY);
+            let imageSource = image.createImageSource(file.fd);
+            let pixelMap = await imageSource.createPixelMap();
+            fs.closeSync(file);
+            return { pixelMap: pixelMap, item: item };
+        } catch (e) {
+            console.error("Failed to load image: " + item.url, e);
+            throw new Error("Failed to load image: " + item.url);
+        }
+    });
+
+    Promise.all(loadPromises).then((loadedImages: LoadResult[]) => {
+        // 按顺序绘制图片
+        loadedImages.forEach((result: LoadResult) => {
+            const pixelMap = result.pixelMap;
+            const item = result.item;
+            offContext.save();
+            
+            if (item.shape === 'circle') {
+                // 使用独立的方形离屏画布进行圆形裁剪，避免受主画布非等比缩放影响
+                const maskW = Math.floor(item.width);
+                const maskH = Math.floor(item.height);
+                const maskCanvas = new OffscreenCanvas(maskW, maskH);
+                const maskCtx = maskCanvas.getContext("2d");
+                if (maskCtx) {
+                    const radius = Math.min(maskW, maskH) / 2;
+                    const cx = maskW / 2;
+                    const cy = maskH / 2;
+                    maskCtx.save();
+                    maskCtx.beginPath();
+                    maskCtx.arc(cx, cy, radius, 0, 2 * Math.PI);
+                    maskCtx.clip();
+                    maskCtx.drawImage(pixelMap, 0, 0, maskW, maskH);
+                    maskCtx.restore();
+                    const maskedPixelMap = maskCtx.getPixelMap(0, 0, maskW, maskH);
+                    // 确保主画布使用单位比例绘制，避免Y方向缩放造成椭圆视觉
+                    offContext.resetTransform()
+					console.log(maskW,maskH)
+                    offContext.drawImage(maskedPixelMap, item.x, item.y, item.width, item.height);
+                    maskedPixelMap.release();
+                    // 已绘制到主画布，跳过默认绘制
+                    offContext.restore();
+                    pixelMap.release();
+                    return;
+                }
+            }
+            
+            offContext.drawImage(pixelMap, item.x, item.y, item.width, item.height);
+            offContext.restore();
+            pixelMap.release(); // 绘制后释放PixelMap
+        });
+
+        // 获取合并后的PixelMap
+        let resultPixelMap = offContext.getPixelMap(0, 0, width, height);
+        
+        // 创建ImagePacker用于压缩保存
+        let imagePacker = image.createImagePacker();
+        let packOpts: image.PackingOption = { format: "image/png", quality: 100 };
+        
+        // 获取Context以访问缓存目录
+        let context = AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext() as common.UIAbilityContext;
+        if (!context) {
+             // 尝试通过getContext获取，如果在Ability环境下
+             try {
+                context = getContext() as common.UIAbilityContext;
+             } catch(e) {
+                // ignore
+             }
+        }
+
+        if (!context) {
+             options.fail?.({ errMsg: "Failed to get context" });
+             return;
+        }
+
+        let tempDir = context.cacheDir;
+        let tempFilePath = `${tempDir}/merged_${Date.now()}.png`;
+        let file = fs.openSync(tempFilePath, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
+        
+        imagePacker.packToFile(resultPixelMap, file.fd, packOpts).then(() => {
+            fs.closeSync(file);
+            resultPixelMap.release();
+            imagePacker.release();
+            
+            options.success?.({ tempFilePath: tempFilePath });
+        }).catch((err: BusinessError) => {
+             options.fail?.({ errMsg: "Packing failed: " + err.message });
+             fs.closeSync(file);
+             resultPixelMap.release();
+             imagePacker.release();
+        });
+
+    }).catch(err => {
+        options.fail?.({ errMsg: "Failed to load images: " + err });
+    });
+
+  } catch (err) {
+      options.fail?.({ errMsg: "Exception: " + err });
+  }
+}

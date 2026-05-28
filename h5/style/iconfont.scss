@@ -1,0 +1,37 @@
+/* #ifndef MP-WEIXIN */
+@font-face {
+  font-family: 'fu-iconfont2';
+  src: font-path('fu-iconfont2.ttf');
+}
+/* #endif */
+.fu-iconfont2 {
+  font-family: 'fu-iconfont2' !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.cuIcon-unfold,
+.cuIcon-back,
+.cuIcon-close,
+.cuIcon-right {
+  font-family: 'fu-iconfont2' !important;
+  font-size: inherit;
+  font-style: normal;
+}
+.cuIcon-unfold {
+  display: inline-block;
+  transform: scale(0.5);
+}
+.cuIcon-unfold:before {
+  content: '\e78a';
+}
+.cuIcon-back:before {
+  content: '\e794';
+}
+.cuIcon-close:before {
+  content: '\e695';
+}
+.cuIcon-right:before {
+  content: '\e7f2';
+}

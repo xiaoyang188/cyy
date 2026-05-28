@@ -1,0 +1,55 @@
+import { SaveToFilesDirOptions } from '../../interface.uts';
+import { fileIo as fs } from '@kit.CoreFileKit';
+import { AppStorageV2, UIContext } from '@kit.ArkUI';
+import { common } from '@kit.AbilityKit';
+
+export function saveToFilesDir(options: SaveToFilesDirOptions) {
+    let context = AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext() as common.UIAbilityContext;
+    if (!context) {
+        options.fail?.({ errMsg: 'Context not found' });
+        return;
+    }
+
+    let filesDir = context.filesDir;
+    let destPath = `${filesDir}/${options.fileName}`;
+    let sourcePath = options.tempFilePath;
+
+    // Handle internal paths if necessary
+    // In HarmonyOS, tempFilePath from uni usually works with fs.
+    // But if it's a URI, we might need to handle it.
+    // Assuming it's a valid path for now.
+
+    try {
+        // Ensure destination directory exists (if fileName contains subdirs, but here we assume flat structure or pre-existing dirs)
+        // Check if source exists
+        if (!fs.accessSync(sourcePath)) {
+            options.fail?.({ errMsg: 'Source file does not exist', code: 13900016 });
+            return;
+        }
+
+        // Check if dest exists and delete if so to ensure overwrite
+        try {
+            if (fs.accessSync(destPath)) {
+                fs.unlinkSync(destPath);
+            }
+        } catch (e) {
+            // Ignore error if file doesn't exist or other access issues, move/copy will handle or fail appropriately
+        }
+
+        // Move file instead of copy to clean up temp file
+        fs.moveFile(sourcePath, destPath).then(() => {
+             options.success?.(destPath);
+        }).catch((err: Error) => {
+             // If move fails (e.g. different partitions), try copy then unlink
+             fs.copyFile(sourcePath, destPath).then(() => {
+                options.success?.(destPath);
+                fs.unlink(sourcePath).catch(() => {}); // Best effort delete
+             }).catch((copyErr: Error) => {
+                options.fail?.({ errMsg: `Save failed: ${err.message}`, code: 13900016 });
+             });
+        });
+
+    } catch (err) {
+        options.fail?.({ errMsg: `Exception: ${JSON.stringify(err)}` });
+    }
+}

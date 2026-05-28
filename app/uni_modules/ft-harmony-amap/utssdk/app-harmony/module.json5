@@ -1,0 +1,30 @@
+{
+  "module": {
+    "name": "uni_modules__ft_harmony_amap",
+    "type": "har",
+    "deviceTypes": [
+      "default",
+      "tablet",
+      "2in1"
+    ],
+	  "requestPermissions": [
+	       {
+	         "name": "ohos.permission.INTERNET"
+	       },
+	       {
+	         "name": "ohos.permission.APPROXIMATELY_LOCATION",
+	         "reason": "$string:amap_use",
+	         "usedScene": {
+	           "when": "inuse"
+	         }
+	       },
+	       {
+	         "name": "ohos.permission.LOCATION",
+	         "reason": "$string:amap_use",
+	         "usedScene": {
+	           "when": "inuse"
+	         }
+	       }
+	     ],
+  }
+}

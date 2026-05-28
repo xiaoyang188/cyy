@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="none" version="1.1" width="112" height="110" viewBox="0 0 112 110">
+  <g>
+    <g>
+      <!-- 圆形：位置不变，刚好填满viewBox的垂直范围 -->
+      <ellipse cx="55.5" cy="55" rx="55" ry="55" fill="#393C50" fill-opacity="1"/>
+    </g>
+    <g>
+      <g>
+        <!-- 水平矩形 -->
+        <rect x="36.5" y="53" width="38" height="4" rx="2" fill="#FFFFFF" fill-opacity="1"/>
+      </g>
+      <g transform="matrix(0,1,-1,0,93.5,-21.5)">
+        <!-- 旋转后的垂直矩形 -->
+        <rect x="57.5" y="36" width="38" height="4" rx="2" fill="#FFFFFF" fill-opacity="1"/>
+      </g>
+    </g>
+  </g>
+</svg>

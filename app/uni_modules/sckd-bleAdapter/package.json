@@ -1,0 +1,111 @@
+{
+	"id": "sckd-bleAdapter",
+	"displayName": "sckd-bleAdapter",
+	"version": "1.3.0",
+	"description": "鸿蒙原生蓝牙适配器插件，支持蓝牙连接、数据传输、位置服务、应用路径获取、文件压缩解压等功能",
+	"keywords": [
+		"sckd-bleAdapter",
+		"蓝牙",
+		"bluetooth",
+		"鸿蒙",
+		"harmonyos",
+		"位置服务",
+		"location",
+		"文件压缩",
+		"文件解压",
+		"zlib",
+		"zip"
+	],
+	"repository": "",
+	"engines": {
+		"HBuilderX": "^3.6.11",
+		"uni-app": "^3.1.0",
+		"uni-app-x": "^3.1.0"
+	},
+	"dcloudext": {
+		"type": "uts",
+		"sale": {
+			"regular": {
+				"price": "0.00"
+			},
+			"sourcecode": {
+				"price": "0.00"
+			}
+		},
+		"contact": {
+			"qq": ""
+		},
+		"declaration": {
+			"ads": "",
+			"data": "",
+			"permissions": "LOCATION\r\nACCESS_BLUETOOTH"
+		},
+		"npmurl": "",
+		"darkmode": "-",
+		"i18n": "-",
+		"widescreen": "-"
+	},
+	"uni_modules": {
+		"dependencies": [],
+		"encrypt": [],
+		"platforms": {
+			"cloud": {
+				"tcb": "-",
+				"aliyun": "-",
+				"alipay": "-"
+			},
+			"client": {
+				"Vue": {
+					"vue2": "u",
+					"vue3": "u"
+				},
+				"uni-app": {
+					"vue": {
+						"vue2": "-",
+						"vue3": "-"
+					},
+					"web": {
+						"safari": "-",
+						"chrome": "-"
+					},
+					"app": {
+						"vue": "-",
+						"nvue": "-",
+						"android": "n",
+						"ios": "n",
+						"harmony": "y"
+					},
+					"mp": {
+						"weixin": "-",
+						"alipay": "-",
+						"toutiao": "-",
+						"baidu": "-",
+						"kuaishou": "-",
+						"jd": "-",
+						"harmony": "y",
+						"qq": "-",
+						"lark": "-"
+					},
+					"quickapp": {
+						"huawei": "-",
+						"union": "-"
+					}
+				},
+				"uni-app-x": {
+					"web": {
+						"safari": "-",
+						"chrome": "-"
+					},
+					"app": {
+						"android": "n",
+						"ios": "n",
+						"harmony": "y"
+					},
+					"mp": {
+						"weixin": "-"
+					}
+				}
+			}
+		}
+	}
+}

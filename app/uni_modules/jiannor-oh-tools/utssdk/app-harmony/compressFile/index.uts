@@ -1,0 +1,116 @@
+import { zlib, BusinessError } from '@kit.BasicServicesKit';
+import { fileIo as fs } from '@kit.CoreFileKit';
+import { common } from '@kit.AbilityKit';
+import { AppStorageV2,UIContext  } from '@kit.ArkUI';
+/**
+ * 压缩文件选项
+ */
+export interface CompressOptions {
+  // 源文件或文件夹路径
+  inFile: string;
+  // 输出压缩文件路径（.zip格式）
+  outFile: string;
+  // 压缩级别 (1-9，默认6)
+  level?: number;
+}
+
+/**
+ * 压缩结果
+ */
+export interface CompressResult {
+  success: boolean;
+  message: string;
+  outputPath?: string;
+}
+
+/**
+ * 压缩文件或文件夹
+ * @param options 压缩选项
+ * @returns Promise<CompressResult> 压缩结果
+ */
+export function compressFile(options: CompressOptions): Promise<CompressResult> {
+  return new Promise<CompressResult>((resolve, reject) => {
+    try {
+      // 验证输入参数
+      if (!options.inFile || !options.outFile) {
+          const result: CompressResult = {
+            success: false,
+            message: '输入文件路径和输出文件路径不能为空'
+          };
+          resolve(result);
+        return;
+      }
+
+      // 确保输出文件以.zip结尾
+      let outFile = options.outFile;
+      if (!outFile.endsWith('.zip')) {
+        outFile += '.zip';
+      }
+
+      // 检查输入文件是否存在
+      if (!fs.accessSync(options.inFile)) {
+          const result: CompressResult = {
+            success: false,
+            message: `输入文件不存在: ${options.inFile}`
+          };
+          resolve(result);
+        return;
+      }
+
+      console.log(`开始压缩文件: ${options.inFile} -> ${outFile}`);
+
+      // 调用鸿蒙原生压缩API
+      const compressOptions:zlib.Options = {
+          level: options.level || zlib.CompressLevel.COMPRESS_LEVEL_DEFAULT_COMPRESSION,
+          memLevel: zlib.MemLevel.MEM_LEVEL_DEFAULT,
+          strategy: zlib.CompressStrategy.COMPRESS_STRATEGY_DEFAULT_STRATEGY
+        };
+        zlib.compressFile(options.inFile, outFile, compressOptions).then(() => {
+        console.log(`文件压缩成功: ${outFile}`);
+        const result: CompressResult = {
+            success: true,
+            message: '文件压缩成功',
+            outputPath: outFile
+          };
+          resolve(result);
+      }).catch((err: BusinessError) => {
+        console.error(`文件压缩失败: ${err.code} - ${err.message}`);
+        const result: CompressResult = {
+            success: false,
+            message: `文件压缩失败: ${err.message}`
+          };
+          resolve(result);
+      });
+
+    } catch (error) {
+      console.error('压缩文件时发生异常:', error);
+      const result: CompressResult = {
+          success: false,
+          message: `压缩文件时发生异常: ${error}`
+        };
+        resolve(result);
+    }
+  });
+}
+
+// 注意：鸿蒙 zlib API 只提供异步方法，没有同步版本
+// 如需同步行为，请使用 Promise.resolve() 包装异步方法
+
+/**
+ * 获取应用沙盒路径用于压缩操作
+ * @returns Promise<string> 缓存目录路径
+ */
+export function getCompressCacheDir(): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    try {
+      const context = AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext() as common.UIAbilityContext;
+      if (!context || !context.cacheDir) {
+        reject(new Error('无法获取应用缓存目录'));
+        return;
+      }
+      resolve(context.cacheDir);
+    } catch (error) {
+      reject(new Error(`获取缓存目录失败: ${error}`));
+    }
+  });
+}

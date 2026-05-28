@@ -1,0 +1,425 @@
+import { wifiManager } from '@kit.ConnectivityKit';
+
+import { WifiFail, WifiInfo,ScanWifiOptions, ConnectedWifiOptions, ConnectOptions, WifiScanResult, WifiResult } from "../interface"
+
+let scanning:boolean=false
+
+export function startWifi(options: ScanWifiOptions = {}) {
+	if (!canIUse('SystemCapability.Communication.WiFi.STA')) {
+		let err: WifiFail = {
+			errCode: 12001,
+			errMsg: "system not support"
+		}
+		options.fail?.(err)
+		options.complete?.(err)
+		return
+	}
+	
+	if(!wifiManager.isWifiActive()){
+		let err: WifiFail = {
+			errCode: 12005,
+			errMsg: "wifi is disable"
+		}
+		options.fail?.(err)
+		options.complete?.(err)
+		return
+	}
+	
+	try {
+		wifiManager.startScan()
+		scanning=true
+		let result: WifiFail = {
+			errCode: 0,
+			errMsg: 'ok'
+		}
+		options.success?.(result)
+		options.complete?.(result)
+	} catch (err) {
+		let e: WifiFail = {
+			errCode: 12014,
+			errMsg: err instanceof Error ? err.message : String(err)
+		}
+		options.fail?.(e)
+		options.complete?.(e)
+	}
+}
+
+// 存储监听回调
+let wifiListCallback: ((result: WifiScanResult) => void) | null = null;
+
+// 扫描状态变化处理函数
+function handleWifiScanStateChange(state: number) {
+	if (state == 1) { // 1: 扫描成功
+		try {
+			let scanInfos = wifiManager.getScanInfoList();
+			let result: WifiInfo[] = [];
+			scanInfos.forEach(item => {
+				result.push({
+					SSID: item.ssid,
+					BSSID: item.bssid,
+					secure: item.securityType != wifiManager.WifiSecurityType.WIFI_SEC_TYPE_OPEN,
+					signalStrength: item.rssi,
+					frequency: item.frequency // 鸿蒙的frequency对应频率，2.4G/5G
+				})
+			})
+			if (wifiListCallback) {
+				wifiListCallback({ wifiList: result });
+			}
+		} catch (err) {
+			console.error("getScanInfoList failed", err);
+		}
+	}
+}
+
+export function onGetWifiList(callback: (result: WifiScanResult) => void) {
+	if (!canIUse('SystemCapability.Communication.WiFi.STA')) {
+		let err: WifiFail = {
+			errCode: 12001,
+			errMsg: "system not support"
+		}
+		throw Error(err.errMsg)
+	}
+	
+	// 如果已经有回调了，先移除之前的监听（简单实现，假设只有一个监听者）
+	if (wifiListCallback) {
+		wifiManager.off('wifiScanStateChange', handleWifiScanStateChange);
+	}
+	
+	wifiListCallback = callback;
+	
+	// 注册监听
+	wifiManager.on('wifiScanStateChange', handleWifiScanStateChange);
+	
+	// 也可以尝试直接获取一次缓存的结果
+	// try {
+	// 	let scanInfos = wifiManager.getScanInfoList();
+	// 	if (scanInfos && scanInfos.length > 0) {
+	// 		let result: WifiInfo[] = [];
+	// 		scanInfos.forEach(item => {
+	// 			result.push({
+	// 				SSID: item.ssid,
+	// 				BSSID: item.bssid,
+	// 				secure: item.securityType != wifiManager.WifiSecurityType.WIFI_SEC_TYPE_OPEN,
+	// 				signalStrength: item.rssi,
+	// 				frequency: item.frequency
+	// 			})
+	// 		})
+	// 		callback({ wifiList: result });
+	// 	}
+	// } catch (err) {
+	// 	// 忽略获取缓存失败，等待扫描结果
+	// }
+}
+
+export function offGetWifiList(callback?: (result: WifiScanResult) => void) {
+	// 移除监听
+	wifiManager.off('wifiScanStateChange', handleWifiScanStateChange);
+	wifiListCallback = null;
+}
+
+export function getWifiList(options: ScanWifiOptions = {}) {
+	if (!canIUse('SystemCapability.Communication.WiFi.STA')) {
+		let err: WifiFail = {
+			errCode: 12001,
+			errMsg: "system not support"
+		}
+		options.fail?.(err)
+		options.complete?.(err)
+		return
+	}
+
+	if (!wifiManager.isWifiActive()) {
+		let err: WifiFail = {
+			errCode: 12005,
+			errMsg: "wifi is disable"
+		}
+		options.fail?.(err)
+		options.complete?.(err)
+		return
+	}
+
+	try {
+		let scanInfos = wifiManager.getScanInfoList();
+		if (scanInfos && scanInfos.length > 0) {
+			let result: WifiInfo[] = [];
+			scanInfos.forEach(item => {
+				result.push({
+					SSID: item.ssid,
+					BSSID: item.bssid,
+					secure: item.securityType != wifiManager.WifiSecurityType.WIFI_SEC_TYPE_OPEN,
+					signalStrength: item.rssi,
+					frequency: item.frequency
+				})
+			})
+			if (wifiListCallback) {
+				wifiListCallback({wifiList:result});
+			}
+		}
+
+		let result: WifiFail = {
+			errCode: 0,
+			errMsg: 'ok'
+		}
+		options.success?.(result)
+		options.complete?.(result)
+	} catch (err) {
+		let e: WifiFail = {
+			errCode: 12014,
+			errMsg: err instanceof Error ? err.message : String(err)
+		}
+		options.fail?.(e)
+		options.complete?.(e)
+	}
+}
+
+export function stopWifi(options: ScanWifiOptions = {}) {
+	if (!canIUse('SystemCapability.Communication.WiFi.STA')) {
+		let err: WifiFail = {
+			errCode: 12001,
+			errMsg: "system not support"
+		}
+		options.fail?.(err)
+		options.complete?.(err)
+		return
+	}
+	
+	if(scanning==false){
+		let err: WifiFail = {
+			errCode: 12000,
+			errMsg: "not init"
+		}
+		options.fail?.(err)
+		options.complete?.(err)
+		return
+	}
+	
+	let err:WifiFail={
+		errCode:0,
+		errMsg:"ok"
+	}
+	options.success?.(err)
+	options.complete?.(err)
+}
+
+let triggerPartialInfoCallback = false;
+
+export function getConnectedWifi(options:ConnectedWifiOptions){
+	if (!canIUse('SystemCapability.Communication.WiFi.STA')) {
+		let err: WifiFail = {
+			errCode: 12001,
+			errMsg: "system not support"
+		}
+		options.fail?.(err)
+		options.complete?.(err)
+		return
+	}
+	
+	if(options.partialInfo){
+		triggerPartialInfoCallback = true;
+	} else {
+		triggerPartialInfoCallback = false;
+	}
+
+	try{
+		wifiManager.getLinkedInfo().then((data: wifiManager.WifiLinkedInfo)=>{
+			let isSecure = true;
+			try {
+				let scanInfos = wifiManager.getScanInfoList();
+				let currentWifi = scanInfos.find(item => item.ssid === data.ssid && item.bssid === data.bssid);
+				if (currentWifi) {
+					isSecure = currentWifi.securityType != wifiManager.WifiSecurityType.WIFI_SEC_TYPE_OPEN;
+				}
+			} catch (e) {
+				console.error("getScanInfoList for secure check failed", e);
+			}
+
+			let info:WifiInfo={
+				SSID:data.ssid,
+				BSSID:data.bssid,
+				secure: isSecure,
+				signalStrength:data.rssi,
+				frequency:data.frequency
+			}
+			options.success?.(info)
+			options.complete?.(info)
+			
+		}).catch((err:Error)=>{
+			let e: WifiFail = {
+				errCode: 12014,
+				errMsg: err.message
+			}
+			options.fail?.(e)
+			options.complete?.(e)
+		})
+	}catch(err){
+		let e: WifiFail = {
+			errCode: 12014,
+			errMsg: err instanceof Error ? err.message : String(err)
+		}
+		options.fail?.(e)
+		options.complete?.(e)
+	}
+}
+
+export function connectWifi(options:ConnectOptions){
+	if (!canIUse('SystemCapability.Communication.WiFi.STA')) {
+		let err: WifiFail = {
+			errCode: 12001,
+			errMsg: "system not support"
+		}
+		options.fail?.(err)
+		options.complete?.(err)
+		return
+	}
+	if(!wifiManager.isWifiActive()){
+		let err: WifiFail = {
+			errCode: 12005,
+			errMsg: "wifi is disable"
+		}
+		options.fail?.(err)
+		options.complete?.(err)
+		return
+	}
+	
+	if(options.partialInfo){
+		triggerPartialInfoCallback = true;
+	} else {
+		triggerPartialInfoCallback = false;
+	}
+
+	let config:wifiManager.WifiDeviceConfig={
+		ssid:options.SSID,
+		bssid:options.BSSID,
+		preSharedKey:options.password,
+		securityType: options.password ? wifiManager.WifiSecurityType.WIFI_SEC_TYPE_PSK : wifiManager.WifiSecurityType.WIFI_SEC_TYPE_OPEN
+	}
+	try{
+		wifiManager.addCandidateConfig(config,(err,data)=>{
+			if(err){
+				let e: WifiFail = {
+					errCode: 12014,
+					errMsg: err instanceof Error ? err.message : String(err)
+				}
+				options.fail?.(e)
+				options.complete?.(e)
+				return
+			}
+			if(options.maunal){
+				wifiManager.connectToCandidateConfigWithUserAction(data)
+			}else{
+				wifiManager.connectToCandidateConfig(data)
+			}
+			let e:WifiFail={
+				errCode:0,
+				errMsg:"ok"
+			}
+			options.success?.(e)
+			options.complete?.(e)
+		})
+	}catch(err){
+		let e: WifiFail = {
+			errCode: 12014,
+			errMsg: err instanceof Error ? err.message : String(err)
+		}
+		options.fail?.(e)
+		options.complete?.(e)
+	}
+}
+
+let wifiConnectedCallbacks: Array<(result: WifiResult) => void> = [];
+let wifiConnectedWithPartialInfoCallbacks: Array<(result: WifiResult) => void> = [];
+
+// 统一的连接状态变更处理函数
+function handleWifiConnectionChange(data: number) {
+	if (data == 1) { // 1: 连接成功
+		wifiManager.getLinkedInfo().then((data: wifiManager.WifiLinkedInfo) => {
+			let isSecure = true;
+			try {
+				let scanInfos = wifiManager.getScanInfoList();
+				let currentWifi = scanInfos.find(item => item.ssid === data.ssid && item.bssid === data.bssid);
+				if (currentWifi) {
+					isSecure = currentWifi.securityType != wifiManager.WifiSecurityType.WIFI_SEC_TYPE_OPEN;
+				}
+			} catch (e) {
+				console.error("getScanInfoList for secure check failed", e);
+			}
+
+			let info: WifiInfo = {
+				SSID: data.ssid,
+				BSSID: data.bssid,
+				secure: isSecure,
+				signalStrength: data.rssi,
+				frequency: data.frequency
+			}
+			
+			// 触发所有注册的回调
+			wifiConnectedCallbacks.forEach(callback => {
+				callback({ wifi: info });
+			});
+			if(triggerPartialInfoCallback){
+				wifiConnectedWithPartialInfoCallbacks.forEach(callback => {
+					callback({ wifi: info });
+				});
+			}
+		}).catch((err: Error) => {
+			console.error("getLinkedInfo in callback failed", err);
+		})
+	}
+}
+
+export function onWifiConnected(callback: (result: WifiResult) => void) {
+	if (!canIUse('SystemCapability.Communication.WiFi.STA')) {
+		throw Error("system not support")
+	}
+	
+	// 如果是第一个监听者，注册系统事件
+	if (wifiConnectedCallbacks.length === 0 && wifiConnectedWithPartialInfoCallbacks.length === 0) {
+		wifiManager.on("wifiConnectionChange", handleWifiConnectionChange);
+	}
+	
+	wifiConnectedCallbacks.push(callback);
+}
+
+export function onWifiConnectedWithPartialInfo(callback: (result: WifiResult) => void) {
+	if (!canIUse('SystemCapability.Communication.WiFi.STA')) {
+		throw Error("system not support")
+	}
+	
+	if (wifiConnectedCallbacks.length === 0 && wifiConnectedWithPartialInfoCallbacks.length === 0) {
+		wifiManager.on("wifiConnectionChange", handleWifiConnectionChange);
+	}
+	
+	wifiConnectedWithPartialInfoCallbacks.push(callback);
+}
+
+export function offWifiConnectedWithPartialInfo(callback?: (result: WifiResult) => void) {
+	if (callback) {
+		const index = wifiConnectedWithPartialInfoCallbacks.indexOf(callback);
+		if (index > -1) {
+			wifiConnectedWithPartialInfoCallbacks.splice(index, 1);
+		}
+	} else {
+		wifiConnectedWithPartialInfoCallbacks = [];
+	}
+	
+	// 如果没有监听者了，取消系统事件注册
+	if (wifiConnectedCallbacks.length === 0 && wifiConnectedWithPartialInfoCallbacks.length === 0) {
+		wifiManager.off("wifiConnectionChange", handleWifiConnectionChange);
+	}
+}
+
+export function offWifiConnected(callback?: (result: WifiResult) => void) {
+	if (callback) {
+		const index = wifiConnectedCallbacks.indexOf(callback);
+		if (index > -1) {
+			wifiConnectedCallbacks.splice(index, 1);
+		}
+	} else {
+		wifiConnectedCallbacks = [];
+	}
+	
+	// 如果没有监听者了，取消系统事件注册
+	if (wifiConnectedCallbacks.length === 0 && wifiConnectedWithPartialInfoCallbacks.length === 0) {
+		wifiManager.off("wifiConnectionChange", handleWifiConnectionChange);
+	}
+}

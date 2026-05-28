@@ -1,0 +1,99 @@
+13:17:02.504 ​‌​01-05 13:17:02.524 14554 14554 I A04510/com.chongyueyue.client/chromium: [nweb_impl.cc:1565] NWebImpl::InitWebEngine, isReady:1
+13:17:02.504 ​‌​01-05 13:17:02.524 14554 14554 I C04500/com.chongyueyue.client/webadapter: StartListen: start netproxy listen
+13:17:02.504 ​‌​01-05 13:17:02.524 14554 14554 I C015B0/com.chongyueyue.client/NetConnManager: registerCallback id:5.
+13:17:02.507 ​‌​01-05 13:17:02.524 14554 14554 E C01305/com.chongyueyue.client/Base: [zip_file.cpp(Open:280)]realpath error: 2, pathName: /module_update/ArkWebCore/app/com.huawei.hmos.arkwebcore/ArkWebCore.hap
+13:17:02.507 ​‌​01-05 13:17:02.524 14554 14554 E C04500/com.chongyueyue.client/webadapter: GetArkWebVersion: Failed to initialize extractor for HAP file: /module_update/ArkWebCore/app/com.huawei.hmos.arkwebcore/ArkWebCore.hap
+13:17:02.507 ​‌​01-05 13:17:02.524 14554 14554 E C01305/com.chongyueyue.client/Base: [zip_file.cpp(Open:280)]realpath error: 2, pathName: /system/app/com.ohos.arkwebcore/ArkWebCore.hap
+13:17:02.510 ​‌​01-05 13:17:02.524 14554 14554 E C04500/com.chongyueyue.client/webadapter: GetArkWebVersion: Failed to initialize extractor for HAP file: /system/app/com.ohos.arkwebcore/ArkWebCore.hap
+13:17:02.510 ​‌​01-05 13:17:02.524 14554 14554 E C04500/com.chongyueyue.client/webadapter: GetArkWebVersion: Failed to get ArkWeb version from any of the specified paths
+13:17:02.510 ​‌​01-05 13:17:02.524 14554 14554 E A04510/com.chongyueyue.client/chromium: [nweb_impl.cc:1034] CreateNWeb NWebId: 6 successfully
+13:17:02.510 ​‌​01-05 13:17:02.525 14554 14554 E C01305/com.chongyueyue.client/Base: [zip_file.cpp(Open:280)]realpath error: 2, pathName: /module_update/ArkWebCore/app/com.huawei.hmos.arkwebcore/ArkWebCore.hap
+13:17:02.511 ​‌​01-05 13:17:02.525 14554 14554 E C04500/com.chongyueyue.client/webadapter: GetArkWebVersion: Failed to initialize extractor for HAP file: /module_update/ArkWebCore/app/com.huawei.hmos.arkwebcore/ArkWebCore.hap
+13:17:02.511 ​‌​01-05 13:17:02.525 14554 14554 E C01305/com.chongyueyue.client/Base: [zip_file.cpp(Open:280)]realpath error: 2, pathName: /system/app/com.ohos.arkwebcore/ArkWebCore.hap
+13:17:02.511 ​‌​01-05 13:17:02.525 14554 14554 E C04500/com.chongyueyue.client/webadapter: GetArkWebVersion: Failed to initialize extractor for HAP file: /system/app/com.ohos.arkwebcore/ArkWebCore.hap
+13:17:02.511 ​‌​01-05 13:17:02.525 14554 14554 E C04500/com.chongyueyue.client/webadapter: GetArkWebVersion: Failed to get ArkWeb version from any of the specified paths
+13:17:02.514 ​‌​01-05 13:17:02.525 14554 14554 I A04510/com.chongyueyue.client/chromium: [nweb_handler_delegate.cc:703] RegisterNWebHandler
+13:17:02.514 ​‌​01-05 13:17:02.525 14554 14554 I A04510/com.chongyueyue.client/chromium: [nweb_preference_delegate.cc:421] Put JavaScript Enabled:1
+13:17:02.517 ​‌​01-05 13:17:02.526 14554 14554 I C02B91/com.chongyueyue.client/AVSession: [CurlSetRequestOptions]DoDownload curl easy_perform failure: URL using bad/illegal format or missing URL
+13:17:02.519 ​‌​01-05 13:17:02.528 14554 14554 I C04500/com.chongyueyue.client/webview: OH_NativeArkWeb_BindWebTagToWebInstance: native OH_NativeArkWeb_BindWebTagToWebInstance webTag: arkweb:5
+13:17:02.519 ​‌​01-05 13:17:02.528 14554 14554 I A04510/com.chongyueyue.client/chromium: [arkweb_native_object.cc:136] NativeArkWeb BindWebTagToWebInstance webTag:arkweb:5
+13:17:02.519 ​‌​01-05 13:17:02.528 14554 14554 W A04510/com.chongyueyue.client/chromium: [arkweb_native_object.cc:67] NativeArkWeb valid callback is nullptr
+13:17:02.519 ​‌​01-05 13:17:02.528 14554 14554 I C04500/com.chongyueyue.client/webview: OH_NativeArkWeb_GetJavaScriptProxyValidCallback: native OH_Web_GetValidCallback, webTag: arkweb:5
+13:17:02.520 ​‌​01-05 13:17:02.528 14554 14554 W C04500/com.chongyueyue.client/webview: SetWebId: native validCallback is null, callback nothing
+13:17:02.522 ​‌​01-05 13:17:02.528 14554 14554 I C04500/com.chongyueyue.client/webview: LoadNWebSDK: LoadNWebSDK had loaded.
+13:17:02.522 ​‌​01-05 13:17:02.528 14554 14554 I C04500/com.chongyueyue.client/webview: LoadNWebSDK: LoadNWebSDK had loaded.
+13:17:02.522 ​‌​01-05 13:17:02.528 14554 14554 I C04500/com.chongyueyue.client/webview: RegisterDownloadCallback: [DOWNLOAD] had RegisterDownloadCallback.
+13:17:02.522 ​‌​01-05 13:17:02.528 14554 14554 E A04510/com.chongyueyue.client/chromium: [nweb_scheme_handler_factory.cc:203] scheme_handler SetSchemeHandler for arkweb:5
+13:17:02.525 ​‌​01-05 13:17:02.528 14554 14554 E A04510/com.chongyueyue.client/chromium: [nweb_scheme_handler_factory.cc:203] scheme_handler SetSchemeHandler for arkweb:5
+13:17:02.525 ​‌​01-05 13:17:02.528 14554 14554 E C04500/com.chongyueyue.client/webview: ParseString: Not a valid napi string
+13:17:02.525 ​‌​01-05 13:17:02.528 14554 14554 I A04510/com.chongyueyue.client/chromium: [nweb_delegate.cc:2700] RegisterArkJSfunction name : harmonyChannel
+13:17:02.525 ​‌​01-05 13:17:02.528 14554 14554 I A04510/com.chongyueyue.client/chromium: [nweb_inputmethod_handler.cc:1487] NWebInputMethodHandler::SetWindowIdForIME windowId: 167
+13:17:02.529 ​‌​01-05 13:17:02.529 14554 14554 I C0391B/com.chongyueyue.client/AceWeb: [(100000:100000:scope)] device type does not satisfy.
+13:17:02.529 ​‌​01-05 13:17:02.529 14554 14554 I A04510/com.chongyueyue.client/chromium: [nweb_impl.cc:1696] NWebImpl::SetDrawMode 0, nweb_id = 6
+13:17:02.529 ​‌​01-05 13:17:02.529 14554 14554 I A04510/com.chongyueyue.client/chromium: [nweb_impl.cc:1712] NWebImpl::SetFitContentMode 0, nweb_id = 6
+13:17:02.529 ​‌​01-05 13:17:02.529 14554 14554 I C0391B/com.chongyueyue.client/AceWeb: [(100000:100000:scope)] Web InitAIDetectResult
+13:17:02.529 ​‌​01-05 13:17:02.529 14554 14554 I A04510/com.chongyueyue.client/chromium: [nweb_delegate.cc:3931] NWebDelegate::SetForceEnableZoom 0
+13:17:02.529 ​‌​01-05 13:17:02.529 14554 14554 E C01305/com.chongyueyue.client/Base: [zip_file.cpp(Open:280)]realpath error: 2, pathName: /module_update/ArkWebCore/app/com.huawei.hmos.arkwebcore/ArkWebCore.hap
+13:17:02.529 ​‌​01-05 13:17:02.529 14554 14554 E C04500/com.chongyueyue.client/webadapter: GetArkWebVersion: Failed to initialize extractor for HAP file: /module_update/ArkWebCore/app/com.huawei.hmos.arkwebcore/ArkWebCore.hap
+13:17:02.529 ​‌​01-05 13:17:02.529 14554 14554 E C01305/com.chongyueyue.client/Base: [zip_file.cpp(Open:280)]realpath error: 2, pathName: /system/app/com.ohos.arkwebcore/ArkWebCore.hap
+13:17:02.532 ​‌​01-05 13:17:02.529 14554 14554 E C04500/com.chongyueyue.client/webadapter: GetArkWebVersion: Failed to initialize extractor for HAP file: /system/app/com.ohos.arkwebcore/ArkWebCore.hap
+13:17:02.532 ​‌​01-05 13:17:02.529 14554 14554 E C04500/com.chongyueyue.client/webadapter: GetArkWebVersion: Failed to get ArkWeb version from any of the specified paths
+13:17:02.532 ​‌​01-05 13:17:02.529 14554 14554 I A04510/com.chongyueyue.client/chromium: [nweb_impl.cc:6380] popup window opt for emulator in init, result = 0
+13:17:02.535 ​‌​01-05 13:17:02.529 14554 14554 I C0391B/com.chongyueyue.client/AceWeb: [(100000:100000:scope)] RegisterNativeJavaScriptProxy arkMessager have 1 callback
+13:17:02.535 ​‌​01-05 13:17:02.529 14554 14554 I A04510/com.chongyueyue.client/chromium: [nweb_impl.cc:6575] NWebImpl::RegisterNativeJavaScriptProxy arkMessager
+13:17:02.535 ​‌​01-05 13:17:02.530 14554 14554 I A04510/com.chongyueyue.client/chromium: [nweb_preference_delegate.cc:421] Put JavaScript Enabled:1
+13:17:02.535 ​‌​01-05 13:17:02.530 14554 14554 I C0391B/com.chongyueyue.client/AceWeb: [(100000:100000:scope)] WebDelegate::UpdateBypassVsyncCondition condition:0
+13:17:02.535 ​‌​01-05 13:17:02.530 14554 14554 I A04510/com.chongyueyue.client/chromium: [nweb_preference_delegate.cc:112] NWebPreferenceDelegate::SetBypassVsyncCondition condition:0
+13:17:02.538 ​‌​01-05 13:17:02.530 14554 14554 I A04510/com.chongyueyue.client/cef: [arkweb_browser_host_ext.cc:1417] ArkWebBrowserHostExtImpl::SetBypassVsyncCondition condition:0
+13:17:02.538 ​‌​01-05 13:17:02.531 14554 14554 I A04510/com.chongyueyue.client/chromium: [nweb_engine_impl.cc:103] SetWebDebuggingAccess(1), g_web_debugging_enabled[1], g_web_debugging_port[0]
+13:17:02.538 ​‌​01-05 13:17:02.531 14554 14554 I A04510/com.chongyueyue.client/chromium: [nweb_preference_delegate.cc:562] Put Pinch Smooth Mode:0
+13:17:02.541 ​‌​01-05 13:17:02.532 14554 14554 I A04510/com.chongyueyue.client/chromium: [feature_list_utils.cc:37] set Scrollbar:0 state:2
+13:17:02.544 ​‌​01-05 13:17:02.533 14554 14554 I A04510/com.chongyueyue.client/chromium: [nweb_preference_delegate.cc:1209] NWebPreferenceDelegate::PutWebMediaAVSessionEnabled enable:1
+13:17:02.544 ​‌​01-05 13:17:02.533 14554 14554 I A04510/com.chongyueyue.client/chromium: [media_session_impl_for_include.cc:133] media avsession MediaSessionImpl::PutWebMediaAVSessionEnabled enable is: 1
+13:17:02.544 ​‌​01-05 13:17:02.533 14554 14554 I C0391B/com.chongyueyue.client/AceWeb: [(100000:100000:scope)] WebDelegate::UpdateGestureFocusMode mode:0
+13:17:02.546 ​‌​01-05 13:17:02.533 14554 14716 I A04510/com.chongyueyue.client/chromium: [stream_texture_ohos.cc:65] [NativeEmbed] StreamTexture::Create.
+13:17:02.546 ​‌​01-05 13:17:02.533 14554 14554 I A04510/com.chongyueyue.client/chromium: [nweb_delegate.cc:1964] NWebDelegate::OnWindowHide, nweb id = 6
+13:17:02.546 ​‌​01-05 13:17:02.533 14554 14554 I A04510/com.chongyueyue.client/cef: [render_process_state_handler.cc:111] RenderProcessStateHandler::UpdateRenderProcessState: ReportRenderProcessStatus render_id: 14802 report_background_state: 0
+13:17:02.546 ​‌​01-05 13:17:02.533 14554 14554 I A04510/com.chongyueyue.client/cef: [alloy_browser_host_impl_ext.cc:1732] AlloyBrowserHostImplExt::SetVisible nweb_id: 6, visible 0
+13:17:02.549 ​‌​01-05 13:17:02.533 14554 14554 I A04510/com.chongyueyue.client/chromium: [nweb_output_handler.cc:105] NWeb size change from 1*1 to 1224*2776, nweb id = 6
+13:17:02.549 ​‌​01-05 13:17:02.533 14554 14554 I A04510/com.chongyueyue.client/chromium: [nweb_output_handler.cc:132] need to resize for emulator early firstly, result = 0
+13:17:02.549 ​‌​01-05 13:17:02.534 14554 14716 I C01401/com.chongyueyue.client/Bufferqueue: <surface_image.cpp:85-InitSurfaceImage>: InitSurfaceImage Init ret: 0, uniqueId: 62508954025984.
+13:17:02.552 ​‌​01-05 13:17:02.534 14554 14554 I A04510/com.chongyueyue.client/cef: [arkweb_render_widget_host_view_osr_utils.cc:77] compositor construct, widget = 11
+13:17:02.552 ​‌​01-05 13:17:02.535 14554 14554 I A04510/com.chongyueyue.client/cef: [arkweb_render_widget_host_view_osr_utils.cc:189] CefRenderWidgetHostViewOSR::ShowWithVisibility compositor
+13:17:02.552 ​‌​01-05 13:17:02.535 14554 14554 I A04510/com.chongyueyue.client/cef: [render_widget_host_view_osr.cc:470] CefRenderWidgetHostViewOSR::ShowWithVisibility AttachToCompositor
+13:17:02.555 ​‌​01-05 13:17:02.535 14554 14554 I A04510/com.chongyueyue.client/chromium: [navigation_request.cc:2680] event_message:  is_browser_initiated_: 1 was_redirected_: 0 (473453DD6E31B1DD8519554E2E7FC69E)
+13:17:02.555 ​‌​01-05 13:17:02.535 14554 14554 E A04510/com.chongyueyue.client/chromium: [nweb_extension_tabs_dispatcher.cc:620] extension api listener is null
+13:17:02.555 ​‌​01-05 13:17:02.536 14554 14554 I A04510/com.chongyueyue.client/chromium: [nweb_handler_delegate.cc:2060] NWebHandlerDelegate::OnBeforeBrowse
+13:17:02.558 ​‌​01-05 13:17:02.536 14554 14554 E C01317/com.chongyueyue.client/AppKit: [context_impl331]hapModuleInfo null
+13:17:02.558 ​‌​01-05 13:17:02.536 14554 14554 I C04500/com.chongyueyue.client/webview: SetPathAllowingUniversalAccess: need to get module name for path
+13:17:02.561 ​‌​01-05 13:17:02.537 14554 14554 E C04500/com.chongyueyue.client/webview: SetPathAllowingUniversalAccess: /data/storage/el1/base/haps/entry/files/apps is invalid.
+13:17:02.561 ​‌​01-05 13:17:02.537 14554 14554 W C03F00/com.chongyueyue.client/ArkCompiler: [default] [Call] occur exception need return
+13:17:02.561 ​‌​01-05 13:17:02.537 14554 14554 E C03F00/com.chongyueyue.client/ArkCompiler: [ecmascript] Pending exception before ExecutePendingJob called, in line:5894, exception details as follows:
+13:17:02.561 ​‌​01-05 13:17:02.537 14554 14554 E C03F00/com.chongyueyue.client/ArkCompiler: Error: BusinessError 401: Parameter error. Path: '/data/storage/el1/base/haps/entry/files/apps' is invalid
+13:17:02.561 ​‌​01-05 13:17:02.537 14554 14554 E C03F00/com.chongyueyue.client/ArkCompiler:     at anonymous @dcloudio/uni-mp-sdk (oh_modules/.ohpm/@dcloudio+uni-app-runtime@e61xy4t7udv6xbickvvkkdflr0p30afaiftcwqggq70=/oh_modules/@dcloudio/uni-app-runtime/src/main/ets/uni-mp-sdk/WebBuilder.ets:135:29)
+13:17:02.564 ​‌​01-05 13:17:02.537 14554 14554 W C03900/com.chongyueyue.client/Ace: [(100000:100000:scope)] after call jsFunction hasError, empty: 0, caught: 1
+13:17:02.565 ​‌​01-05 13:17:02.538 14554 14554 I C01356/com.chongyueyue.client/Recovery: [app_recovery255]scheduleRecoverApp  begin
+13:17:02.567 ​‌​01-05 13:17:02.538 14554 14554 I C01336/com.chongyueyue.client/AMS: [AMC1547]call
+13:17:02.567 ​‌​01-05 13:17:02.538 14554 14554 I C01356/com.chongyueyue.client/Recovery: [app_recovery255]scheduleRecoverApp  begin
+13:17:02.567 ​‌​01-05 13:17:02.538 14554 14554 I C01336/com.chongyueyue.client/AMS: [AMC1547]call
+13:17:02.570 ​‌​01-05 13:17:02.539 14554 14554 E C01305/com.chongyueyue.client/Base: [zip_file.cpp(Open:280)]realpath error: 2, pathName: /module_update/ArkWebCore/app/com.huawei.hmos.arkwebcore/ArkWebCore.hap
+13:17:02.570 ​‌​01-05 13:17:02.539 14554 14554 E C04500/com.chongyueyue.client/webadapter: GetArkWebVersion: Failed to initialize extractor for HAP file: /module_update/ArkWebCore/app/com.huawei.hmos.arkwebcore/ArkWebCore.hap
+13:17:02.570 ​‌​01-05 13:17:02.539 14554 14554 E C01305/com.chongyueyue.client/Base: [zip_file.cpp(Open:280)]realpath error: 2, pathName: /system/app/com.ohos.arkwebcore/ArkWebCore.hap
+13:17:02.570 ​‌​01-05 13:17:02.539 14554 14554 E C04500/com.chongyueyue.client/webadapter: GetArkWebVersion: Failed to initialize extractor for HAP file: /system/app/com.ohos.arkwebcore/ArkWebCore.hap
+13:17:02.570 ​‌​01-05 13:17:02.539 14554 14554 E C04500/com.chongyueyue.client/webadapter: GetArkWebVersion: Failed to get ArkWeb version from any of the specified paths
+13:17:02.573 ​‌​01-05 13:17:02.540 14554 14554 I A04510/com.chongyueyue.client/cef: [arkweb_touch_selection_controller_client_osr_ext.cc:202] Close Quick Menu And Hide Hanles.
+13:17:02.573 ​‌​01-05 13:17:02.540 14554 14554 I A04510/com.chongyueyue.client/chromium: [background_task_policy.cc:112] [BGTASKPOLICY]OnIsVisibleChanged media avsession IsVisibleChanged: false, visible_page_num: 2
+13:17:02.574 ​‌​01-05 13:17:02.540 14554 14554 I A04510/com.chongyueyue.client/chromium: [background_task_policy.cc:193] BackgroundTaskPolicy::MaybeChangeBackgroundTask  page_node hash=f3a4a410d22ba9f8 visible_page_num_: 2 media_playing_num_: 0 audio_state_num_: 0 is_request_background_task_: 0
+13:17:02.574 ​‌​01-05 13:17:02.540 14554 14554 I A04510/com.chongyueyue.client/chromium: [background_task_policy.cc:226] [BGTASKPOLICY] no change return
+13:17:02.574 ​‌​01-05 13:17:02.541 14554 14554 I A04510/com.chongyueyue.client/chromium: [nweb_handler_delegate.cc:1769] NWebHandlerDelegate::OnLargestContentfulPaint
+13:17:02.577 ​‌​01-05 13:17:02.541 14554 14554 I C0391B/com.chongyueyue.client/AceWeb: [(100000:100000:scope)] WebDelegate::OnLargestContentfulPaint, web id = 6
+13:17:02.577 ​‌​01-05 13:17:02.541 14554 14554 I A04510/com.chongyueyue.client/chromium: [page_load_tracker.cc:479] event_message: PageHidden source_id_ value: 97
+13:17:02.577 ​‌​01-05 13:17:02.541 14554 14554 I A04510/com.chongyueyue.client/chromium: [nweb_inputmethod_handler.cc:526] NWebInputMethodHandler::HideTextInput, isAttached_: 0
+13:17:02.580 ​‌​01-05 13:17:02.541 14554 14554 I C0391B/com.chongyueyue.client/AceWeb: [(100000:100000:scope)] Get AI entity menu from ai_engine
+13:17:02.580 ​‌​01-05 13:17:02.541 14554 14554 I A04510/com.chongyueyue.client/chromium: [net_connect_adapter_impl.cpp:399] get default net success, net id = 100.
+13:17:02.580 ​‌​01-05 13:17:02.541 14554 14554 I A04510/com.chongyueyue.client/chromium: [net_connect_adapter_impl.cpp:407] get default net capabilities success
+13:17:02.580 ​‌​01-05 13:17:02.541 14554 14554 I A04510/com.chongyueyue.client/chromium: [net_connect_adapter_impl.cpp:427] net connect type = wifi.
+13:17:02.580 ​‌​01-05 13:17:02.541 14554 14554 W C01317/com.chongyueyue.client/AppKit: [js_ability_stage268]Not found AbilityStage.js
+13:17:02.580 ​‌​01-05 13:17:02.541 14554 14554 W C01321/com.chongyueyue.client/JsRuntime: [js_runtime1537]invalid nativeRef
+13:17:02.583 ​‌​01-05 13:17:02.541 14554 14554 E C01317/com.chongyueyue.client/AppKit: [MAINTHD3914]null assertThread
+13:17:02.583 ​‌​01-05 13:17:02.541 14554 14554 I C02C11/com.chongyueyue.client/APPSPAWN: ExitCode:0

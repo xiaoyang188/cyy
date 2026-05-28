@@ -1,0 +1,58 @@
+import {
+  CloseBLEConnectionOptions,
+  CommonCallbackResult,
+  CloseBLEConnection
+} from '../../interface.uts';
+
+import { BluetoothFailImpl } from '../../unierror.uts';
+import { ble } from '@kit.ConnectivityKit';
+import { getAdapterInitialized } from '../openBluetoothAdapter/index.uts';
+import { getBleConnection, removeBleConnection } from '../global.uts';
+
+const TAG = 'closeBLEConnection';
+
+/**
+ * 断开低功耗蓝牙设备连接
+ */
+export const closeBLEConnection: CloseBLEConnection = function (options: CloseBLEConnectionOptions) {
+  try {
+    const isAdapterInitialized = getAdapterInitialized();
+    
+    if (!isAdapterInitialized) {
+      const failResult = new BluetoothFailImpl(10000); // not init
+      options.fail?.(failResult);
+      options.complete?.(failResult);
+      return;
+    }
+    
+    const gattClient: ble.GattClientDevice | null = getBleConnection(options.deviceId);
+    if (!gattClient) {
+      const failResult = new BluetoothFailImpl(10006); // no connection
+      options.fail?.(failResult);
+      options.complete?.(failResult);
+      return;
+    }
+    
+    // 断开连接
+
+    gattClient.disconnect();
+	gattClient.close();
+    
+    // 移除连接记录
+    removeBleConnection(options.deviceId);
+    
+    const result: CommonCallbackResult = {
+      errMsg: 'closeBLEConnection:ok'
+    };
+    
+    options.success?.(result);
+    options.complete?.(result);
+    
+    console.info(TAG, 'closeBLEConnection success for device:', options.deviceId);
+  } catch (err) {
+    console.error(TAG, 'closeBLEConnection failed:', err);
+    const failResult = new BluetoothFailImpl(10008); // system error
+    options.fail?.(failResult);
+    options.complete?.(failResult);
+  }
+};

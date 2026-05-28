@@ -1,0 +1,41 @@
+import { geoLocationManager } from '@kit.LocationKit';
+
+import { ReverseGeoCodeRequest, GeoAddress } from "../../interface.uts"
+
+export function getAddressesFromLocation(options : ReverseGeoCodeRequest) {
+	try {
+		let reverseGeocodeRequest : geoLocationManager.ReverseGeoCodeRequest = {
+			"latitude": options.latitude,
+			"longitude": options.longitude,
+			"maxItems": options.maxItems ?? 1
+		};
+		if (options.locale != null) {
+			reverseGeocodeRequest.locale = options.locale
+		}
+		if (options.country != null) {
+			reverseGeocodeRequest.country = options.country
+		}
+		try {
+			geoLocationManager.getAddressesFromLocation(reverseGeocodeRequest, (err, data) => {
+				if (err) {
+					console.error('getAddressesFromLocation: err=' + JSON.stringify(err));
+					options.fail?.(err)
+				}
+				if (data) {
+					console.info('getAddressesFromLocation: data=' + JSON.stringify(data));
+					let result:GeoAddress[]=[]
+					for(let item of data){
+						let items:GeoAddress=JSON.parse<GeoAddress>(JSON.stringify(item)!)!
+						result.push(items)
+					}
+					options.success?.(result)
+				}
+			});
+		} catch (err) {
+			console.error("errCode:" + err.code + ", message:" + err.message);
+			options.fail?.(err)
+		}
+	} catch (err) {
+		options.fail?.(err)
+	}
+}

@@ -1,0 +1,14 @@
+{
+    "name": "get_mobile",
+    "dependencies": [],
+    "extensions": {
+        "uni-cloud-verify": {}
+    },
+    "cloudfunction-config": {
+        "memorySize": 512,
+        "timeout": 5,
+        "triggers": [],
+        "path": "/getMobile",
+        "runtime": "Nodejs16"
+    }
+}

@@ -1,0 +1,27 @@
+/**
+ * HarmonyOS 平台蓝牙适配器实现
+ * 调用鸿蒙原生蓝牙 API
+ */
+
+// 导出所有蓝牙功能模块
+export { openBluetoothAdapter } from './openBluetoothAdapter/index.uts';
+export { closeBluetoothAdapter } from './closeBluetoothAdapter/index.uts';
+export { getBluetoothAdapterState } from './getBluetoothAdapterState/index.uts';
+export { startBluetoothDevicesDiscovery } from './startBluetoothDevicesDiscovery/index.uts';
+export { stopBluetoothDevicesDiscovery } from './stopBluetoothDevicesDiscovery/index.uts';
+export { getBluetoothDevices } from './getBluetoothDevices/index.uts';
+export { createBLEConnection } from './createBLEConnection/index.uts';
+export { closeBLEConnection } from './closeBLEConnection/index.uts';
+export { getBLEDeviceServices } from './getBLEDeviceServices/index.uts';
+export { getBLEDeviceCharacteristics } from './getBLEDeviceCharacteristics/index.uts';
+export { readBLECharacteristicValue } from './readBLECharacteristicValue/index.uts';
+export { writeBLECharacteristicValue } from './writeBLECharacteristicValue/index.uts';
+export { notifyBLECharacteristicValueChange } from './notifyBLECharacteristicValueChange/index.uts';
+export { setBLEMTU } from './setBLEMTU/index.uts';
+export { getBLEDeviceRSSI } from './getBLEDeviceRSSI/index.uts';
+export { onBluetoothDeviceFound, offBluetoothDeviceFound } from './onBluetoothDeviceFound/index.uts';
+export { onBLEConnectionStateChange, offBLEConnectionStateChange } from './onBLEConnectionStateChange/index.uts';
+export { onBLECharacteristicValueChange, offBLECharacteristicValueChange } from './onBLECharacteristicValueChange/index.uts';
+export { checkBluetoothPermission, checkBluetoothPermissionSync, requestBluetoothPermission, enableBluetooth } from './checkBluetoothPermission/index.uts';
+// sckd-bleAdapter 蓝牙适配器插件
+// 采用模块化架构，所有功能通过独立模块实现

@@ -1,0 +1,69 @@
+import {
+  CommonCallbackResult
+} from '../../interface.uts';
+
+// BLE特征值变化事件数据
+export type OnBLECharacteristicValueChangeCallbackResult = {
+  deviceId: string
+  serviceId: string
+  characteristicId: string
+  value: ArrayBuffer
+}
+
+// BLE特征值变化事件监听器
+export type OnBLECharacteristicValueChangeCallback = (result: OnBLECharacteristicValueChangeCallbackResult) => void
+
+const TAG = 'onBLECharacteristicValueChange';
+
+// 存储事件监听器
+let characteristicValueChangeListeners: Array<OnBLECharacteristicValueChangeCallback> = [];
+
+/**
+ * 监听低功耗蓝牙设备的特征值变化事件
+ */
+export const onBLECharacteristicValueChange = function (callback: OnBLECharacteristicValueChangeCallback) {
+  try {
+    if (typeof callback === 'function') {
+      characteristicValueChangeListeners.push(callback);
+      console.info(TAG, 'onBLECharacteristicValueChange listener added');
+    } else {
+      console.error(TAG, 'callback must be a function');
+    }
+  } catch (err) {
+    console.error(TAG, 'onBLECharacteristicValueChange failed:', err);
+  }
+};
+
+/**
+ * 取消监听低功耗蓝牙设备的特征值变化事件
+ */
+export const offBLECharacteristicValueChange = function (callback?: OnBLECharacteristicValueChangeCallback) {
+  try {
+    if (callback) {
+      const index = characteristicValueChangeListeners.indexOf(callback);
+      if (index > -1) {
+        characteristicValueChangeListeners.splice(index, 1);
+        console.info(TAG, 'specific onBLECharacteristicValueChange listener removed');
+      }
+    } else {
+      characteristicValueChangeListeners = [];
+      console.info(TAG, 'all onBLECharacteristicValueChange listeners removed');
+    }
+  } catch (err) {
+    console.error(TAG, 'offBLECharacteristicValueChange failed:', err);
+  }
+};
+
+/**
+ * 触发BLE特征值变化事件
+ */
+export const emitBLECharacteristicValueChange = function (data: OnBLECharacteristicValueChangeCallbackResult) {
+  try {
+    characteristicValueChangeListeners.forEach(listener => {
+      listener(data);
+    });
+    console.info(TAG, 'BLE characteristic value change event emitted:', data);
+  } catch (err) {
+    console.error(TAG, 'emitBLECharacteristicValueChange failed:', err);
+  }
+};

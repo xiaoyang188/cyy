@@ -1,0 +1,66 @@
+/**
+ * 通用API执行失败回调函数类型
+ */
+export type ApiFail = (err: UniError) => void;
+
+/**
+ * 通用API执行完成回调函数类型
+ */
+export type ApiComplete = (res: any) => void;
+
+/**
+ * 通用API执行成功的参数，无数据需要携带返回的API可用此参数
+ */
+export type ApiCommonResult = {
+	errMsg: string
+}
+
+/**
+ * 通用API执行成功回调函数类型
+ */
+export type ApiSuccess = (res: ApiCommonResult) => void;
+
+
+// -------------------------------- 罗盘监听和移除回调 --------------------------------
+
+export type OnCompassChangeListenerResult = {
+    /** 
+     * 精度 
+     * 
+     * 在鸿蒙NEXT上，这个值表示传感器数据上报的精度挡位值。
+     * 具体含义可参考华为文档：https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-sensor#sensoraccuracy11
+     **/
+    accuracy: number | string
+    /** 面对的方向度数 */
+    direction: number
+}
+export type OnCompassChangeCallback = (result: OnCompassChangeListenerResult) => void;
+export type onCompassChange = (listener: OnCompassChangeCallback) => void;
+export type offCompassChange = (listener: OnCompassChangeCallback) => void;
+
+// -------------------------------- 罗盘监听和移除回调 --------------------------------
+
+// -------------------------------- 启动和停止罗盘传感 --------------------------------
+
+export type StartCompassOption = {
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    complete?: ApiComplete
+    /** 接口调用失败的回调函数 */
+    fail?: ApiFail
+    /** 接口调用成功的回调函数 */
+    success?: ApiSuccess
+}
+
+export type StopCompassOption = {
+    /** 接口调用结束的回调函数（调用成功、失败都会执行） */
+    complete?: ApiComplete
+    /** 接口调用失败的回调函数 */
+    fail?: ApiFail
+    /** 接口调用成功的回调函数 */
+    success?: ApiSuccess
+}
+
+export type startCompass = (option?: StartCompassOption) => void;
+export type stopCompass = (option?: StopCompassOption) => void;
+
+// -------------------------------- 启动和停止罗盘传感 --------------------------------

@@ -1,0 +1,49 @@
+import { CommonCallbackResult, KeepScreenOnOptions, SetKeepScreenOn } from "../../interface";
+import { window } from "@kit.ArkUI";
+import { BusinessError } from "@kit.BasicServicesKit";
+import { common } from "@kit.AbilityKit";
+import { AppStorageV2,UIContext  } from '@kit.ArkUI';
+
+const TAG = 'setKeepScreenOn';
+export const setKeepScreenOn : SetKeepScreenOn = function (options : KeepScreenOnOptions) {
+	let isKeepScreenOn : boolean = true;
+	if (options.keepScreenOn != null) {
+		isKeepScreenOn = options.keepScreenOn
+	}
+	
+	try {
+		// 获取当前主窗口
+		window.getLastWindow(AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext() as common.UIAbilityContext, (err : BusinessError, windowClass : window.Window) => {
+			if (err.code) {
+				console.error(TAG, 'getLastWindow failed:', err);
+				options.fail?.(err);
+				options.complete?.(err);
+				return;
+			}
+			
+			// 设置屏幕常亮
+			windowClass.setWindowKeepScreenOn(isKeepScreenOn, (setErr : BusinessError) => {
+				const errCode : number = setErr.code;
+				if (errCode) {
+					console.error(TAG, 'setKeepScreenOn failed:', setErr);
+					options.fail?.(setErr);
+					options.complete?.(setErr);
+					return;
+				}
+				
+				const result : CommonCallbackResult = {
+					errMsg: 'setKeepScreenOn:ok'
+				};
+
+				options.success?.(result);
+				options.complete?.(result);
+
+				console.info(TAG, 'setKeepScreenOn success to ' + isKeepScreenOn);
+			});
+		});
+	} catch (exception) {
+		console.error(TAG, 'setKeepScreenOn failed:', exception);
+		options.fail?.(exception);
+		options.complete?.(exception);
+	}
+}

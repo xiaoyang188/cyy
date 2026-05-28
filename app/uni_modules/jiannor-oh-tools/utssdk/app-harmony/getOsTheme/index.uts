@@ -1,0 +1,19 @@
+import { ConfigurationConstant, common } from '@kit.AbilityKit';
+import { AppStorageV2, UIContext } from '@kit.ArkUI';
+
+
+export function getOsTheme() {
+	try{
+		let context = AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext() as common.UIAbilityContext;
+		const config = context.config;
+		if (config.colorMode === ConfigurationConstant.ColorMode.COLOR_MODE_DARK) {
+			return 'dark'
+		} else if (config.colorMode == ConfigurationConstant.ColorMode.COLOR_MODE_LIGHT) {
+			return 'light'
+		}
+	}catch(err){
+		console.log('getOsTheme',err)
+	}
+	return 'light'
+
+}

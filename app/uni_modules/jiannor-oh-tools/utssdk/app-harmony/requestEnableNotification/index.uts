@@ -1,0 +1,36 @@
+import { notificationManager } from '@kit.NotificationKit';
+import { common } from '@kit.AbilityKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { RequestEnableNotificationOptions, CommonErrorCallBackResult } from '../../interface.uts';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { AppStorageV2, UIContext } from '@kit.ArkUI';
+
+export function requestEnableNotification(options : RequestEnableNotificationOptions) {
+	try {
+		if (!canIUse('SystemCapability.Notification.Notification')) {
+			let result : CommonErrorCallBackResult = {
+				errMsg: "This device does not support the notificationManager capability."
+			} as CommonErrorCallBackResult
+			options.fail?.(result)
+		}
+		let context = AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext() as common.UIAbilityContext
+		notificationManager.requestEnableNotification(context).then(() => {
+			hilog.info(0x0000, 'testTag', `[ANS] requestEnableNotification success`);
+			options.success?.()
+		}).catch((err : BusinessError) => {
+			hilog.error(0x0000, 'testTag', `[ANS] requestEnableNotification failed, code is ${err.code}, message is ${err.message}`);
+			let result : CommonErrorCallBackResult = {
+				errCode: err.code,
+				errMsg: err.message
+			} as CommonErrorCallBackResult
+			options.fail?.(result)
+		});
+
+	} catch (err) {
+		console.log("requestEnableNotification uniModules", err)
+		let result : CommonErrorCallBackResult = {
+			errMsg: String(err)
+		} as CommonErrorCallBackResult
+		options.fail?.(result)
+	}
+}

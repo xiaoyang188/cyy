@@ -1,0 +1,59 @@
+import {
+  CloseBluetoothAdapterOptions,
+  CommonCallbackResult,
+  CloseBluetoothAdapter
+} from '../../interface.uts';
+
+import { BluetoothFailImpl } from '../../unierror.uts';
+import { ble } from '@kit.ConnectivityKit';
+import { getBleScanner, setBleScanner, setAdapterInitialized } from '../openBluetoothAdapter/index.uts';
+import { getBleConnections, clearBleConnections } from '../global.uts';
+
+const TAG = 'closeBluetoothAdapter';
+
+/**
+ * 关闭蓝牙适配器
+ */
+export const closeBluetoothAdapter: CloseBluetoothAdapter = function (options: CloseBluetoothAdapterOptions={}) {
+  try {
+    const bleScanner = getBleScanner();
+    
+    // 停止扫描
+    if (bleScanner) {
+      try {
+        bleScanner.stopScan();
+      } catch (e) {
+        console.warn(TAG, 'stopScan error:', e);
+      }
+    }
+    
+    // 断开所有连接
+    const bleConnections = getBleConnections();
+    bleConnections.forEach((gattClient, deviceId) => {
+      try {
+        gattClient.disconnect();
+      } catch (e) {
+        console.warn(TAG, 'disconnect error for device:', deviceId, e);
+      }
+    });
+    
+    // 清理资源
+    setBleScanner(null);
+    setAdapterInitialized(false);
+    clearBleConnections();
+    
+    const result: CommonCallbackResult = {
+      errMsg: 'closeBluetoothAdapter:ok'
+    };
+    
+    options.success?.(result);
+    options.complete?.(result);
+    
+    console.info(TAG, 'closeBluetoothAdapter success');
+  } catch (err) {
+    console.error(TAG, 'closeBluetoothAdapter failed:', err);
+    const failResult = new BluetoothFailImpl(10008); // system error
+    options.fail?.(failResult);
+    options.complete?.(failResult);
+  }
+};

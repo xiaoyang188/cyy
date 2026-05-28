@@ -1,0 +1,75 @@
+/**
+ * onBluetoothDeviceFound 模块
+ * 监听寻找到新设备的事件
+ */
+
+import {
+  OnBluetoothDeviceFoundCallback,
+  OnBluetoothDeviceFoundCallbackResult,
+  BluetoothDeviceInfo
+} from '../../interface.uts';
+
+const TAG = 'onBluetoothDeviceFound';
+
+// 存储事件监听器
+let deviceFoundListeners: Array<OnBluetoothDeviceFoundCallback> = [];
+
+/**
+ * 监听寻找到新设备的事件
+ */
+export const onBluetoothDeviceFound = function (callback: OnBluetoothDeviceFoundCallback) {
+  try {
+    if (typeof callback === 'function') {
+      deviceFoundListeners.push(callback);
+      console.info(TAG, 'onBluetoothDeviceFound listener added');
+    } else {
+      console.error(TAG, 'callback must be a function');
+    }
+  } catch (err) {
+    console.error(TAG, 'onBluetoothDeviceFound failed:', err);
+  }
+};
+
+/**
+ * 取消监听寻找到新设备的事件
+ */
+export const offBluetoothDeviceFound = function (callback?: OnBluetoothDeviceFoundCallback) {
+  try {
+    if (callback) {
+      const index = deviceFoundListeners.indexOf(callback);
+      if (index > -1) {
+        deviceFoundListeners.splice(index, 1);
+        console.info(TAG, 'specific onBluetoothDeviceFound listener removed');
+      }
+    } else {
+      deviceFoundListeners = [];
+      console.info(TAG, 'all onBluetoothDeviceFound listeners removed');
+    }
+  } catch (err) {
+    console.error(TAG, 'offBluetoothDeviceFound failed:', err);
+  }
+};
+
+/**
+ * 触发设备发现事件
+ * @param devices 发现的设备列表
+ */
+export const emitBluetoothDeviceFound = function (devices: Array<BluetoothDeviceInfo>) {
+  try {
+    const result: OnBluetoothDeviceFoundCallbackResult = {
+      devices: devices
+    };
+    
+    deviceFoundListeners.forEach(listener => {
+      try {
+        listener(result);
+      } catch (err) {
+        console.error(TAG, 'listener callback error:', err);
+      }
+    });
+    
+    // console.info(TAG, 'emitBluetoothDeviceFound triggered with', devices.length, 'devices');
+  } catch (err) {
+    console.error(TAG, 'emitBluetoothDeviceFound failed:', err);
+  }
+};

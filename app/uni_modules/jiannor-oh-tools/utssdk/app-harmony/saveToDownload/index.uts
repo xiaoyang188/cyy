@@ -1,0 +1,191 @@
+import { SaveToDownloadOptions, SaveToDownloadResult, SaveToDownloadErrorResult, MediaType } from '../../interface.uts'
+import { fileUri, picker } from '@kit.CoreFileKit'
+import { fileIo as fs } from '@kit.CoreFileKit'
+import { BusinessError } from '@kit.BasicServicesKit'
+import { common } from '@kit.AbilityKit'
+import { AppStorageV2, UIContext } from '@kit.ArkUI'
+import { http } from '@kit.NetworkKit'
+
+export default function saveToDownload(options: SaveToDownloadOptions): Promise<SaveToDownloadResult> {
+  return new Promise<SaveToDownloadResult>((resolve, reject) => {
+    try {
+      // 输入验证
+      if (!options || !options.fileName) {
+        const errorResult: SaveToDownloadErrorResult = {
+          errCode: -1,
+          errMsg: '文件名不能为空'
+        }
+        if (options?.fail) {
+          options.fail(errorResult)
+        }
+        if (options?.complete) {
+          options.complete({})
+        }
+        reject(errorResult)
+        return
+      }
+      
+      // 验证必须提供content或fileUrl其中之一
+      if (!options.content && !options.fileUrl) {
+        const errorResult: SaveToDownloadErrorResult = {
+          errCode: -1,
+          errMsg: '必须提供文件内容(content)或文件URL(fileUrl)'
+        }
+        if (options?.fail) {
+          options.fail(errorResult)
+        }
+        if (options?.complete) {
+          options.complete({})
+        }
+        reject(errorResult)
+        return
+      }
+      
+      const fileName = options.fileName.trim()
+      if (fileName.length === 0) {
+        const errorResult: SaveToDownloadErrorResult = {
+          errCode: -1,
+          errMsg: '文件名不能为空'
+        }
+        if (options.fail) {
+          options.fail(errorResult)
+        }
+        if (options.complete) {
+          options.complete({})
+        }
+        reject(errorResult)
+        return
+      }
+      
+      // 获取当前应用上下文
+      const context = AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext() as common.UIAbilityContext
+      if (!context) {
+        const errorResult: SaveToDownloadErrorResult = {
+          errCode: -1,
+          errMsg: '获取应用上下文失败'
+        }
+        if (options.fail) {
+          options.fail(errorResult)
+        }
+        if (options.complete) {
+          options.complete({})
+        }
+        reject(errorResult)
+        return
+      }
+      
+      // 处理文件保存
+      processFileSave(options, context)
+        .then((result) => {
+          // 调用成功回调
+          if (options.success) {
+            options.success(result)
+          }
+          if (options.complete) {
+            options.complete({})
+          }
+          resolve(result)
+        })
+        .catch((error) => {
+          const errorResult: SaveToDownloadErrorResult = {
+            errCode: -1,
+            errMsg: error.message || '保存文件失败'
+          }
+          // 调用失败回调
+          if (options.fail) {
+            options.fail(errorResult)
+          }
+          if (options.complete) {
+            options.complete({})
+          }
+          reject(errorResult)
+        })
+    } catch (error) {
+      const errorResult: SaveToDownloadErrorResult = {
+        errCode: -1,
+        errMsg: '保存文件时发生未知错误'
+      }
+      if (options?.fail) {
+        options.fail(errorResult)
+      }
+      if (options?.complete) {
+        options.complete({})
+      }
+      reject(errorResult)
+    }
+  })
+}
+
+async function processFileSave(options: SaveToDownloadOptions, context: common.UIAbilityContext): Promise<SaveToDownloadResult> {
+  try {
+    let uri: string = ''
+    
+    // 创建文档选择器，设置为下载模式
+    const documentViewPicker = new picker.DocumentViewPicker(context)
+    const documentSaveOptions = new picker.DocumentSaveOptions()
+    documentSaveOptions.pickerMode = picker.DocumentPickerMode.DOWNLOAD
+    
+    // 如果提供了MIME类型，设置文件类型过滤
+    if (options.mimeType) {
+      documentSaveOptions.fileSuffixChoices = [getFileExtension(options.fileName)]
+    }
+    
+    // 打开文件保存对话框
+    const documentSaveResult: Array<string> = await documentViewPicker.save(documentSaveOptions)
+    uri = documentSaveResult[0]
+    
+    console.info('documentViewPicker.save succeed and uri is:' + uri)
+    
+    // 构建完整的文件路径
+    const fullFilePath = new fileUri.FileUri(uri + '/' + options.fileName).path
+    
+    // 创建并写入文件
+    const file = fs.openSync(fullFilePath, fs.OpenMode.CREATE | fs.OpenMode.READ_WRITE)
+    
+    try {
+      // 确保content存在（前面已经验证过）
+      const content = options.content!
+      
+      if (typeof content === 'string') {
+        // 字符串内容
+        fs.writeSync(file.fd, content)
+      } else {
+        // Uint8Array内容
+        fs.writeSync(file.fd, content.buffer)
+      }
+      
+      fs.closeSync(file.fd)
+      
+      const result: SaveToDownloadResult = {
+        errCode: 0,
+        errMsg: '文件保存成功',
+        savedPath: fullFilePath
+      }
+      
+      return result
+    } catch (writeError) {
+      fs.closeSync(file.fd)
+      throw new Error('写入文件失败: ' + writeError.message)
+    }
+    
+  } catch (error) {
+    console.error(`保存文件失败: ${error.message}`)
+    const err = error as BusinessError
+    if (err.code !== undefined) {
+      throw new Error(`保存文件失败，错误码: ${err.code}, 错误信息: ${err.message}`)
+    } else {
+      throw new Error('保存文件失败: ' + error.message)
+    }
+  }
+}
+
+/**
+ * 从文件名中提取文件扩展名
+ */
+function getFileExtension(fileName: string): string {
+  const lastDotIndex = fileName.lastIndexOf('.')
+  if (lastDotIndex === -1) {
+    return ''
+  }
+  return fileName.substring(lastDotIndex)
+}

@@ -1,0 +1,1543 @@
+<template>
+	<view class="container">
+		<!-- 导航栏 -->
+		<!-- <div class="row_between" style="flex-direction: row;" :style="{ height: navHeight+'px' }">
+			<view class="nav_icon_view" @click="returnParent">
+				<uni-icons type="left" style="" size="20" width="100rpx"
+					color="rgb(18, 18, 18)"></uni-icons>
+			</view>
+			<view style="display: flex;justify-content: center;width: 100%;">
+				<text style="font-size: 50rpx;">家庭WiFi</text>
+			</view>
+			<view  style="width: 150rpx;">
+				<image
+					:src="bluetoothConnect ? '/static/icons/wifi_settings/bluetooth.png':'/static/icons/wifi_settings/bluetoothGray.png'"
+					style="width: 24rpx;height: 35rpx;"></image>
+			</view>
+		</div> -->
+		<view v-if="isShowGuild===6" @click="closeGuild" class="mask"
+			:style="{ height: mapHeight+'px',width :screenWidth+'px'}">
+			<view style="position: relative;" :style="{ height: mapHeight+'px',width :screenWidth+'px'}">
+				<view @click="skipGuild" class="col_start" style="position:absolute;top: 120rpx;left:100rpx">
+					<image src="/static/imgs/home/skip.png" style="width: 70rpx;height: 70rpx;"></image>
+					<text style="margin-top: 3rpx;color: #ffffff;font-size: 20rpx;">跳过引导</text>
+				</view>
+				<view
+					style="height: 300rpx;flex-direction: column;justify-content: space-between;justify-content: space-between;align-items: center;"
+					:style="labelMarginTop">
+					<view style="height: 140rpx;background-color: rgb(255, 255, 255);border-radius: 10px;
+						display: flex;flex-direction: column;justify-content: space-around;align-items: flex-start" :style="labelWidth">
+						<view style="padding-left: 15rpx;"><text style="font-size: 30rpx;">请将WiFi移动到当前项圈所在位置：</text>
+						</view>
+						<view
+							style="padding-left: 15rpx;display: flex;flex-direction: row;align-items: center;justify-content: start;">
+							<cover-image src="/static/xixin/railPoint.png"
+								style="width: 40rpx;height: 40rpx;margin-right: 15rpx;"></cover-image>
+							<text
+								style=" font-size: 30rpx; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;color: rgb(229, 156, 134);">{{locateName}}</text>
+						</view>
+					</view>
+					<button @click="sureChange" style="margin-top: 30rpx; height: 80rpx;background-color: rgba(255, 87, 51, 1);border-radius: 10px;display: flex;flex-direction: row;
+						justify-content: center;align-items: center;" :style="labelWidth">
+						<text style="font-size: 35rpx; color: aliceblue;">确认</text>
+					</button>
+					<view style="display: flex;flex-direction: row;" :style="labelWidth">
+						<view style="display: flex;flex-direction: column;height: 50rpx;position: relative;">
+							<view class="scale-border"><text
+									style="color: rgba(0, 0, 0, 0);margin-left: 10rpx;margin-right: 30rpx;">{{scaleShow}}</text>
+							</view>
+							<view style="position: absolute;left: 10px;">{{scaleShow}}</view>
+						</view>
+					</view>
+				</view>
+			</view>
+
+		</view>
+		<view v-if="showFimwareTitle" class="mask" style="width: 750rpx;" :style="{height:mapHeight+'px'}">
+			<view class="drawtoast" style="width: 100%;height: 550rpx;">
+				<view style="background-color: #FFFFFF;width:250px;height: 550rpx;border-radius: 30px;">
+					<view class="topBar">
+						<text style="color: #FFFFFF;">温馨提示</text>
+					</view>
+					<view style="margin-top: 10px;align-items: center;padding-left: 5px;">
+						<text style="padding: 20rpx;line-height: 45rpx;">家庭WiFi功能需要固件版本大于44，请先升级固件后回到本页面设置</text>
+					</view>
+
+					<view style="flex-direction: row;justify-content: space-between;width: 250px;margin-top: 10px;">
+						<view></view>
+						<button @click="goUpgrade(false)" class="myButton">
+							<text style="color: #FFFFFF;">跳过</text></button>
+						<button @click="goUpgrade(true)" class="myButton"><text
+								style="color: #FFFFFF;">去升级</text></button>
+						<view></view>
+					</view>
+				</view>
+			</view>
+		</view>
+		<view v-if="showDateLineTitle" class="mask" style="width: 750rpx;" :style="{height:mapHeight+'px'}">
+			<view class="drawtoast" style="width: 100%;">
+				<view style="background-color: #FFFFFF;width:250px;border-radius: 30px;">
+					<view class="topBar">
+						<text style="color: #FFFFFF;">温馨提示</text>
+					</view>
+					<view style="align-items: center;padding-left: 5px;">
+						<text style="padding: 20rpx;line-height: 45rpx;">{{timeLineText}}</text>
+					</view>
+					<view style="flex-direction: row;justify-content: space-between;width: 250px;margin-top: 10px;">
+						<view></view>
+						<button @click="goUpgrade(false)" class="myButton" style="margin-bottom: 10rpx;">
+							<text style="color: #FFFFFF;">确定</text></button>
+						<view></view>
+					</view>
+				</view>
+			</view>
+		</view>
+		<view v-if="showProgressTitle" class="mask" style="width: 750rpx;" :style="{height:mapHeight+'px'}">
+			<view class="drawtoast" style="width: 100%;">
+				<view style="background-color: #FFFFFF;width:250px;border-radius: 30px;">
+					<view class="topBar">
+						<text style="color: #FFFFFF;">温馨提示</text>
+					</view>
+					<view style="margin-top: 10px;align-items: center;padding-left: 5px;">
+						<div
+							style="width: 140rpx;height: 140rpx;display: flex;align-items: center;justify-content: center;">
+							<div class="rotate-background" :style="{ transform: 'rotate('+ladarRotateAngle+'deg)'}">
+								<image src="/static/xixin/rotate-background.png" style="width: 140rpx;height: 140rpx;">
+								</image>
+							</div>
+							<text style="font-size: 50rpx;">{{ssidText}}</text>
+							<text style="font-size: 18rpx;">信号</text>
+						</div>
+					</view>
+					<view style="align-items: center;padding-left: 5px;">
+						<text style="padding: 20rpx;line-height: 45rpx;">{{titleContent}}</text>
+					</view>
+					<view style="flex-direction: row;justify-content: space-between;width: 250px;margin-bottom: 15rpx;">
+						<view></view>
+						<button @click="returnParent" class="myButton">
+							<text style="color: #FFFFFF;">不设置了</text></button>
+						<button @click="sureChange" :class="{ 'myButton': maxSsid>0, 'disabledButton': maxSsid<0 }"
+							:disabled="maxSsid<0">
+							<text style="color: #FFFFFF;">确定</text></button>
+						<view></view>
+					</view>
+				</view>
+			</view>
+		</view>
+		<view :style="{ height: mapHeight+'px' }">
+			<map id='map' class="map" :show-location="false" enable-overlooking='true' :markers="markers"
+				:scale="mapSclae" @regionchange="regionchange" :circles="circles">
+				<view style="position: relative;">
+					<view
+						style=" position: absolute;left: 18px;top:120rpx;display: flex;flex-direction: column;align-items: center;background-color: rgb(255,255,255);border-radius: 30rpx;">
+						<image @click="returnParent" src="/static/icons/public/icon-back.png"
+							style="width: 60rpx;height: 60rpx;"></image>
+					</view>
+					<view
+						style=" position: absolute;right: 18px;top:120rpx;display: flex;flex-direction: column;align-items: center;background-color: rgb(255,255,255);border-radius: 30rpx;">
+						<image
+							:src="bluetoothConnect ? '/static/icons/wifi_settings/bluetooth.png':'/static/icons/wifi_settings/bluetoothGray.png'"
+							style="width: 24rpx;height: 35rpx;"></image>
+					</view>
+					<!-- <view style="position: fixed;background-color: black;z-index: 9999;" :style="{ height: mapHeight+'px',width:screenWidth+'px' }"></view> -->
+					<view
+						style="height: 300rpx;flex-direction: column;justify-content: space-between;justify-content: space-between;align-items: center;"
+						:style="labelMarginTop">
+						<view style="height: 140rpx;background-color: rgb(255, 255, 255);border-radius: 10px;
+							display: flex;flex-direction: column;justify-content: space-around;align-items: flex-start" :style="labelWidth">
+							<view style="padding-left: 15rpx;"><text style="font-size: 30rpx;">请将WiFi移动到当前项圈所在位置：</text>
+							</view>
+							<view
+								style="padding-left: 15rpx;display: flex;flex-direction: row;align-items: center;justify-content: start;">
+								<cover-image src="/static/xixin/railPoint.png"
+									style="width: 40rpx;height: 40rpx;margin-right: 15rpx;"></cover-image>
+								<text
+									style=" font-size: 30rpx; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;color: rgb(229, 156, 134);">{{locateName}}</text>
+							</view>
+						</view>
+						<button @click="sureChange" style="margin-top: 30rpx; height: 80rpx;background-color: rgba(255, 87, 51, 1);border-radius: 10px;display: flex;flex-direction: row;
+							justify-content: center;align-items: center;" :style="labelWidth">
+							<text style="font-size: 35rpx; color: aliceblue;">确认</text>
+						</button>
+						<view style="display: flex;flex-direction: row;" :style="labelWidth">
+							<view style="display: flex;flex-direction: column;height: 50rpx;position: relative;">
+								<view class="scale-border"><text
+										style="color: rgba(0, 0, 0, 0);margin-left: 10rpx;margin-right: 30rpx;">{{scaleShow}}</text>
+								</view>
+								<view style="position: absolute;left: 10px;">{{scaleShow}}</view>
+							</view>
+						</view>
+					</view>
+					<view style="position: absolute;height: 120rpx;display: flex;flex-direction:column;
+						justify-content: start;align-items: center;" :style="scaleTopType">
+
+						<view style="width: 120rpx;height: 65rpx;background-color: rgb(229, 156, 134);border-radius: 30rpx;display: flex;flex-direction: row;
+							justify-content: center;align-items: center;">
+							<cover-image src="/static/xixin/wifi0.png"
+								style="width: 35rpx;height: 35rpx;margin-right: 9rpx;">
+							</cover-image>
+
+							<text style="color: rgb(255, 255, 255);font-size: 35rpx;font-weight: bold;">家</text>
+
+						</view>
+						<view style="width: 5rpx;height: 40rpx;background-color: rgb(229, 156, 134);"></view>
+					</view>
+				</view>
+			</map>
+		</view>
+	</view>
+</template>
+
+<script>
+	import util from '/common/util';
+	import fileParse from '/common/fileParesUtil'
+	import logger from '/common/logger.js'
+	import {
+		wgs84_to_gcj02
+	} from '/common/wgs84ToGcj02';
+	import { $uni } from "@/utils/main.js"
+
+	export default {
+		data() {
+			return {
+				showDateLineTitle: false,
+				timeLineText: '耗时过长可以尝试从新进入界面',
+				maxSsid: 0,
+				ssidText: '差',
+				ladarRotateAngle: 0,
+				titleContent: "当期检测到WIFI信号太差，请将设备移动到信号源附近",
+				pointerIntervel: null,
+				readFailCnt: 0,
+				circles: new Array(),
+				rute: '',
+				scaleArray: ['1000km', '500km', '200km', '100km', '50km', '30km', '20km', '10km', '5km', '2km', '1km',
+					'500m', '200m', '100m', '50m', '25m', '10m', '5m'
+				],
+				mapSclae: 18,
+				scaleShow: '',
+				locateName: '',
+				scaleTopType: '',
+				labelTopType: '',
+				wifiData: '',
+				navHeight: 10, // 导航栏高度百分比
+				mapHeight: 100, // 地图高度百分比
+				mapviz: false,
+				marginTopHeight: 0,
+				labelMarginTop: 0,
+				labelWidth: 0,
+				center: {
+					la: 39.9096045,
+					lo: 116.3972282
+				},
+				markers: [{
+					id: 0,
+					latitude: 39.9096045,
+					longitude: 116.3972282,
+					iconPath: "/static/xixin/owner.png",
+					width: 30,
+					height: 30
+				}],
+				communciateType: '',
+				characteristicIdwrite: "0000FFE1-0000-1000-8000-00805F9B34FB",
+				intervalId: null,
+				serviceId: "0000FFE0-0000-1000-8000-00805F9B34FB",
+				showLoading: '',
+				wifiCount: 0,
+				serialCode: '',
+				scrollTop: 0,
+				freshing: false,
+				bluetoothConnect: false,
+				blueToothDeviceId: '',
+				longitude: '',
+				latitude: '',
+				showWiFiList: new Array(),
+				wifiMacList: new Array(),
+				downLoadingWifiList: '',
+				lastScanWifiList: new Array(),
+				saveWifiList: new Array(),
+				checkBluetoothAdapterIntervel: null,
+				cnnectCnt: 0,
+				bluetoothOpening: true,
+				isShowHelp: false,
+				scanwificnt: 0,
+				clickSureChange: false,
+				searchBluetoothIntervel: null,
+				screenwidth: 0,
+				showFimwareTitle: false,
+				showProgressTitle: false,
+				getHomeWifiInterval: -70,
+				androidTimeout: null,
+				isShowGuild: 0
+			}
+		},
+		onHide() {
+			clearInterval(this.checkBluetoothAdapterIntervel)
+			clearInterval(this.pointerIntervel)
+		},
+		onBackPress() {
+			clearInterval(this.checkBluetoothAdapterIntervel)
+			clearInterval(this.pointerIntervel)
+			clearInterval(this.searchBluetoothIntervel)
+			clearTimeout(this.androidTimeout)
+			uni.hideLoading()
+		},
+		onUnload() {
+			console.log('into onunload')
+			getApp().globalData.settingWifiBluetooth = false
+			uni.hideLoading()
+			clearTimeout(this.androidTimeout)
+			clearInterval(this.checkBluetoothAdapterIntervel)
+			clearInterval(this.pointerIntervel)
+			clearInterval(this.searchBluetoothIntervel)
+			//#ifdef APP-HARMONY
+			$uni.offBluetoothDeviceFound()
+			$uni.offBLEConnectionStateChange()
+			$uni.offBLECharacteristicValueChange()
+			//#endif
+			uni.$off("wifiBlueConnect")
+			uni.$off("wifiCharacter")
+			uni.$off("wifiDevice")
+			// if (this.rute != 'set')
+			this.stopBluetooth(() => {
+				console.log('关闭蓝牙')
+			})
+		},
+		onLoad(paramater) {
+			let data = JSON.parse(paramater.paramater)
+			console.log('paramater data', data)
+			this.rute = data.rute
+			this.serialCode = data.serialCode
+			this.markers[0].longitude = data.lo
+			this.markers[0].latitude = data.la
+			// let setlocate = {
+			// 	serial_code: this.serialCode,
+			// 	continuous_mode: 0
+			// }
+			// util.requestService(getApp().globalData.locateMode, setlocate);
+			if (getApp().globalData.myFirewareVersion < 44) {
+				this.showFimwareTitle = true
+			}
+			this.getPhonePose()
+			let wifi_la = data.la
+			let wifi_lo = data.lo
+			if (data.wifi_la != '') {
+				wifi_la = data.wifi_la
+				wifi_lo = data.wifi_lo
+				let distance = util.getDistance(data.wifi_la, data.wifi_lo, data.la, data.lo)
+				console.log('家到我的距离', distance)
+				this.mapSclae = this.adjustZoomLevel(distance)
+				let maker = {
+					id: 1,
+					latitude: data.wifi_la,
+					longitude: data.wifi_lo,
+					iconPath: "/static/xixin/home.png",
+					width: 30,
+					height: 30
+				}
+				this.markers.push(maker)
+				let cir = [{
+					latitude: data.wifi_la, // 圆心纬度
+					longitude: data.wifi_lo, // 圆心经度
+					strokeWidth: 0.8,
+					color: "#d0d0d0", // 圆的颜色
+					fillColor: "rgba(0, 170, 255, 0.1)", // 圆的填充颜色
+					radius: 30, // 半径，单位为米
+				}, ]
+				this.circles = cir;
+			}
+			setTimeout(() => {
+				that._mapContext.moveToLocation({
+					longitude: wifi_lo,
+					latitude: wifi_la,
+					success: (res) => {
+						// console.log('跳转地图中心点成功');
+					},
+					fail: (err) => {
+						// console.log('跳转地图中心点失败');
+					}
+				})
+			}, 200)
+			let screenheight = uni.getSystemInfoSync().screenHeight;
+			let screenwidth = uni.getSystemInfoSync().screenWidth;
+			this.screenWidth = screenwidth
+			var A = Number(screenheight);
+			var B = Number(this.navHeight);
+			console.log('A B', A, B)
+			this.navHeight = A * B / 100;
+			this.mapHeight = (A * this.mapHeight) / 100;
+			this.marginTopHeight = this.mapHeight * 0.5;
+			this.labelMarginTop = this.mapHeight * 0.72;
+			console.log('w h', this.navHeight, this.mapHeight)
+			this._mapContext = uni.createMapContext("map", this);
+			this.labelWidth = {
+				width: screenwidth * 0.9 + 'px'
+			}
+
+			let that = this
+			//需要监听蓝牙连接状态
+			this.isShowGuild = uni.getStorageSync("isGuild")
+			if (this.isShowGuild === 4)
+				this.isShowGuild = 6
+			uni.setStorageSync('isGuild', this.isShowGuild)
+			try {
+				getApp().globalData.settingWifiBluetooth = true
+				getApp().globalData.openLadarBluetooth = false;
+				//判断下位置有没有打开
+				plus.geolocation.getCurrentPosition(function(p) {
+					console.log('获取位置权限成功')
+					that.restartBluetooth()
+				}, function(e) {
+					console.log('获取位置权限失败')
+					uni.showModal({
+						title: '温馨提示',
+						content: "请打开定位服务后重新进入界面",
+						complete() {
+							that.returnParent()
+						}
+					})
+					console.log('检测到没打开定位服务')
+					return
+				});
+				//查询蓝牙连接状态
+				uni.$on('wifiBlueConnect', function(res) {
+					that.cnnectCnt++
+					let intocnt = 1
+					if (plus.os.name === 'iOS')
+						intocnt = 2
+					clearInterval(that.searchBluetoothIntervel)
+					if (res.connected && that.cnnectCnt === intocnt) {
+						console.log('蓝牙设备已连接');
+						that.bluetoothConnect = true
+						that.cnnectCnt = 0
+						that.showMessage('正在获取数据，请不要离开')
+						if (that.blueToothDeviceId === '') {
+							console.log('that.blueToothDeviceId === 空')
+							that.blueToothDeviceId = getApp().globalData.locateBluetoothId
+							console.log('that.blueToothDeviceId', that.blueToothDeviceId)
+						}
+						if (plus.os.name === 'iOS') {
+							that.reFresh(150)
+						} else if (plus.os.name === 'Android') {
+							clearTimeout(that.androidTimeout)
+							that.androidTimeout = setTimeout(() => {
+								console.log('that.blueToothDeviceId', that.blueToothDeviceId)
+								uni.getBLEDeviceServices({
+									deviceId: that.blueToothDeviceId,
+									success(res) {
+										console.log('device services:', res)
+									},
+									fail(err) {
+										console.log('获取service出错', err)
+									}
+								})
+								uni.getBLEDeviceCharacteristics({
+									// 这里的 deviceId 需要已经通过 createBLEConnection 与对应设备建立链接
+									deviceId: that.blueToothDeviceId,
+									// 这里的 serviceId 需要在 getBLEDeviceServices 接口中获取
+									serviceId: "0000FFE0-0000-1000-8000-00805F9B34FB",
+									success(res) {
+										console.log('device getBLEDeviceCharacteristics:', res
+											.characteristics)
+										that.reFresh(150)
+									},
+									fail(err) {
+										console.log('获取特征出错', err, that.blueToothDeviceId, that
+											.serviceId)
+									}
+								})
+							}, 15000)
+						}
+						uni.stopBluetoothDevicesDiscovery({
+							success(res) {
+								console.log('停止蓝牙搜索')
+							}
+						})
+
+					}
+					if (!res.connected && that.cnnectCnt === intocnt) {
+						console.log('蓝牙设备已断开')
+						// uni.showToast({
+						// 	icon: 'none',
+						// 	title: '与设备的蓝牙连接断开'
+						// })
+						that.cnnectCnt = 0
+						that.bluetoothConnect = false
+					}
+				})
+
+				uni.$on('wifiCharacter', function(res) {
+					const byteBuffer = new Uint8Array(res.value);
+					const hexArr = Array.prototype.map.call(
+						new Uint8Array(res.value),
+						function(bit) {
+							return ('00' + bit.toString(16)).slice(-2)
+						}
+					)
+					console.log('接收成功', hexArr)
+					//处理蓝牙反馈
+					that.callbackBluetoothData(byteBuffer)
+				})
+				uni.$on('wifiDevice', function(devices) {
+					let id = util.convertToFormat('CYY', that.serialCode); //转到util
+					let otaid = util.convertToFormat('OTA', that.serialCode);
+					console.log('recive wifi', devices.devices[0].name, id)
+					if (devices.devices[0].name === id || devices.devices[0].name === otaid || devices.devices[0]
+						.localName === id || devices.devices[0].localName === otaid) {
+						that.blueToothDeviceId = devices.devices[0].deviceId;
+						console.log('发现目标蓝牙', devices.devices[0].name)
+						util.connectBLEDevice(devices.devices[0].deviceId, (err, status) => {
+							if (err) {} else if (status === 'alreadyConnected') {
+
+							} else if (status === 'connected') {
+
+							}
+						})
+					}
+				})
+				let requestStatueUrl = getApp().globalData.internet + getApp().globalData.getHomeWifiInterval;
+				let para = {
+					serial_code: this.serialCode
+				}
+				console.log('requestStatueUrl', requestStatueUrl, para)
+				util.requestDataJson(requestStatueUrl, para).then((rebackData2) => {
+					// console.log('查询家庭wifiintervel', rebackData2);
+					// console.log('rebackData2.statusCode',rebackData2.statusCode)
+					// console.log('rebackData2.data.data.rssi_interval',rebackData2.data.data.rssi_interval)
+					if (rebackData2.statusCode === 200 && rebackData2.data.data.rssi_interval) {
+						this.getHomeWifiInterval = rebackData2.data.data.rssi_interval
+						console.log('获取服务器设置家庭wifi intervel成功', this.getHomeWifiInterval)
+					}
+				})
+
+			} catch (e) {
+				console.log('监听蓝牙事件出错', e)
+			}
+			//扫描连接蓝牙
+			switch (uni.getSystemInfoSync().platform) {
+				case 'android':
+					console.log('运行Android上');
+					this.scaleTopType = {
+						margin: (this.marginTopHeight - 60).toString() + 'px 0px 0px 0px',
+						width: screenwidth + 'px'
+					}
+					this.labelMarginTop = {
+						margin: (this.labelMarginTop).toString() + 'px 0xpx 0px 0px',
+						width: screenwidth + 'px'
+					}
+
+					break;
+				case 'ios':
+					console.log('运行iOS上');
+					this.scaleTopType = {
+						top: (this.marginTopHeight - 60).toString() + 'px',
+						width: screenwidth + 'px'
+					}
+					this.labelMarginTop = {
+						top: (this.labelMarginTop).toString() + 'px',
+						width: screenwidth + 'px'
+					}
+				default:
+					console.log('运行在开发者工具上');
+					break;
+					console.log('end onload')
+			}
+			console.log('finsh onload')
+		},
+		onShow() {
+			//暂时先拿定位器位置
+			let that = this
+			this.pointerIntervel = setInterval(() => {
+				if (this.showWiFiList.length <= 0 && !this.showProgressTitle) {
+					// that.showMessage('耗时过长可以尝试从新进入界面')
+					if (that.bluetoothConnect === false) {
+						//显示蓝牙连接失败给退出
+						this.timeLineText = '没有成功连接到蓝牙，请重试。'
+					}
+					clearInterval(this.checkBluetoothAdapterIntervel)
+					// this.stopBluetooth()
+					this.showDateLineTitle = true
+					uni.hideLoading()
+				}
+			}, 80000)
+			this.cnnectCnt = 0
+		},
+		methods: {
+			closeGuild() {
+				this.isShowGuild = 0
+			},
+			skipGuild() {
+				this.isShowGuild = 0
+				uni.setStorageSync("isGuild", 0)
+			},
+			getPhonePose() {
+				plus.geolocation.getCurrentPosition(function(p) {
+					alert('Geolocation\nLatitude:' + p.coords.latitude + '\nLongitude:' + p.coords.longitude +
+						'\nAltitude:' + p.coords.altitude);
+					console.log('当前位置的经度：' + res.longitude);
+					console.log('当前位置的纬度：' + res.latitude);
+					let pos = wgs84_to_gcj02(p.coords.longitude, p.coords.latitude)
+					this.markers[0].longitude = pos[0]
+					this.markers[0].latitude = pos[1]
+				}, function(e) {
+					uni.hideLoading()
+					console.error('获取位置失败：', e);
+				});
+				// uni.getLocation({
+				// 	type: 'wgs84', // 返回可以用于uni.openLocation的经纬度，默认为wgs84的gps坐标
+				// 	success: (res) => {
+				// 		console.log('当前位置的经度：' + res.longitude);
+				// 		console.log('当前位置的纬度：' + res.latitude);
+				// 		let pos = wgs84_to_gcj02(res.longitude, res.latitude)
+				// 		this.markers[0].longitude = pos[0]
+				// 		this.markers[0].latitude = pos[1]
+				// 	},
+				// 	fail: (err) => {
+				// 		uni.hideLoading()
+				// 		console.error('获取位置失败：', err);
+				// 	}
+				// });
+			},
+			goUpgrade(opt) {
+				if (opt) {
+					uni.navigateTo({
+						url: '/pages/setting/firmware/firmware?rute=2'
+					})
+				} else {
+					uni.switchTab({
+						url: '/pages/home/home'
+					})
+				}
+			},
+			adjustZoomLevel(distance) {
+				// 默认缩放级别 
+				let zoomLevel = 4
+
+				if (distance < 1000) { // 假设距离小于1000米时，使用较高缩放级别  
+					zoomLevel = 17;
+				} else if (distance < 5000) { // 假设距离在1000米到5000米之间  
+					zoomLevel = 14;
+				} else if (distance < 10000) {
+					zoomLevel = 11;
+				} else if (distance < 50000) {
+					zoomLevel = 10;
+				} else if (distance < 100000) {
+					zoomLevel = 9;
+				} else if (distance < 150000) {
+					zoomLevel = 7;
+				} else if (distance < 200000) {
+					zoomLevel = 5;
+				}
+				// 根据需要继续添加更多的条件  
+				return zoomLevel;
+			},
+			resetWifiScan() {
+				let command = fileParse.resetWiFiScan()
+				this.BleWrite(command).then((success) => {
+					if (success) {
+						console.log('写入成功');
+						// 可以在这里进行其他操作，比如更新UI等  
+					}
+				}).catch((failure) => {
+					if (failure) {
+						console.log('写入失败');
+						// 可以在这里处理失败的情况，比如显示错误消息等  
+					}
+				});
+				//如果写入成功弹窗
+			},
+			resetbluetooth() {
+				if (this.bluetoothConnect === false)
+					this.restartBluetooth()
+			},
+			closeHelp() {
+				let that = this
+				uni.openBluetoothAdapter({
+					success(res) {
+						console.log('打开成功', res)
+						if (that.bluetoothConnect === false) {
+							that.restartBluetooth()
+						} else if (that.showWiFiList.length === 0) {
+							if (this.scanwificnt === 3) {
+								that.resetWifiScan()
+							} else {
+								that.reFresh(150)
+							}
+						}
+					},
+					fail(err) {
+						console.log('打开失败', err)
+						that.bluetoothConnect = false
+						uni.hideLoading()
+						uni.showModal({
+							title: '提示',
+							content: '设置家庭区域需要使用蓝牙，请先打开手机蓝牙'
+						})
+					}
+				})
+
+			},
+			checkBluetoothAdapter() {
+				let that = this
+				console.log('into checkBluetoothAdapter')
+				uni.openBluetoothAdapter({
+					success(res) {
+						if (that.bluetoothConnect === false) {
+							console.log('into check and restart')
+							that.restartBluetooth()
+						}
+					},
+					fail(err) {
+						console.log(err)
+						that.bluetoothConnect = false
+						that.bluetoothOpening = false
+						uni.showModal({
+							title: '提示',
+							content: '设置家庭区域需要使用蓝牙，请先打开手机蓝牙'
+						})
+					}
+				})
+				// if (plus.os.name === 'iOS') {
+
+				// } else {
+				// 	const BluetoothAdapter = plus.android.importClass('android.bluetooth.BluetoothAdapter'); // 引入Java 蓝牙类
+				// 	const blueadapter = BluetoothAdapter.getDefaultAdapter(); //拿到默认蓝牙适配器方法
+				// 	if (blueadapter) {
+				// 		// 判断蓝牙是否开启
+				// 		if (blueadapter.isEnabled()) {
+				// 			if (that.bluetoothConnect === false) {
+				// 				that.restartBluetooth()
+				// 			}
+				// 		} else {
+				// 			// 未开启弹出提示框
+				// 			console.log('检测到蓝牙未开启')
+				// 			uni.showModal({
+				// 				title: '提示',
+				// 				content: '蓝牙尚未打开，后续操作需要打开蓝牙',
+				// 				showCancel: true,
+				// 				cancelText: '取消',
+				// 				confirmText: '确定',
+				// 				success(res) {
+				// 					// 点击确定后通过系统打开蓝牙
+				// 					if (res.confirm) {
+				// 						const blueadapter = BluetoothAdapter.getDefaultAdapter();
+				// 						if (blueadapter != null) {
+				// 							return blueadapter.enable();
+				// 						}
+				// 					} else {
+				// 						// 点击取消什么也不做
+				// 						console.log("点击了取消");
+				// 					}
+				// 				}
+				// 			})
+				// 		}
+				// 	}
+				// }
+			},
+			stopBluetooth(cb) {
+				console.log('进入stopBluetooth')
+				uni.closeBLEConnection({
+					deviceId: this.blueToothDeviceId,
+					success() {
+						console.log('断开蓝牙成功')
+					}
+				})
+				uni.stopBluetoothDevicesDiscovery({
+					success(res) {
+						console.log('停止蓝牙搜索')
+					}
+				})
+				let that = this
+				uni.closeBluetoothAdapter({
+					success(res) {},
+					complete(res) {
+						console.log('关闭蓝牙模块', res);
+						that.connectCnt = 0
+						getApp().globalData.blebluetoothConnect = false
+						cb & cb()
+					}
+				})
+			},
+			restartBluetooth() {
+				console.log('into restart bluetooth')
+				let that = this
+				that.readFailCnt = 0
+				this.stopBluetooth(() => {
+					uni.openBluetoothAdapter({
+						success(res) {
+							console.log('打开蓝牙模块', res);
+							that.bluetoothOpening = true
+							uni.startBluetoothDevicesDiscovery({
+								allowDuplicatesKey: true,
+								success: resd => {
+									console.log('wifi打开蓝牙搜索成功')
+								},
+								fail: errd => {
+									console.log('wifi打开蓝牙搜索失败', errd)
+								}
+							})
+						},
+						fail(e) {
+							console.log('打开蓝牙适配失败', e)
+							uni.showModal({
+								title: "温馨提示",
+								content: "打开蓝牙将获得更好的体验"
+							})
+							// this.titleContent='打开蓝牙将获得更好的体验'
+							that.bluetoothConnect = false
+							that.bluetoothOpening = false
+						}
+					})
+				})
+
+			},
+			callbackBluetoothData(byteBuffer) {
+				let that = this
+				if (that.communciateType[0] != byteBuffer[0]) {
+					//重新写上一条命令
+					console.log('重写一条', that.communciateType[0])
+					that.BleWrite(that.communciateType).then((success) => {
+						if (success) {
+							console.log('写入成功');
+							// 可以在这里进行其他操作，比如更新UI等  
+						}
+					}).catch((failure) => {
+						if (failure) {
+							console.log('写入失败');
+							// 可以在这里处理失败的情况，比如显示错误消息等  
+						}
+					});
+					return
+				}
+				console.log('into callback', byteBuffer)
+				if (byteBuffer[0] === 0x10) {
+					switch (byteBuffer[1]) {
+						case 1:
+							console.log("扫描中...");
+							let command = fileParse.getStartWiFiScanStatus()
+							that.BleWrite(command).then((success) => {
+								if (success) {
+									console.log('写入成功');
+									// 可以在这里进行其他操作，比如更新UI等  
+								}
+							}).catch((failure) => {
+								if (failure) {
+									console.log('写入失败');
+									// 可以在这里处理失败的情况，比如显示错误消息等  
+								}
+							});
+							break;
+						default:
+							console.log("启动中...");
+							//0.5秒后再次查询第一步
+							setTimeout(() => {
+								let command = fileParse.getStartWiFiScanStatus()
+								that.BleWrite(command).then((success) => {
+									if (success) {
+										console.log('写入成功');
+										// 可以在这里进行其他操作，比如更新UI等  
+									}
+								}).catch((failure) => {
+									if (failure) {
+										console.log('写入失败');
+										// 可以在这里处理失败的情况，比如显示错误消息等  
+									}
+								});
+							}, 200)
+							break;
+					}
+				} else if (byteBuffer[0] === 0x11) {
+					switch (byteBuffer[1]) {
+						case 0:
+							console.log("没触发scan");
+							setTimeout(() => {
+								let command = fileParse.getStartWiFiScanStatus()
+								that.BleWrite(command).then((success) => {
+									if (success) {
+										console.log('写入成功');
+										// 可以在这里进行其他操作，比如更新UI等  
+									}
+								}).catch((failure) => {
+									if (failure) {
+										console.log('写入失败');
+										// 可以在这里处理失败的情况，比如显示错误消息等  
+									}
+								});
+							}, 200)
+							break;
+						case 1:
+							console.log("扫描启动中");
+							setTimeout(() => {
+								let command = fileParse.getStartWiFiScanStatus()
+								that.BleWrite(command).then((success) => {
+									if (success) {
+										console.log('写入成功');
+										// 可以在这里进行其他操作，比如更新UI等  
+									}
+								}).catch((failure) => {
+									if (failure) {
+										console.log('写入失败');
+										// 可以在这里处理失败的情况，比如显示错误消息等  
+									}
+								});
+							}, 200)
+							break;
+						case 2:
+							console.log("正在扫描");
+							setTimeout(() => {
+								let command = fileParse.getStartWiFiScanStatus()
+								that.BleWrite(command).then((success) => {
+									if (success) {
+										console.log('写入成功');
+										// 可以在这里进行其他操作，比如更新UI等  
+									}
+								}).catch((failure) => {
+									if (failure) {
+										console.log('写入失败');
+										// 可以在这里处理失败的情况，比如显示错误消息等  
+									}
+								});
+							}, 500)
+							break;
+						case 3:
+							console.log("扫描结束，正在加载");
+							that.wifiCount = byteBuffer[2]
+							console.log('扫描的mac数量为', that.wifiCount)
+							//进行下一步 获得数量后一个一个查询
+							that.setWiFiList(that.wifiCount)
+							that.checkWiFiList()
+							break;
+						case 15:
+							console.log("扫描失败，请稍后重试");
+							clearInterval(this.intervalId)
+							this.intervalId = null
+							setTimeout(() => {
+								that.freshing = false
+								that.reFresh(150)
+							}, 150)
+							break;
+					}
+				} else if (byteBuffer[0] === 0x12) {
+					switch (byteBuffer[1]) {
+						case 0:
+							console.log("查询错误，超过范围");
+							setTimeout(() => {
+								that.freshing = false
+								that.reFresh(150)
+							}, 150)
+							// //从新查询这一条
+							// setTimeout(()=>{
+							// 	that.checkWiFiList()
+							// },200)
+							break;
+						default:
+							console.log("加载中...");
+							//把mac和ssid长度存下来 我需要一个list存放所有的对象
+							that.setWifiItem(byteBuffer)
+							that.checkWiFiList()
+							break
+					}
+				} else if (byteBuffer[0] === 0x13) {
+					switch (byteBuffer[1]) {
+						case 0:
+							console.log("查询错误，ssid超过范围");
+							setTimeout(() => {
+								that.freshing = false
+								that.reFresh(150)
+							}, 150)
+							//从新查询这一条
+							// setTimeout(()=>{
+							// 	that.checkWiFiList()
+							// },200)
+							break;
+						default:
+							console.log("加载中...");
+							//ssid存下来 我需要一个list存放所有的对象
+							that.setWifiItem(byteBuffer)
+							that.checkWiFiList()
+							//查询下一条
+							break;
+					}
+				}
+			},
+			setWifiItem(buff) {
+				try {
+					console.log('into setWifiItem', buff)
+					console.log('this.downLoadingWifiList 0', this.downLoadingWifiList)
+					let index = buff[1] - 1
+					if (buff[0] === 0x12) {
+						let ssidlength = buff[9]
+
+						let int8Array = new Int8Array(1); // 创建一个长度为1的Int8Array  
+						int8Array[0] = buff[8]; // 尝试将uint8Value赋给int8Array的第一个元素  
+						let rssi = int8Array[0]
+						// 但实际上，由于uint8Value超出了Int8的正数范围，它会被自动转换为对应的负数  
+						let mac = ''
+						const hexArr = Array.prototype.map.call(
+							new Uint8Array(buff),
+							function(bit) {
+								return ('00' + bit.toString(16)).slice(-2)
+							}
+						)
+						mac = hexArr[2] + ':' + hexArr[3] + ':' + hexArr[4] + ':' + hexArr[5] + ':' + hexArr[6] + ':' +
+							hexArr[7]
+						this.downLoadingWifiList[index].mac = mac
+						this.downLoadingWifiList[index].rssi = rssi
+						this.downLoadingWifiList[index].ssidlength = ssidlength
+					} else if (buff[0] === 0x13) {
+						let ssid = ''
+						let ss1_ss2 = buff[2]
+						let namearray = buff.slice(3, buff.length - 1)
+						console.log('namearray', namearray)
+						ssid = fileParse.bytesToUtf8String(namearray)
+						console.log('ssid', ssid)
+						if (ss1_ss2 === 1) {
+							this.downLoadingWifiList[index].ssid1 = ssid
+						} else if (ss1_ss2 == 2) {
+							this.downLoadingWifiList[index].ssid2 = ssid
+						}
+					}
+				} catch (e) {
+					console.log('set wifi item error', e)
+				}
+
+			},
+			setWiFiList(count) {
+				this.downLoadingWifiList = new Array;
+				for (let i = 0; i < count; i++) {
+					this.downLoadingWifiList[i] = {
+						ssid1: '',
+						ssid2: '',
+						mac: '',
+						rssi: 0,
+						ssidlength: 0,
+						wifi_location: {
+							la: '',
+							lo: ''
+						}
+					};
+				}
+			},
+			mergeWifiList(listA, listB) {
+				for (let i = 0; i < listB.length; i++) {
+					let find = false
+					for (let j = 0; j < listA.length; j++) {
+						if (listB[i].wifi_mac === listA[j].wifi_mac) {
+							console.log('发现一个重复mac', listB[i].wifi_mac)
+							find = true
+						}
+					}
+					if (!find) {
+						let item = listB[i]
+						listA.push(item)
+					}
+				}
+				console.log('合并前', listA)
+				try {
+					for (let i = 0; i < listA.length - 1; i++) { // 减少一次外层循环，因为每次至少一个元素会被放到正确的位置
+						for (let j = 0; j < listA.length - i - 1; j++) { // 确保 j+1 不会越界
+							if (listA[j].strength < listA[j + 1].strength) {
+								let item = listA[j];
+								listA[j] = listA[j + 1];
+								listA[j + 1] = item;
+							}
+						}
+					}
+				} catch (e) {
+					console.log('merge err', e)
+				}
+
+				console.log('合并后', listA)
+				return listA
+			},
+			checkWiFiList() {
+				let that = this
+				for (let i = 0; i < this.downLoadingWifiList.length; i++) {
+					if (this.downLoadingWifiList[i].mac === '') {
+						//查询这个mac
+						let command = fileParse.getWiFiData(i + 1)
+						that.BleWrite(command).then((success) => {
+							if (success) {
+								console.log('写入成功');
+								// 可以在这里进行其他操作，比如更新UI等  
+							}
+						}).catch((failure) => {
+							if (failure) {
+								console.log('写入失败');
+								// 可以在这里处理失败的情况，比如显示错误消息等  
+							}
+						});
+						return
+					}
+					// else if (this.downLoadingWifiList[i].ssidlength > 0 && this.downLoadingWifiList[i].ssid1 === '' &&
+					// 	this.downLoadingWifiList[i].ssidlength < 16) {
+					// 	//查询ssid前半
+					// 	let command = fileParse.getWiFiSsid(i + 1, 1)
+					// 	that.BleWrite(command).then((success) => {
+					// 		if (success) {
+					// 			console.log('写入成功');
+					// 			// 可以在这里进行其他操作，比如更新UI等  
+					// 		}
+					// 	}).catch((failure) => {
+					// 		if (failure) {
+					// 			console.log('写入失败');
+					// 			// 可以在这里处理失败的情况，比如显示错误消息等  
+					// 		}
+					// 	});
+					// 	return
+					// } 
+					// else if (this.downLoadingWifiList[i].ssidlength > 16 && (this.downLoadingWifiList[i].ssid1 === '' ||
+					// 		this.downLoadingWifiList[i].ssid2 === '')) {
+					// 	//查询ssid后半
+					// 	let command = fileParse.getWiFiSsid(i + 1, 1)
+					// 	if (this.downLoadingWifiList[i].ssid1 === '') {
+					// 		command = fileParse.getWiFiSsid(i + 1, 1)
+					// 	} else if (this.downLoadingWifiList[i].ssid2 === '') {
+					// 		command = fileParse.getWiFiSsid(i + 1, 2)
+					// 	}
+
+					// 	that.BleWrite(command).then((success) => {
+					// 		if (success) {
+					// 			console.log('写入成功');
+					// 			// 可以在这里进行其他操作，比如更新UI等  
+					// 		}
+					// 	}).catch((failure) => {
+					// 		if (failure) {
+					// 			console.log('写入失败');
+					// 			// 可以在这里处理失败的情况，比如显示错误消息等  
+					// 		}
+					// 	});
+					// 	return
+					// }
+				}
+				//检查数据完毕
+				this.showWiFiList = new Array()
+				this.wifiMacList = new Array()
+				for (let i = 0; i < this.downLoadingWifiList.length; i++) {
+					let name = this.downLoadingWifiList[i].ssid1 + this.downLoadingWifiList[i].ssid2
+					let item = {
+						wifi_ssid: name,
+						wifi_mac: this.downLoadingWifiList[i].mac,
+						strength: this.downLoadingWifiList[i].rssi,
+						wifi_location: {
+							la: this.latitude,
+							lo: this.longitude
+						},
+					}
+					that.showWiFiList.push(item)
+				}
+				that.showWiFiList = this.mergeWifiList(that.showWiFiList, that.lastScanWifiList)
+				that.lastScanWifiList = that.showWiFiList
+
+				console.log('检查完毕', that.showWiFiList)
+				uni.hideLoading()
+				this.freshing = false
+				this.maxSsid = this.showWiFiList[0].strength - this.getHomeWifiInterval
+				if (this.showWiFiList[0].strength < this.getHomeWifiInterval) {
+					this.showProgressTitle = true
+					this.ssidText = '差'
+					this.clickSureChange = false
+					this.reFresh(150)
+				} else {
+					this.ssidText = '优'
+					this.showMessage('wifi扫描完成，可以点击确认保存配置')
+				}
+				if (this.clickSureChange) {
+					this.sureChange()
+				}
+				clearInterval(this.intervalId)
+				this.intervalId = null
+				plus.nativeUI.closeWaiting();
+			},
+			BleRead() {
+				console.log('into read')
+				let Time = new Date();
+				let timestemp = Time.getTime();
+				let that = this
+				uni.readBLECharacteristicValue({
+					deviceId: this.blueToothDeviceId, // 蓝牙设备 deviceId
+					serviceId: "0000FFE0-0000-1000-8000-00805F9B34FB", // 蓝牙服务uuid
+					characteristicId: "0000FFE1-0000-1000-8000-00805F9B34FB",
+					success(res) {
+						let Time2 = new Date();
+						let timestemp2 = Time2.getTime() - timestemp;
+						console.log('我读一个信息时间', timestemp2);
+					},
+					fail(res) {
+						console.log('readBLECharacteristicValue fail:', res)
+						setTimeout(() => {
+							if (that.bluetoothConnect)
+								that.BleRead()
+							that.readFailCnt++
+							if (that.readFailCnt >= 10)
+								that.checkBluetoothAdapter()
+						}, 100)
+					},
+					complete(res) {
+						console.log('read complete', res);
+					}
+				})
+			},
+			async BleWrite(instruction) {
+				return new Promise((resolve, reject) => {
+					try {
+						let that = this;
+						let writetype = 'writeNoResponse';
+						if (plus.os.name != 'Android') {
+							writetype = 'write';
+						}
+						this.communciateType = instruction;
+						console.log('写入内容', this.communciateType, that.serviceId, that.blueToothDeviceId);
+						uni.writeBLECharacteristicValue({
+							deviceId: that.blueToothDeviceId, // 蓝牙设备 deviceId  
+							serviceId: "0000FFE0-0000-1000-8000-00805F9B34FB", // 蓝牙服务uuid  
+							characteristicId: "0000FFE1-0000-1000-8000-00805F9B34FB", // 蓝牙特征值的 (即 writeId)  
+							value: instruction, // 这里的value是ArrayBuffer类型  
+							writeType: writetype,
+							success(res) {
+								console.log('写入指令发送成功', res);
+								setTimeout(() => {
+									that.BleRead();
+								}, 500);
+								resolve(true); // 写入成功，返回true  
+							},
+							fail(err) {
+								console.log('写入指令发送失败', err);
+								//发送失败的情况 蓝牙断开  
+								//如果蓝牙断开 就显示一下然后关闭fresh状态  
+								if (err.code === 10004) {
+									that.bluetoothConnect = false
+								}
+								if (!that.bluetoothConnect) {
+									// uni.showToast({
+									// 	title: '蓝牙连接断开了',
+									// 	icon: 'loading' // 注意：这里应该是字符串'loading'，而不是变量Loading  
+									// });
+									that.freshing = false;
+								}
+
+								reject(false); // 写入失败，返回false  
+							},
+							complete(c) {
+								console.log('接口调用结束', c);
+							}
+						});
+					} catch (e) {
+						console.log('err', e);
+						reject(false); // 发生错误，返回false  
+					}
+				});
+			},
+			returnParent() {
+				getApp().backParents();
+			},
+			scanWifi() {
+				console.log('into scan wifi')
+				this.scanwificnt++
+				let command = fileParse.getStartWiFiScan()
+				this.BleWrite(command).then((success) => {
+					if (success) {
+						console.log('写入成功');
+						if (!this.freshing) {
+							let cnt = 1
+							this.intervalId = setInterval(() => {
+								cnt++
+								if (cnt > 144) {
+									//扫描超时
+									this.freshing = false
+									// clearInterval(this.intervalId)
+									// this.closeHelp()
+								}
+								this.ladarRotateAngle += 40;
+								if (this.ladarRotateAngle >= 360)
+									this.ladarRotateAngle = 0;
+							}, 200)
+							this.freshing = true
+						}
+					} else {
+						console.log('写入失败', command)
+					}
+				}).catch((failure) => {
+					if (failure) {
+						console.log('写入失败');
+						// 可以在这里处理失败的情况，比如显示错误消息等  
+					}
+				});
+			},
+			reFresh(time) {
+				console.log('into refresh', this.bluetoothConnect)
+				if (this.bluetoothConnect) {
+					if (!this.freshing) {
+						this.scanWifi()
+						setTimeout(() => {
+							this.showMessage('正在扫描附近WiFi')
+						}, 2000)
+					} else {
+						this.showMessage('正在扫描附近WiFi')
+					}
+				} else {
+					uni.showToast({
+						title: "蓝牙未连接",
+						icon: 'loading'
+					})
+					uni.showToast({
+						title: "尝试重启蓝牙",
+						icon: 'loading'
+					})
+					this.restartBluetooth()
+					// if (this.bluetoothOpening === false) {
+					// 	uni.showToast({
+					// 		title: "尝试重启蓝牙",
+					// 		icon: 'loading'
+					// 	})
+					// 	this.restartBluetooth()
+					// }
+					console.log('蓝牙未连接，连接后再刷新')
+				}
+
+			},
+			sureChange() {
+				this.clickSureChange = true
+				let that = this
+				if (this.showWiFiList.length > 0) {
+					if (this.showWiFiList[0].strength < this.getHomeWifiInterval) {
+						this.reFresh(150)
+						return
+					}
+					let wifilis = new Array();
+					this.wifiMacList = new Array()
+					let strengthList = new Array()
+					let length = this.showWiFiList.length
+					if (length > 2)
+						length = 2
+					for (let i = 1; i < length; i++) {
+						let mac = this.showWiFiList[i].wifi_mac
+						let strength = this.showWiFiList[i].strength
+						if (strength > this.getHomeWifiInterval) {
+							this.wifiMacList.push(mac)
+							strengthList.push(strength)
+						}
+					}
+					let item = {
+						version: 2,
+						wifi_ssid: '家庭wifi',
+						wifi_mac: this.showWiFiList[0].wifi_mac,
+						strength: this.showWiFiList[0].strength,
+						wifi_location: {
+							la: this.center.la,
+							lo: this.center.lo
+						},
+						wifi_macList: this.wifiMacList,
+						wifi_strength: strengthList
+					}
+					wifilis.push(item)
+					console.log('我点击了确认提交', wifilis)
+					try {
+						//把wifi和经纬度提交服务器
+						let url = getApp().globalData.internet + getApp().globalData.setHomeWifi + '/' + this.serialCode;
+						uni.request({
+							url: url, //仅为示例，并非真实接口地址。
+							method: 'POST',
+							data: JSON.stringify(wifilis),
+							header: {
+								'Content-Type': 'application/json' //重点
+							},
+							success: (res) => {
+								logger.info('require wifi list success', JSON.stringify(res))
+								if (res.data.code === 200) {
+									uni.showToast({
+										title: '设置完成',
+										icon: 'success'
+									})
+									setTimeout(() => {
+										if (this.rute === "add") {
+											uni.navigateBack({
+												delta: 4
+											});
+										} else {
+											this.returnParent()
+										}
+									}, 1000)
+								} else {
+									uni.showToast({
+										icon: 'none',
+										title: res.data.msg
+									})
+								}
+							},
+							fail: ((err) => {
+								logger.info('require wifi list fail', JSON.stringify(err))
+								uni.showToast({
+									icon: 'none',
+									title: "请求未成功，请稍后在试"
+								})
+							})
+						});
+					} catch (e) {
+						console.log('提交异常', e)
+					}
+				} else {
+					that.showMessage('正在保存当前点位请勿拖动地图')
+					setTimeout(() => {
+						if (that.bluetoothConnect === true) {
+							that.showMessage('正在获取数据，请不要离开')
+						}
+					}, 5000)
+					// this.closeHelp()
+				}
+			},
+			showMessage(text) {
+				if (this.showProgressTitle) {
+					if (text === '正在扫描附近WiFi') {
+						this.titleContent = text + ',请将设备移动到信号源附近'
+					} else {
+						this.titleContent = text
+					}
+				} else {
+					uni.hideLoading()
+					if (getApp().globalData.settingWifiBluetooth)
+						uni.showLoading({
+							title: text,
+						});
+				}
+			},
+			regionchange() {
+				let that = this
+				this._mapContext.getScale({
+					success: (res) => {
+						// console.log('获取缩放尺度',res)
+						let index = Math.trunc(res.scale) - 3
+						// console.log('index',index)
+						that.scaleShow = that.scaleArray[index]
+						// console.log('that.mapScale',that.scaleShow)
+					},
+					fail: (err) => {
+
+					}
+				})
+				this._mapContext.getCenterLocation({
+					success: function(res) {
+						// console.log('res.longitude', res.longitude);
+						// console.log('res.latitude', res.latitude);
+						that.center.la = res.latitude
+						that.center.lo = res.longitude
+						//根据经纬度获取详细地理名
+						let str =
+							'https://restapi.amap.com/v3/geocode/regeo?key=9f8eb22902ff76102e32ba52c7dee1e6&radius=2000&extensions=all&batch=false&roadlevel=0&location=' +
+							res.longitude + ',' + res.latitude
+						uni.request({
+							url: str,
+							data: {},
+							method: 'GET',
+							success: res => {
+								this.toMapping = false;
+								// console.log('res.data.', res)
+								if (res.data.status === '1') {
+									if (res.data.regeocode.pois.length > 0) {
+										// var name = res.data.regeocode.roads[0].name;
+										var pois = res.data.regeocode.pois;
+										var item = pois[0];
+										for (var i = 1; i < pois.length; i++) {
+											if (parseFloat(pois[i].distance) < parseFloat(item
+													.distance)) {
+												item = pois[i];
+												// console.log('min distance', pois[i].distance, pois[
+												// 	i].address)
+											}
+										}
+										let name = item.name
+										if (name.length > 18)
+											name = name.substring(0, 15) + "...";
+										that.locateName = name + '附近';
+										// console.log('name', that.locateName);
+										// console.log('res.data.regeocode.roads[0]', res.data)
+									} else {
+										uni.showToast({
+											icon: 'none',
+											title: '未找到地理位置'
+										})
+									}
+
+								}
+							},
+							fail: res => {
+
+								this.toMapping = false;
+								console.log('获取标记位置失败', res);
+								uni.showToast({
+									icon: 'none',
+									title: '未找到地理位置，可稍后重试'
+								})
+							},
+						})
+					},
+					fail: function(err) {
+						console.error(err);
+					}
+				});
+
+			}
+		}
+	}
+</script>
+
+<style>
+	@import "/assets/css/seetings-row.css";
+
+	.map {
+
+		flex: 1;
+	}
+
+	.scale-border {
+		text-align: center;
+		margin-top: 15px;
+		height: 10%;
+		border-bottom: 2px solid #0d0d0d;
+		border-left: 2px solid #0d0d0d;
+		border-right: 2px solid #0d0d0d;
+	}
+
+	.mask {
+		position: fixed;
+		bottom: 0;
+		right: 0;
+		left: 0;
+		top: 0;
+		z-index: 100;
+		background-color: rgba(0, 0, 0, 0.6);
+	}
+
+	.drawtoast {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.myButton {
+		width: 80px;
+		background-color: rgba(255, 87, 51, 1);
+		;
+		border-radius: 25rpx;
+		height: 40px;
+		/* font-family: jinshan; */
+	}
+
+	.disabledButton {
+		width: 80px;
+		background-color: gray;
+		border-radius: 25rpx;
+		height: 40px;
+		/* font-family: jinshan; */
+		cursor: not-allowed;
+		/* 禁止点击的鼠标指针样式 */
+		pointer-events: none;
+		/* 禁用所有指针事件，使按钮不可点击 */
+	}
+
+	.rotate-background {
+		position: absolute;
+		/* top: 20rpx; */
+	}
+</style>

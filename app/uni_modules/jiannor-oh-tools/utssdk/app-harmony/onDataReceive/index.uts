@@ -1,0 +1,16 @@
+import { onDataReceiveNative } from "./onDataReceive.ets"
+import { onDataReceiveOptions, onDataReceiveCallback } from "../../interface.uts"
+
+export const onDataReceive : onDataReceiveCallback = function (options : onDataReceiveOptions) {
+
+	try {
+		onDataReceiveNative((content : string) => {
+			options.dataReceive?.(content)
+		}, () => {
+			options.receiveEnd?.()
+		})
+		console.log("onDataReceive registered Succesfully")
+	} catch (err) {
+		console.log("onDataReceive registered Error:", err)
+	}
+}

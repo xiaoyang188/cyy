@@ -1,0 +1,116 @@
+import {
+  NotifyBLECharacteristicValueChangeOptions,
+  NotifyBLECharacteristicValueChangeSuccess,
+  CommonCallbackResult,
+  NotifyBLECharacteristicValueChange
+} from '../../interface.uts';
+
+import { BluetoothFailImpl } from '../../unierror.uts';
+import { ble } from '@kit.ConnectivityKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { getAdapterInitialized } from '../openBluetoothAdapter/index.uts';
+import { getBleConnection } from '../global.uts';
+import { emitBLECharacteristicValueChange } from '../onBLECharacteristicValueChange/index.uts';
+
+const TAG = 'notifyBLECharacteristicValueChange';
+
+/**
+ * 启用低功耗蓝牙设备特征值变化通知
+ */
+export const notifyBLECharacteristicValueChange: NotifyBLECharacteristicValueChange = function (options: NotifyBLECharacteristicValueChangeOptions) {
+  try {
+    const isAdapterInitialized = getAdapterInitialized();
+    
+    if (!isAdapterInitialized) {
+      const failResult = new BluetoothFailImpl(10000); // not init
+      options.fail?.(failResult);
+      options.complete?.(failResult);
+      return;
+    }
+    
+    const gattClient: ble.GattClientDevice | null = getBleConnection(options.deviceId);
+    if (!gattClient) {
+      const failResult = new BluetoothFailImpl(10006); // no connection
+      options.fail?.(failResult);
+      options.complete?.(failResult);
+      return;
+    }
+    
+    // 构造特征值描述符
+    const characteristic: ble.BLECharacteristic = {
+      serviceUuid: options.serviceId,
+      characteristicUuid: options.characteristicId,
+      characteristicValue: new ArrayBuffer(0),
+      descriptors: []
+    };
+    
+    if (options.state) {
+      // 启用通知
+      gattClient.on('BLECharacteristicChange', (data: ble.BLECharacteristic) => {
+        if (data.serviceUuid === options.serviceId && 
+            data.characteristicUuid === options.characteristicId) {
+          emitBLECharacteristicValueChange({
+            deviceId: options.deviceId,
+            serviceId: options.serviceId,
+            characteristicId: options.characteristicId,
+            value: data.characteristicValue
+          });
+        }
+      });
+      
+      gattClient.setCharacteristicChangeNotification(characteristic, true, (err: BusinessError) => {
+        if (err) {
+          console.error(TAG, 'setCharacteristicChangeNotification failed:', err);
+          const failResult = new BluetoothFailImpl(10007); // property not support
+          options.fail?.(failResult);
+          options.complete?.(failResult);
+          return;
+        }
+        
+        const result: NotifyBLECharacteristicValueChangeSuccess = {
+          errMsg: 'notifyBLECharacteristicValueChange:ok'
+        };
+        
+        if (options.success) {
+          options.success(result);
+        }
+        if (options.complete) {
+          options.complete(result);
+        }
+        
+        console.info(TAG, 'notifyBLECharacteristicValueChange enabled');
+      });
+    } else {
+      // 禁用通知
+      gattClient.off('BLECharacteristicChange');
+      
+      gattClient.setCharacteristicChangeNotification(characteristic, false, (err: BusinessError) => {
+        if (err) {
+          console.error(TAG, 'setCharacteristicChangeNotification failed:', err);
+          const failResult = new BluetoothFailImpl(10007); // property not support
+          options.fail?.(failResult);
+          options.complete?.(failResult);
+          return;
+        }
+        
+        const result: NotifyBLECharacteristicValueChangeSuccess = {
+          errMsg: 'notifyBLECharacteristicValueChange:ok'
+        };
+        
+        if (options.success) {
+          options.success(result);
+        }
+        if (options.complete) {
+          options.complete(result);
+        }
+        
+        console.info(TAG, 'notifyBLECharacteristicValueChange disabled');
+      });
+    }
+  } catch (err) {
+    console.error(TAG, 'notifyBLECharacteristicValueChange failed:', err);
+    const failResult = new BluetoothFailImpl(10008); // system error
+    options.fail?.(failResult);
+    options.complete?.(failResult);
+  }
+};

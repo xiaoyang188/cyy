@@ -1,0 +1,1055 @@
+<template>
+	<view class="container">
+		<!-- 导航栏 -->
+		<view class="map-view" :style="{ height: mapHeight+'px' }">
+			<map id='map' class="map" :polyline="polyline" :enable-satellite='enableSatellite' :show-location="false"
+				v-if="mapviz===true" :latitude="latitude" :scale="18" :longitude="longitude" :markers="markers"
+				@markertap="markertap" @callouttap="callouttap" @regionchange="onregionchange">
+				<view style="position: relative;">
+					<view
+						style="position: absolute;left: 18px;top:120rpx;display: flex;flex-direction: column;align-items: center;background-color: rgb(255,255,255);border-radius: 30rpx;">
+						<image @click="returnParent" src="/static/icons/public/icon-back.png"
+							style="width: 60rpx;height: 60rpx;"></image>
+					</view>
+					<view class="row_center" style="position: absolute;box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.20);"
+						:style="scrollStyle">
+						<div class="row_center" :style="{width:dataWidth+'px'}" style="height: 150rpx;width: 700rpx;">
+							<scroll-view class="scroll-view-container" scroll-x="true" show-scrollbar="false">
+								<view class="col_start" v-for="(date, index) in dates" :key="index"
+									@click="dateClick(date.date,index)">
+									<view><text
+											style="font-size: 26rpx;color: rgba(128, 128, 128, 1);">{{date.days}}</text>
+									</view>
+									<view :class="clickIndex!=index?'date-item':'date-item-clicked'"><text
+											:class="clickIndex!=index?'date-text':'date-text-clicked'">{{ date.date.substring(8,10) }}</text>
+									</view>
+								</view>
+							</scroll-view>
+						</div>
+					</view>
+					<view class="dataShow" style="position: absolute;" :style="dataStyle">
+						<div class="row_between" style="margin-bottom: 10rpx;" :style="{width:dataWidth+'px'}">
+							<view class="row_start" style="width: 360rpx;height: 60rpx;">
+								<view class="row_center"
+									style=" width: 175rpx; height: 60rpx; padding-left: 5rpx;padding-right: 5rpx;border-radius: 25rpx;">
+									<image src="/static/imgs/locate/gaode.png" style="width: 40rpx;height: 40rpx;">
+									</image>
+									<view class="col_center">
+										<text style="font-size: 25rpx;color: #000000;font-weight: 700;">高德地图</text>
+										<text style="font-size: 13rpx;">{{mapNumber}}</text>
+									</view>
+								</view>
+								<view class="row_start"
+									style="position: relative; width: 175rpx; height: 60rpx; padding-left: 5rpx;padding-right: 5rpx;border-radius: 25rpx;">
+									<view class="scale-border" :style="scaleborderStyle"><text
+											style="color: rgba(0, 0, 0, 0);margin-left: 10rpx;margin-right: 30rpx;font-size: 24rpx;">{{scaleShow}}</text>
+									</view>
+									<view style="position: absolute;left: 25rpx;top: 15rpx;"><text
+											style="color: #000000;font-size: 24rpx;">{{scaleShow}}</text> </view>
+								</view>
+							</view>
+
+							<view @click="clickPath" class="row_center"
+								style="box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.20); width: 185rpx; height: 50rpx;background-color: #ffffff; padding-left: 5rpx;padding-right: 5rpx;border-radius: 25rpx;margin-right: 3px;">
+								<image src="/static/imgs/tragectory/pathIcon.png" style="width: 40rpx;height: 40rpx;">
+								</image>
+								<text style="font-size: 30rpx;color: #000000;">{{showPathTitle}}</text>
+							</view>
+
+						</div>
+						<div class="col_start"
+							style="border-radius: 20px;background: rgba(255, 255, 255, 1);box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.20);  rgba(0, 0, 0, 0.25);">
+							<view class="row_between" :style="{width:dataWidth+'px'}" style="margin-top: 20rpx;">
+								<text style="font-size: 28rpx;margin-left: 20rpx;">{{clickDate}}</text>
+								<text style="font-size: 28rpx;">设备编号:{{serial_code}}</text>
+								<image style="width: 40rpx;height: 40rpx;"
+									:src="locateTypeGps?'/static/imgs/locate/gps.png':'/static/imgs/locate/gpsGray.png'">
+								</image>
+								<view class="row_center"
+									style="margin-right: 20rpx; border-radius: 20px;background: rgba(255, 87, 51, 1);padding-left: 8rpx;padding-right: 8rpx;">
+									<text style="font-size: 28rpx;color: white;">{{locateType}}</text>
+								</view>
+							</view>
+							<view class="row_start" style="height: 100rpx;" :style="{width:dataWidth+'px'}">
+								<div class="col_center" style="width: 80rpx;height: 100rpx;">
+									<image src="/static/imgs/tragectory/locate.png" style="width: 15px;height:17px;">
+									</image>
+								</div>
+								<div class="row_start" style="height: 100rpx;"><text
+										style="width: 630rpx;color: rgba(255, 87, 51, 1);font-size: 28rpx;">{{address}}</text>
+								</div>
+							</view>
+						</div>
+					</view>
+					<view class="slider-container">
+						<view class="row_between"
+							style="width: 200rpx;height: 350px;border-radius: 15px;position: relative;">
+							<view style="width: 120rpx;height: 350px;position: relative">
+								<view v-if="showSliderCallout" class="slider-callout" :style="thumbStyle">
+									<view class="row_center"
+										style="width: 120rpx;height: 60rpx;border: solid 1rpx  #ff5500;border-radius: 30rpx;background-color: #ffffff;">
+										<text style="color: #ff5500;">{{calloutContent}}</text>
+									</view>
+								</view>
+							</view>
+							<view class="col_center"
+								style="width: 80rpx;height: 350px;border-radius: 15px;position: relative;">
+								<view class="slider" id="slider">
+								</view>
+								<view class="slider-thumb" :style="thumbStyle" @touchstart.native="startThumb"
+									@touchmove.native="moveThumb" @touchend.native="stopThumb">
+									<view style="position: relative; width: 90rpx; height: 90rpx;">
+										<image src="/static/imgs/tragectory/circleHalo.png"
+											style="width: 90rpx; height: 90rpx; position: absolute; z-index: 1;">
+										</image>
+									</view>
+								</view>
+							</view>
+						</view>
+					</view>
+					<view :style="dataContainer"></view>
+				</view>
+			</map>
+		</view>
+	</view>
+</template>
+
+<script>
+	import util, {
+		filter
+	} from '../../common/util'
+	import {
+		wgs84_to_gcj02
+	} from '/common/wgs84ToGcj02';
+	import {getLocationList} from '@/api/api/location'
+	
+	export default {
+		props: {
+
+		},
+		data() {
+			return {
+				showPath:0,
+				mapNumber: 'GS (2023)551号',
+				minValue: 0,
+				maxValue: 86400,
+				dogulas_peuker_distance: 20,
+				locateTypeGps: true,
+				scaleborderStyle: '',
+				scaleShow: '',
+				thumbTop: 0, //0 到 300之间
+				sliderTop: 175,
+				sliderBottom: 475,
+				sliderHight: 300,
+				drawRange: 30,
+				polyline: [],
+				showPolyLine: true,
+				clickDate: '',
+				serial_code: '',
+				showSliderCallout: false,
+				calloutContent: '',
+				Pid: '',
+				Did: '',
+				scaleArray: ['1000km', '500km', '200km', '100km', '50km', '30km', '20km', '10km', '5km', '2km', '1km',
+					'500m', '200m', '100m', '50m', '25m', '10m', '5m'
+				],
+				ishow: true,
+				scrollX: 0, // 用于保存水平滚动位置
+				startX: 0, // 用于保存滑动起始位置
+				isDragging: false, // 标记是否正在拖动
+				dates: [],
+				markers: [],
+				latitude: 39.9096045,
+				longitude: 116.3972282,
+				address: '',
+				coverTime: '',
+				locateType: '',
+				navHeight: 10, // 导航栏高度百分比
+				mapHeight: 100, // 地图高度百分比
+				scrollViewHeight: 10, // 滚动视图高度百分比
+				dataViewHeight: 17,
+				scrollViewTop: '',
+				screenheight: '',
+				screenwidth: '',
+				dataWidth: '',
+				currentDate: '',
+				mapviz: true,
+				clickIndex: 0,
+				slideIndex: 0,
+				enableSatellite: false,
+				polylineData:[],
+				markerData:[],
+				showPathTitle:'点位路径',
+				testArray:[{'latitude': 41.3442413, 'longitude': 123.87039388333334, 'HDOP': null, 'time': '06:34:14', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['e6:77:27:77:3d:38,-83', '98:00:6a:fc:fd:7a,-84'], 'wifi_ssid_list': ['小艾家', 'CMCC-5151'], 'filter_type': 0, 'filter_reason': ''}, {'latitude': 41.343931483333336, 'longitude': 123.87034698333333, 'HDOP': null, 'time': '06:37:04', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['c2:e0:18:be:76:88,-56', 'cc:f0:fd:c9:5d:98,-78'], 'wifi_ssid_list': ['小艾家', 'CMCC-R4Gq'], 'filter_type': 0, 'filter_reason': ''}, {'latitude': 41.33211528333333, 'longitude': 123.8517456, 'HDOP': null, 'time': '06:52:56', 'DB_HZ': null, 'loc_type': 3, 'wifi_list': ['7c:99:2e:7a:a4:eb,-78'], 'wifi_ssid_list': ['MiFi-A4EB'], 'filter_type': 0, 'filter_reason': ''}, {'latitude': 41.28448268333333, 'longitude': 123.797255, 'HDOP': null, 'time': '06:58:44', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['90:76:9f:95:46:b6,-79'], 'wifi_ssid_list': ['HYZ_COOL'], 'filter_type': 1, 'filter_reason': 'wifi列表只有一个mac且时间间隔在15分钟以内'}, {'latitude': 41.29023948333333, 'longitude': 123.78601208333333, 'HDOP': null, 'time': '07:05:11', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['bc:2e:f6:0f:11:51,-83'], 'wifi_ssid_list': ['0'], 'filter_type': 1, 'filter_reason': 'wifi列表只有一个mac且时间间隔在15分钟以内'}, {'latitude': 41.292960283333336, 'longitude': 123.7800754, 'HDOP': null, 'time': '07:07:44', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['a0:40:6f:c5:74:0c,-79', '9a:4a:6b:84:95:8c,-83'], 'wifi_ssid_list': ['拾光升学堂', '拾光监控'], 'filter_type': 1, 'filter_reason': '加速度变化过大: 5.35 > 4'}, {'latitude': 41.29274878333333, 'longitude': 123.77919078333333, 'HDOP': null, 'time': '07:10:17', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['ba:80:35:45:1a:ca,-82', 'a4:1a:3a:7a:6c:57,-84', '80:05:88:c7:27:e0,-84', '32:cc:21:39:7a:c1,-84'], 'wifi_ssid_list': ['0', 'TP-LINK_6C57', 'ap', '3'], 'filter_type': 0, 'filter_reason': ''}, {'latitude': 41.29214928333333, 'longitude': 123.7818012, 'HDOP': null, 'time': '07:15:41', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['f6:1c:71:09:a0:11,-81'], 'wifi_ssid_list': ['ChinaUnicom-A010'], 'filter_type': 1, 'filter_reason': 'wifi列表只有一个mac且时间间隔在15分钟以内'}, {'latitude': 41.2884201, 'longitude': 123.78663818333334, 'HDOP': null, 'time': '07:18:32', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['20:6b:e7:d5:5a:be,-83', '24:6f:8c:33:ab:18,-83', '2a:fb:ae:ce:7c:bc,-84', '00:0e:1f:a9:79:a7,-84'], 'wifi_ssid_list': ['lzz', '8846', '0005', 'ZHANG'], 'filter_type': 0, 'filter_reason': ''}, {'latitude': 41.28742034166667, 'longitude': 123.78706188333334, 'HDOP': null, 'time': '07:21:46', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['7e:b5:9b:2d:9a:80,-76', '02:86:17:25:7f:92,-78', '7c:b5:9b:3d:9a:80,-78', '80:ae:54:a9:44:1b,-81', '82:ae:54:5e:1e:bd,-82', 'ca:bf:4c:27:f1:51,-83', '14:49:20:b4:97:c8,-84', '9c:2b:a6:ec:4c:7a,-84'], 'wifi_ssid_list': ['0', 'HUAWEI-AA126J', 'xinjiayuan', '红山文化', '4', '5', 'xinjiayuan1', '竹语阁'], 'filter_type': 0, 'filter_reason': '', 'modify': true, 'average_optimized': true, 'points_used': 2}, {'latitude': 41.2867297625, 'longitude': 123.78938543333334, 'HDOP': null, 'time': '07:24:20', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['84:ea:97:ca:e5:b6,-75', '6e:b1:58:e7:44:10,-79', '6c:b1:58:c7:44:10,-81', '8c:a6:df:01:f2:9a,-81', '44:13:d0:6b:1e:20,-83', '68:77:da:27:aa:3e,-83'], 'wifi_ssid_list': ['DDPAI_mola_E3_E5B6', '1', 'TP-LINK_1627', '0919', 'CMCC-uG65', '6854'], 'filter_type': 0, 'filter_reason': '', 'modify': true, 'average_optimized': true, 'points_used': 2}, {'latitude': 41.286693434722224, 'longitude': 123.78971420555557, 'HDOP': null, 'time': '07:25:48', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['6c:b1:58:29:a7:61,-83', '6e:b1:58:29:a7:61,-84'], 'wifi_ssid_list': ['刘长满', '1'], 'filter_type': 0, 'filter_reason': '', 'modify': true, 'average_optimized': true, 'points_used': 3}, {'latitude': 41.28666215555556, 'longitude': 123.7898904013889, 'HDOP': null, 'time': '07:26:23', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['cc:2d:21:e5:21:a1,-75', 'e8:26:8d:b6:a6:90,-81', '88:2a:5e:f5:07:ec,-83', '30:87:f1:65:8c:60,-83', '88:2a:5e:f5:07:eb,-84', 'e8:26:8d:b6:83:70,-84'], 'wifi_ssid_list': ['8428', 'CMCC-Pv76', '12345678', 'CMCC-Jtkm', '4', 'CMCC-Hc56'], 'filter_type': 0, 'filter_reason': '', 'modify': true, 'average_optimized': true, 'points_used': 4}, {'latitude': 41.28516445, 'longitude': 123.79405548333334, 'HDOP': 35, 'time': '07:27:25', 'DB_HZ': 34, 'loc_type': 2, 'wifi_list': '[]', 'wifi_ssid_list': '[]', 'filter_type': 1, 'filter_reason': 'GPS信号弱: HW=40>=36且HDOP=35>=25'}, {'latitude': 41.284200166666665, 'longitude': 123.79553586666667, 'HDOP': 35, 'time': '07:30:21', 'DB_HZ': 41, 'loc_type': 2, 'wifi_list': '[]', 'wifi_ssid_list': '[]', 'filter_type': 1, 'filter_reason': 'GPS信号弱: HW=40>=36且HDOP=35>=25'}, {'latitude': 41.283675966666664, 'longitude': 123.79713615, 'HDOP': 35, 'time': '07:33:15', 'DB_HZ': 47, 'loc_type': 2, 'wifi_list': '[]', 'wifi_ssid_list': '[]', 'filter_type': 1, 'filter_reason': 'GPS信号弱: HW=40>=36且HDOP=35>=25'}, {'latitude': 41.28867408333333, 'longitude': 123.80344693333333, 'HDOP': 26, 'time': '07:36:04', 'DB_HZ': 44, 'loc_type': 2, 'wifi_list': '[]', 'wifi_ssid_list': '[]', 'filter_type': 1, 'filter_reason': '加速度变化过大: 41.44 > 4'}, {'latitude': 41.31017321666667, 'longitude': 123.8363308, 'HDOP': 28, 'time': '07:42:12', 'DB_HZ': 38, 'loc_type': 2, 'wifi_list': '[]', 'wifi_ssid_list': '[]', 'filter_type': 1, 'filter_reason': 'GPS信号弱: HW=40>=36且HDOP=28>=25'}, {'latitude': 41.327630533333334, 'longitude': 123.85365235, 'HDOP': 30, 'time': '07:44:56', 'DB_HZ': 41, 'loc_type': 2, 'wifi_list': '[]', 'wifi_ssid_list': '[]', 'filter_type': 1, 'filter_reason': 'GPS信号弱: HW=40>=36且HDOP=30>=25'}, {'latitude': 41.34230886666667, 'longitude': 123.85904688333333, 'HDOP': 28, 'time': '07:47:46', 'DB_HZ': 44, 'loc_type': 2, 'wifi_list': '[]', 'wifi_ssid_list': '[]', 'filter_type': 1, 'filter_reason': 'GPS信号弱: HW=40>=36且HDOP=28>=25'}, {'latitude': 41.344219683333336, 'longitude': 123.87088531666667, 'HDOP': 43, 'time': '07:53:31', 'DB_HZ': 44, 'loc_type': 2, 'wifi_list': '[]', 'wifi_ssid_list': '[]', 'filter_type': 1, 'filter_reason': 'GPS信号弱: HW=40>=36且HDOP=43>=25'}, {'latitude': 41.3439258, 'longitude': 123.8703562, 'HDOP': null, 'time': '07:59:13', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['c2:e0:18:be:76:88,-58', 'cc:f0:fd:c9:5d:98,-72'], 'wifi_ssid_list': ['小艾家', 'CMCC-R4Gq'], 'filter_type': 0, 'filter_reason': ''}, {'latitude': 41.3441783, 'longitude': 123.87041688333333, 'HDOP': null, 'time': '08:07:42', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['9a:00:6a:fc:fd:7a,-83', '98:00:6a:fc:fd:7a,-83', 'c2:e0:18:be:76:88,-84'], 'wifi_ssid_list': ['0', 'CMCC-5151', '小艾家'], 'filter_type': 0, 'filter_reason': ''}, {'latitude': 41.3439448, 'longitude': 123.87036208333333, 'HDOP': null, 'time': '08:30:25', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['c2:e0:18:be:76:88,-94'], 'wifi_ssid_list': ['小艾家'], 'filter_type': 1, 'filter_reason': 'wifi列表只有一个mac且信号强度-94 < -90'}, {'latitude': 41.34609858333334, 'longitude': 123.87199138333334, 'HDOP': null, 'time': '11:56:24', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['ec:6c:9f:25:94:1a,-86'], 'wifi_ssid_list': ['FYX_25941A'], 'filter_type': 0, 'filter_reason': ''}, {'latitude': 41.3459774, 'longitude': 123.87116368333334, 'HDOP': null, 'time': '12:01:30', 'DB_HZ': null, 'loc_type': 3, 'wifi_list': ['20:57:9e:3b:26:33,-82'], 'wifi_ssid_list': ['NISSAN_20579e3b2633'], 'filter_type': 0, 'filter_reason': ''}, {'latitude': 41.34604948333333, 'longitude': 123.87144208333333, 'HDOP': null, 'time': '12:13:46', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['5a:4f:3b:1b:b7:0d,-90'], 'wifi_ssid_list': ['0'], 'filter_type': 1, 'filter_reason': 'wifi列表只有一个mac且时间间隔在15分钟以内'}, {'latitude': 41.34609858333334, 'longitude': 123.87199138333334, 'HDOP': null, 'time': '12:25:21', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['ec:6c:9f:25:94:1a,-76'], 'wifi_ssid_list': ['FYX_25941A'], 'filter_type': 1, 'filter_reason': 'wifi列表只有一个mac且时间间隔在15分钟以内'}, {'latitude': 41.34422118333333, 'longitude': 123.870226, 'HDOP': null, 'time': '12:31:09', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['fe:83:c6:4f:49:17,-81'], 'wifi_ssid_list': ['Cindy'], 'filter_type': 1, 'filter_reason': 'wifi列表只有一个mac且时间间隔在15分钟以内'}, {'latitude': 41.3459001, 'longitude': 123.87217308333334, 'HDOP': null, 'time': '15:19:41', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['ce:89:5e:33:73:68,-84'], 'wifi_ssid_list': ['今喜'], 'filter_type': 0, 'filter_reason': ''}, {'latitude': 41.34594538333333, 'longitude': 123.87089678333334, 'HDOP': null, 'time': '15:24:31', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['44:33:4c:45:06:8c,-82', 'e4:66:ab:d7:53:61,-84'], 'wifi_ssid_list': ['CarDVR_44334c45068c', 'lnunicom_TUt9'], 'filter_type': 1, 'filter_reason': 'ABA策略过滤: b到a(106.7m) > 2×a到c(53.5m)'}, {'latitude': 41.34609858333334, 'longitude': 123.8719916, 'HDOP': null, 'time': '15:25:40', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['ec:6c:9f:25:94:1a,-81'], 'wifi_ssid_list': ['FYX_25941A'], 'filter_type': 1, 'filter_reason': 'ABA策略过滤: b到a(93.0m) > 2×a到c(66.7m)'}, {'latitude': 41.34622543333333, 'longitude': 123.87075418333333, 'HDOP': 37, 'time': '15:27:18', 'DB_HZ': 40, 'loc_type': 2, 'wifi_list': '[]', 'wifi_ssid_list': '[]', 'filter_type': 1, 'filter_reason': 'GPS信 号弱: HW=40>=36且HDOP=37>=25'}, {'latitude': 41.344565333333335, 'longitude': 123.87020875, 'HDOP': 37, 'time': '15:27:51', 'DB_HZ': 25, 'loc_type': 2, 'wifi_list': '[]', 'wifi_ssid_list': '[]', 'filter_type': 1, 'filter_reason': '加速度变化过大: 13.42 > 4'}, {'latitude': 41.34430931666667, 'longitude': 123.86986276666667, 'HDOP': 37, 'time': '15:27:59', 'DB_HZ': 17, 'loc_type': 2, 'wifi_list': '[]', 'wifi_ssid_list': '[]', 'filter_type': 1, 'filter_reason': 'GPS信号弱: HW=40>=36且HDOP=37>=25'}, {'latitude': 41.3439258, 'longitude': 123.87035558333334, 'HDOP': null, 'time': '15:29:00', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['c2:e0:18:be:76:88,-58', 'cc:f0:fd:c9:5d:98,-84'], 'wifi_ssid_list': ['小艾家', 'CMCC-R4Gq'], 'filter_type': 0, 'filter_reason': ''}, {'latitude': 41.344278683333336, 'longitude': 123.8704934, 'HDOP': null, 'time': '18:31:51', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['9a:00:6a:fc:fd:7a,-94'], 'wifi_ssid_list': ['0'], 'filter_type': 1, 'filter_reason': 'wifi列表只有一个mac且信号强度-94 < -90'}, {'latitude': 41.343931483333336, 'longitude': 123.87034698333333, 'HDOP': null, 'time': '18:34:40', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['c2:e0:18:be:76:88,-63', 'cc:f0:fd:c9:5d:98,-79'], 'wifi_ssid_list': ['小艾家', 'CMCC-R4Gq'], 'filter_type': 0, 'filter_reason': ''}, {'latitude': 41.34404244166667, 'longitude': 123.87029989166666, 'HDOP': null, 'time': '18:37:30', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['c2:e0:18:be:76:88,-60', 'fe:83:c6:4f:49:17,-80', 'cc:f0:fd:c9:5d:98,-82', '40:80:e1:3c:5b:94,-84'], 'wifi_ssid_list': ['小艾家', 'Cindy', 'CMCC-R4Gq', 'NVRFB5589692'], 'filter_type': 0, 'filter_reason': '', 'modify': true, 'average_optimized': true, 'points_used': 2}, {'latitude': 41.3438767, 'longitude': 123.8699723, 'HDOP': null, 'time': '18:52:52', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['c2:e0:18:be:76:88,-77'], 'wifi_ssid_list': ['小艾家'], 'filter_type': 0, 'filter_reason': ''}, {'latitude': 41.34392548333334, 'longitude': 123.8703548, 'HDOP': null, 'time': '19:07:34', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['c2:e0:18:be:76:88,-55', 'cc:f0:fd:c9:5d:98,-84'], 'wifi_ssid_list': ['小艾家', 'CMCC-R4Gq'], 'filter_type': 0, 'filter_reason': ''}, {'latitude': 41.344323366666664, 'longitude': 123.87031773333334, 'HDOP': null, 'time': '19:31:10', 'DB_HZ': null, 'loc_type': 4, 'wifi_list': ['e6:77:27:77:3d:38,-64'], 'wifi_ssid_list': ['小艾家'], 'filter_type': 0, 'filter_reason': ''}, {'latitude': 41.34394448333333, 'longitude': 123.87036208333333, 'HDOP': null, 'time': '19:34:00', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['c2:e0:18:be:76:88,-68'], 'wifi_ssid_list': ['小艾家'], 'filter_type': 1, 'filter_reason': 'ABA策略过滤: a和c都是家庭WiFi点，过滤中间点b'}, {'latitude': 41.344323366666664, 'longitude': 123.87031773333334, 'HDOP': null, 'time': '19:42:12', 'DB_HZ': null, 'loc_type': 4, 'wifi_list': ['e6:77:27:77:3d:38,-59'], 'wifi_ssid_list': ['小艾家'], 'filter_type': 0, 'filter_reason': ''}, {'latitude': 41.34410068333333, 'longitude': 123.87038788333334, 'HDOP': null, 'time': '20:15:56', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['c2:e0:18:be:76:88,-75', '98:00:6a:fc:fd:7a,-81', '9a:00:6a:fc:fd:7a,-82'], 'wifi_ssid_list': ['小艾家', 'CMCC-5151', '2'], 'filter_type': 1, 'filter_reason': 'ABA策略过滤: a和c都是家庭WiFi点，过滤中间点b'}, {'latitude': 41.344323366666664, 'longitude': 123.87031773333334, 'HDOP': null, 'time': '20:18:29', 'DB_HZ': null, 'loc_type': 4, 'wifi_list': ['e6:77:27:77:3d:38,-71'], 'wifi_ssid_list': ['小艾家'], 'filter_type': 0, 'filter_reason': ''}, {'latitude': 41.344651383333336, 'longitude': 123.8709022, 'HDOP': null, 'time': '20:47:05', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['e6:77:27:77:3d:38,-25'], 'wifi_ssid_list': ['小艾家'], 'filter_type': 1, 'filter_reason': 'ABA策略过滤: a和c都是家庭WiFi点，过滤中间点b'}, {'latitude': 41.344323366666664, 'longitude': 123.87031773333334, 'HDOP': null, 'time': '20:52:25', 'DB_HZ': null, 'loc_type': 4, 'wifi_list': ['e6:77:27:77:3d:38,-71'], 'wifi_ssid_list': ['小艾家'], 'filter_type': 0, 'filter_reason': ''}, {'latitude': 41.34491918333333, 'longitude': 123.8704603, 'HDOP': null, 'time': '21:49:58', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['80:be:af:11:e0:44,-76'], 'wifi_ssid_list': ['0'], 'filter_type': 0, 'filter_reason': ''}, {'latitude': 41.3462595, 'longitude': 123.87174988333334, 'HDOP': null, 'time': '22:00:51', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['7c:88:99:9c:e6:88,-84'], 'wifi_ssid_list': ['HAP_WHXRUE'], 'filter_type': 1, 'filter_reason': 'wifi列表只有一个mac且时间间隔在15分钟以内'}, {'latitude': 41.3456356, 'longitude': 123.8706437, 'HDOP': null, 'time': '22:38:29', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['1c:73:e2:72:c6:44,-73'], 'wifi_ssid_list': ['CU_e8Sm'], 'filter_type': 0, 'filter_reason': ''}, {'latitude': 41.3442974, 'longitude': 123.8702447, 'HDOP': null, 'time': '22:41:02', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['fe:83:c6:4f:49:17,-75'], 'wifi_ssid_list': ['Cindy'], 'filter_type': 1, 'filter_reason': 'wifi列表只有一个mac且时间间隔在15分钟以内'}, {'latitude': 41.3442863, 'longitude': 123.8715628, 'HDOP': null, 'time': '22:43:35', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['e6:77:27:77:3d:38,-81'], 'wifi_ssid_list': ['小艾家'], 'filter_type': 1, 'filter_reason': 'wifi列表只有一个mac且时间间隔在15分钟以内'}, {'latitude': 41.3442792, 'longitude': 123.87049368333334, 'HDOP': null, 'time': '22:54:41', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['9a:00:6a:fc:fd:7a,-85'], 'wifi_ssid_list': ['0'], 'filter_type': 1, 'filter_reason': 'wifi列表只有一个mac且 时间间隔在15分钟以内'}, {'latitude': 41.34425078333334, 'longitude': 123.87040278333333, 'HDOP': null, 'time': '23:27:21', 'DB_HZ': null, 'loc_type': 1, 'wifi_list': ['98:00:6a:fc:fd:7a,-87'], 'wifi_ssid_list': ['CMCC-5151'], 'filter_type': 0, 'filter_reason': ''}]
+				
+				}
+				
+		},
+		onLoad(options) {
+			console.log('into datapath onloac', options);
+			this.screenheight = uni.getSystemInfoSync().screenHeight;
+			this.screenwidth = uni.getSystemInfoSync().screenWidth;
+			this.enableSatellite = getApp().globalData.mapShowMode
+			if (!this.enableSatellite)
+				this.mapNumber = 'GS (2023)551号'
+			else
+				this.mapNumber = 'GS (2023)4047号'
+			this.dataWidth = this.screenwidth * 0.95
+			this.mapHeight = this.screenheight;
+			console.log('uni.getWindowInfo().windowHeight', uni.getWindowInfo())
+			if (plus.os.name === 'iOS')
+				this.scrollViewHeight = 15
+			this.scrollViewHeight = (this.screenheight * this.scrollViewHeight) / 100;
+			let pixelRatio = uni.getWindowInfo().screenWidth / 750
+			this.dataViewHeight = 250 * pixelRatio
+			// console.log('this.scrollViewHeight',this.scrollViewHeight)
+			if (options.data) {
+				let data = JSON.parse(options.data);
+				this.serial_code = data.serialCode;
+				// this.serial_code='be180202'
+				this.Pid = data.pid;
+				this.Did = data.did;
+				if (data.dogulas_peuker_distance)
+					this.dogulas_peuker_distance = data.dogulas_peuker_distance
+			}
+			if (uni.getSystemInfoSync().platform = "android") {
+				this.scaleborderStyle = {
+					margin: '5px 0px 0px 0px'
+				}
+			} else {
+				this.scaleborderStyle = {
+					top: "10px"
+				}
+			}
+			this.showPolyLine = uni.getStorageSync("showPoline")
+			console.log('this.showPolyLine', this.showPolyLine)
+			if (this.showPolyLine === '' || this.showPolyLine === null)
+				this.showPolyLine = true
+		},
+		computed: {
+			thumbStyle() {
+				return {
+					top: this.thumbTop + 'px',
+
+				};
+			},
+			scrollStyle() {
+				return {
+					top: this.screenheight - this.scrollViewHeight + 'px',
+					left: '0px',
+					backgroundColor: 'rgba(255, 255, 255, 1)',
+					borderRadius: '30px 30px 0px 0px',
+					width: this.screenwidth + 'px',
+					height: this.scrollViewHeight + 'px',
+				}
+			},
+			dataStyle() {
+				return {
+					top: this.screenheight - this.dataViewHeight - this.scrollViewHeight + 'px',
+					left: '0px',
+					// backgroundColor: 'rgba(255, 255, 255, 1)',
+					borderRadius: '25rpx',
+					width: this.screenwidth + 'px',
+					height: this.dataViewHeight + 'px',
+				}
+			},
+			dataContainer() {
+				let style = {
+					top: this.screenheight.toString() + 'px'
+				}
+				if (plus.os.name === 'Android') {
+					style = {
+						margin: (this.screenheight.toString()) + 'px 0px 0px 0px'
+					}
+				}
+				return style
+			}
+		},
+		onReady() {
+			this._mapContext = uni.createMapContext("map", this);
+			this._mapContext.initMarkerCluster({
+				enableDefaultStyle: true,
+				zoomOnClick: true,
+				gridSize: 60,
+				complete(res) {
+					console.log('initMarkerCluster', res)
+				}
+			});
+		},
+		mounted() {
+			// 在这里初始化地图组件
+			this.initDates();
+			// const currentDate = new Date();
+			// const date = new Date(currentDate);
+			// date.setDate(currentDate.getDate());
+			// const formattedDate = this.formatDate(date);
+			// console.log('当天日期', formattedDate);
+			this.currentDate = getApp().globalData.currentDate;
+			console.log('this.dateClick(this.currentDate)', this.currentDate)
+			this.dateClick(this.currentDate, 0);
+		},
+		methods: {
+			clickPath() {
+				// this.showPolyLine = !this.showPolyLine
+				// this.polyline.map(item => {
+				// 	if (!this.showPolyLine) {
+				// 		item.width = 0;
+				// 	} else {
+				// 		item.width = 15;
+				// 	}
+				// 	return item;
+				// });
+				// let polyline = this.polyline
+				// this.polyline = new Array()
+				// setTimeout(() => {
+				// 	this.polyline = polyline
+				// }, 10)
+				// uni.setStorageSync("showPoline", this.showPolyLine)
+				// console.log("this.polyline", this.showPolyLine)
+				
+				
+				
+				this.showPath++;
+				if(this.showPath>2){
+					this.showPath=0
+				}
+				if(this.showPath==0){
+					this.polyline=new Array()
+					this.markers=new Array()
+					this.polyline=this.polylineData
+					this.markers=this.markerData
+					this.showPathTitle='点位路径'
+				}else if(this.showPath==1){
+					this.polylineData=this.polyline.splice(0)
+					this.polyline=new Array()
+					this.showPathTitle='运动点位'
+				}else if(this.showPath==2){
+					this.markerData=this.markers.splice(0)
+					this.markers=new Array()
+					this.polyline=this.polylineData
+					this.showPathTitle='运动路径'
+				}
+			},
+			callouttap(e) {
+				console.log("callout", e)
+			},
+			timeToSeconds(timeStr) {
+				const [dateStr, timeStrPart] = timeStr.split(' ');
+				const [year, month, day] = dateStr.split('-').map(Number);
+				const [hour, minute, second] = timeStrPart.split(':').map(Number);
+
+				const date = new Date(year, month - 1, day, hour, minute, second);
+				const startOfDay = new Date(year, month - 1, day, 0, 0, 0);
+
+				return Math.floor((date - startOfDay) / 1000);
+			},
+			findClosestItemWithIndex(items, targetSeconds) {
+				let closestItem = null;
+				let closestIndex = -1;
+				let minDifference = Infinity;
+				items.forEach((item, index) => {
+					const itemSeconds = this.timeToSeconds(item.time);
+					const difference = Math.abs(itemSeconds - targetSeconds);
+					// console.log('itemSeconds', itemSeconds, targetSeconds, difference)
+					if (difference < minDifference) {
+						minDifference = difference;
+						closestItem = item;
+					}
+					//id===1000 是用来常显的marker 
+					if (item.id === 1000)
+						closestIndex = index;
+				});
+				return {
+					closestItem,
+					closestIndex
+				};
+			},
+			startThumb(event) {
+				this.showSliderCallout = true
+				this.moveThumb(event);
+			},
+			moveThumb(event) {
+				const {
+					touches
+				} = event;
+				// const firstTouch = touches[0];
+				// console.log(' {touches}', touches)
+				const x = touches[0].screenX
+				const y = touches[0].screenY
+				// console.log('Y', y)
+				const position = y - this.sliderTop;
+				// console.log('position', position)
+				if (position < 0) {
+					this.thumbTop = 0;
+				} else if (position > 300) {
+					this.thumbTop = 300;
+				} else {
+					this.thumbTop = position;
+				}
+				const percent = ((this.sliderHight - this.thumbTop) / this.sliderHight) * 100;
+				// console.log('percent', percent);
+				this.drawRange = Math.round(percent * (this.maxValue - this.minValue)) / 100;
+				let findeResult = this.findClosestItemWithIndex(this.markers, this.drawRange + this.minValue)
+				this.calloutContent = findeResult.closestItem.callout.content
+				this.slideIndex = findeResult.closestIndex
+				// let tampMarkers = this.markers.slice(0)
+				// //找到id===1000的点对应的index 来赋值
+				// tampMarkers[findeResult.closestIndex].latitude = findeResult.closestItem.latitude
+				// tampMarkers[findeResult.closestIndex].longitude = findeResult.closestItem.longitude
+				// tampMarkers[findeResult.closestIndex].callout.content = findeResult.closestItem.callout.content
+				// this.markers = new Array()
+				// this.markers = tampMarkers
+				// console.log("this.slideIndex ", this.slideIndex)
+			},
+			stopThumb() {
+				// 停止拖动滑块
+				this.showSliderCallout = false
+				// console.log('into moveThumb', this.drawRange);
+				// console.log('检测到停止滑块', this.markers)
+				let findeResult = this.findClosestItemWithIndex(this.markers, this.drawRange + this.minValue)
+				this.slideIndex = findeResult.closestIndex
+				// console.log("找到目标", findeResult)
+				let tampMarkers = this.markers.slice(0)
+				tampMarkers[findeResult.closestIndex].latitude = findeResult.closestItem.latitude
+				tampMarkers[findeResult.closestIndex].longitude = findeResult.closestItem.longitude
+				tampMarkers[findeResult.closestIndex].callout.content = findeResult.closestItem.callout.content
+				this.markers = new Array()
+				this.markers = tampMarkers
+				// this._mapContext.addMarkers({
+				// 	markers: [this.markers],
+				// 	clear:true,
+				// 	success: (res) => {
+				// 		console.log(res)
+				// 	},
+				// 	fail: (err) => {
+				// 		console.log(err)
+				// 	}
+				// })
+				console.log("this.markers",this.markers)
+				const event = {
+					detail: {
+						markerId: findeResult.closestItem.id
+					},
+				};
+				this.markertap(event);
+				// this.callouttap(event)
+				//根据时间更新滑块停止时的 位置
+			},
+			loAcquire(longitude, latitude) {
+				let that = this;
+				uni.showLoading({
+					title: '加载中',
+					mask: true
+				});
+				// String url = String.format(
+				//               "https://restapi.amap.com/v3/geocode/regeo?output=JSON&key=你申请的key&radius=1000&extensions=all&batch=false&roadlevel=0&location=%s,%s",
+				//               longitude, latitude);
+				let str =
+					'https://restapi.amap.com/v3/geocode/regeo?key=9f8eb22902ff76102e32ba52c7dee1e6&radius=1000&extensions=all&batch=false&roadlevel=0&location=' +
+					latitude.toString() + ',' + longitude.toString()
+				uni.request({
+					url: str,
+					data: {},
+					method: 'GET',
+					success: res => {
+						uni.hideLoading()
+						console.log('res.data.', res)
+						if (res.data.status === '1') {
+							this.address = res.data.regeocode.formatted_address;
+							console.log('res.data.result.address', res.data.regeocode.formatted_address);
+						}
+					},
+					fail: res => {
+						uni.hideLoading()
+						console.log('获取标记位置失败', res);
+					},
+				})
+			},
+			onregionchange() {
+				let that = this
+				this._mapContext.getScale({
+					success: (res) => {
+						// console.log('获取缩放尺度',res)
+						let index = Math.trunc(res.scale) - 3
+						// console.log('index',index)
+						that.scaleShow = that.scaleArray[index]
+						// console.log('that.mapScale',that.scaleShow)
+					},
+					fail: (err) => {
+
+					}
+				})
+			},
+			markertap(e) {
+				var clickid = e.detail.markerId;
+				console.log("click e=", e);
+				console.log('this.markers', this.markers);
+				console.log('time', this.markers[clickid].time);
+				this.coverTime = this.markers[clickid].time;
+				switch (this.markers[clickid].loc_type) {
+					case 1:
+						this.locateType = "GPS信号弱"
+						this.locateTypeGps = false
+						break;
+					case 2:
+						this.locateTypeGps = true
+						this.locateType = "GPS信号强"	
+						break;
+					case 3:
+						this.locateTypeGps = false
+						this.locateType = "基站"
+						break;
+					case 4:
+						this.locateTypeGps = false
+						this.locateType = "home"
+						break;
+					default:
+						break;
+				}
+				this.loAcquire(this.markers[clickid].latitude, this.markers[clickid].longitude);
+				// this._mapContext.moveToLocation({
+				// 	longitude: this.markers[clickid].longitude,
+				// 	latitude: this.markers[clickid].latitude
+				// })
+			},
+			adjustMapView() {
+				try {
+					console.log('start')
+					if (!this._mapContext || this.markers.length === 0) return;
+
+					// 调用地图组件的 includePoints 方法
+					this._mapContext.includePoints({
+						points: this.markers,
+						padding: [90, 90, 90, 90] // 上右下左的边距
+					});
+					console.log('end')
+
+				} catch (e) {
+					console.log('包裹点出错', e)
+				}
+
+			},
+			// 新的轨迹显示方法
+			showNewMarker(data, date) {
+			  let that = this;
+			  if (data != null && data.length > 0) {
+			    console.log('轨迹数据:', data);
+			    let dataArray = data; // 可以直接使用数据，或进行过滤处理
+			    // dataArray = util.filterData(data) // 如果需要过滤可以使用
+			    var markarray = new Array();
+			    try {
+			      let cnt = 0;
+			      
+			      for (let i = 0; i < dataArray.length; i++) {
+			        let item = dataArray[i];
+			        
+			        // 构建callout显示内容
+			        var marker = {
+			          id: cnt,
+			          latitude: item.latitude.toString(),
+			          longitude: item.longitude.toString(),
+			          loc_type: item.locType,
+			          loc_type_desc: item.locTypeDesc,
+			          iconPath: '/static/imgs/tragectory/trajectory.png',
+			          width: "24",
+			          height: "24",
+			          time: item.atime,
+			          callout: {
+			            content: item.atime.substring(11,16),
+			           display: "BYCLICK",
+			           color: '#ff5500',
+			           bgColor: 'rgba(255, 255, 255, 1)',
+			           textAlign: 'center',
+			           borderRadius: '5px',
+			           borderColor: 'rgba(255, 85, 0, 1.0)',
+			           borderWidth: 1,
+			           padding: 4
+			          },
+			          // 额外信息用于点击事件
+			          // extraInfo: {
+			          //   id: item.id,
+			          //   number: item.number,
+			          //   filterType: item.filterType,
+			          //   extendData: item.extendData
+			          // }
+			        };
+			        markarray[cnt] = marker;
+			        cnt++;
+			      }
+			      
+			    } catch (e) {
+			      console.log('处理轨迹点出错', e);
+			    }
+			    
+			    if (markarray.length > 0) {
+			      console.log('生成标记点数量:', markarray.length);
+			      // 生成轨迹线
+			      const newList = markarray.map(item => ({
+			        latitude: item.latitude,
+			        longitude: item.longitude
+			      }));
+			      
+			      let width = this.showPolyLine ? 15 : 0;
+			      let line = {
+			        points: newList,
+			        color: "#31c27c",
+			        width: width,
+			        arrowLine: true,
+			        borderWidth: 2
+			      }
+			      this.polyline = [line];
+			      // 设置时间范围
+				  console.log('markarray[markarray.length - 1].time)',markarray)
+			      this.maxValue = this.timeToSeconds(markarray[markarray.length - 1].time);
+			      this.minValue = this.timeToSeconds(markarray[0].time);
+			      console.log('时间范围:', this.minValue, '->', this.maxValue);
+			      let calloutitem = JSON.parse(JSON.stringify(markarray[markarray.length - 1]));
+			      const event = {
+			      	detail: {
+			      		markerId: calloutitem.id
+			      	},
+			      };
+			      calloutitem.id = 1000
+			      calloutitem.callout.display = "ALWAYS"
+			      calloutitem.calloutitem = ''
+			      markarray.push(calloutitem)
+			      this.markers = new Array();
+			      this.markers = markarray;
+			      // 设置地图中心点为最后一个点
+			      this.longitude = markarray[markarray.length - 1].longitude;
+			      this.latitude = markarray[markarray.length - 1].latitude;
+			      this.markertap(event);
+			      // 调整地图视野
+			      setTimeout(() => {
+			        this.adjustMapView();
+			      }, 500);
+			    } else {
+			      this.showNoDataMessage();
+			    }
+			  } else {
+			    this.showNoDataMessage();
+			  }
+			},
+			// 无数据时的处理
+			showNoDataMessage() {
+			  uni.showToast({
+			    title: '当天无轨迹数据',
+			    icon: 'error'
+			  });
+			  this.markers = new Array();
+			  this.polyline = new Array();
+			  this.resetToCurrentLocation();
+			},
+			
+			// 重置到当前位置
+			resetToCurrentLocation() {
+			  let that = this;
+			  plus.geolocation.getCurrentPosition(function(p) {
+			    console.log('当前位置的经度：' + p.coords.longitude);
+			    console.log('当前位置的纬度：' + p.coords.latitude);
+			    let pos = wgs84_to_gcj02(p.coords.longitude, p.coords.latitude);
+			    that.latitude = pos[1];
+			    that.longitude = pos[0];
+			  }, function(e) {
+			    console.error('获取位置失败：', e);
+			    // 设置默认位置
+			    that.latitude = 30.043543;
+			    that.longitude = 120.808837;
+			  });
+			},
+			getDistance(lat1, lon1, lat2, lon2) {
+				// console.log('lat1',lat1)
+				// console.log('lat1',lat2)
+				// console.log('into getdistance',Math.PI)
+				const radLat1 = lat1 * Math.PI / 180.0;
+				// console.log('radLat1',radLat1)
+				const radLon1 = lon1 * Math.PI / 180.0;
+				const radLat2 = lat2 * Math.PI / 180.0;
+				// console.log('radLat2',radLat2)
+				const radLon2 = lon2 * Math.PI / 180.0;
+
+				const a = radLat1 - radLat2;
+				const b = radLon1 - radLon2;
+				// console.log('a',a);
+				const distance = 2 * Math.asin(Math.sqrt(
+					Math.pow(Math.sin(a / 2), 2) +
+					Math.cos(radLat1) * Math.cos(radLat2) *
+					Math.pow(Math.sin(b / 2), 2)
+				));
+				// 地球平均半径（单位：米）
+				const earthRadius = 6371000;
+
+				// 计算距离（米）
+				const resultDistance = distance * earthRadius;
+				var result = Math.trunc(resultDistance);
+				return result;
+				// 	const radLat1 = lat1 * Math.PI / 180.0;
+				// 	const radLon1 = lon1 * Math.PI / 180.0;
+				// 	const radLat2 = lat2 * Math.PI / 180.0;
+				// 	const radLon2 = lon2 * Math.PI / 180.0;
+				// 	const a = radLat1 - radLat2;
+				// 	const b = radLon1 - radLon2;
+				// 	const distance = 2 * Math.asin(Math.sqrt(
+				// 		Math.pow(Math.sin(a / 2), 2) +
+				// 		Math.cos(radLat1) * Math.cos(radLat2) *
+				// 		Math.pow(Math.sin(b / 2), 2)
+				// 	));
+				// 	// 地球平均半径（单位：米）
+				// 	const earthRadius = 6371000;
+
+				// 	// 计算距离（米）
+				// 	const resultDistance = distance * earthRadius;
+				// 	var result = Math.trunc(resultDistance);
+				// 	return result;
+			},
+			// 新的数据获取方法
+			getNewLocationList({serialCode = this.serial_code, queryDate = this.date}) {
+			  return new Promise((resolve, reject) => {
+			    getLocationList({serialCode, queryDate}).then((reciveData) => {
+			      if (reciveData.success && reciveData.data && reciveData.data.length > 0) {
+			        console.log('获取到轨迹数据:', reciveData.data);
+			        this.showNewMarker(reciveData.data, queryDate);
+			        resolve(reciveData.data);
+			      } else {
+			        uni.showToast({
+			          title: '当天无位置数据',
+			          icon: 'error'
+			        });
+			        this.markers = new Array();
+			        this.polyline = new Array();
+			        this.resetToCurrentLocation();
+			        resolve([]);
+			      }
+			    }).catch(error => {
+			      console.error('获取轨迹数据失败:', error);
+			      reject(error);
+			    });
+			  });
+			},
+			dateClick(date, index) {
+				uni.showLoading({
+					title: date.toString(),
+					mask: true
+				})
+				this.thumbTop = 0
+				this.clickIndex = index;
+				this.address = '';
+				this.coverTime = '';
+				this.locateType = '';
+				const parts = date.split('-');
+				this.clickDate = parts.join('/');
+				//先去根据唯一标识去缓存里拿如果缓存里没有就请求数据，然后缓存
+				//唯一标识怎末定呢
+				//serial_code、date（格式2023-09-12）、points_number
+				console.log('date click', date, this.serial_code)
+				// 调用新的方法
+				this.getNewLocationList({
+				  serialCode: this.serial_code, 
+				  queryDate: date
+				})
+				var storageKey = this.serial_code.toString() + date.toString();
+				console.log('storageKey', storageKey);
+				
+				// return new Promise((resolve, reject) => {
+				// 	var traDataUrl = getApp().globalData.internet + getApp().globalData
+				// 		.trajectoryData;
+				// 	console.log('参数', this.serial_code, date, this.Did, this.Pid)
+				// 	uni.request({
+				// 		url: traDataUrl,
+				// 		method: 'POST',
+				// 		data: {
+				// 			serial_code: this.serial_code,
+				// 			date: date,
+				// 			did: this.Did,
+				// 			pid: this.Pid
+				// 		},
+				// 		header: {
+				// 			'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', //重点
+				// 			// 'token':cookie
+				// 		},
+				// 		success: (res) => {
+				// 			resolve(res);
+				// 		},
+				// 		fail: (err) => {
+				// 			reject(err);
+				// 		}
+				// 	})
+				// }).then(res => {
+				// 	uni.hideLoading();
+				// 	if (res.data.code === 200) {
+				// 		//缓存
+				// 		console.log('获取日期路径成功', res);
+				// 		var data = res.data.data;
+				// 		//拿到数据后给marker赋值
+				// 		uni.setStorageSync(storageKey, data)
+				// 		this.showMarker(data, date);
+				// 		console.log('新缓存一组日期路径数据', data);
+				// 	} else {
+				// 		console.log('获取日期路径失败', res);
+				// 		var err = new Array();
+				// 		this.showMarker(this.err, date);
+				// 		uni.hideLoading()
+				// 	}
+				// }, err => {
+				// 	uni.hideLoading()
+				// 	uni.showToast({
+				// 		title: '查询失败',
+				// 		icon: 'error'
+				// 	})
+				// 	console.log('查询失败', err)
+				// })
+
+			},
+			onTouchStart(event) {
+				this.startX = event.touches[0].clientX; // 记录起始触摸位置
+				this.isDragging = true; // 标记开始拖动
+			},
+			onTouchMove(event) {
+				if (this.isDragging) {
+					const deltaX = event.touches[0].clientX - this.startX; // 计算水平滑动距离
+					this.scrollX += deltaX; // 更新滚动位置
+					this.startX = event.touches[0].clientX; // 更新起始位置
+					// 防止滚动超出边界，可以添加逻辑来限制滚动范围
+					// 例如：if (this.scrollX < 0) this.scrollX = 0;
+					//       if (this.scrollX > 最大滚动距离) this.scrollX = 最大滚动距离;
+				}
+			},
+			onTouchEnd() {
+				this.isDragging = false; // 结束拖动
+			},
+			getMapHeight() {
+				const map = this.$refs.map;
+				if (map) {
+					return map.getBoundingClientRect().height;
+				}
+				return 0;
+			},
+			initDates() {
+				const currentDate = new Date();
+				for (let i = 0; i < 30; i++) {
+					const date = new Date(currentDate);
+					date.setDate(currentDate.getDate() - i);
+					const formattedDate = this.formatDate(date);
+					this.dates.push(formattedDate);
+				}
+			},
+			formatDate(date) {
+				const year = date.getFullYear();
+				const month = (date.getMonth() + 1).toString().padStart(2, '0');
+				const day = date.getDate().toString().padStart(2, '0');
+				// return `${year}-${month}-${day}`;
+				const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+				return {
+					days: weekdays[date.getDay()],
+					date: `${year}-${month}-${day}`
+				}
+			},
+			getNavHeight() {
+				const nav = this.$refs.nav;
+				if (nav) {
+					return nav.getBoundingClientRect().height;
+				}
+				return 0;
+			},
+			getScrollViewHeight() {
+				const scrollView = this.$refs.scrollView;
+				if (scrollView) {
+					return scrollView.getBoundingClientRect().height;
+				}
+				return 0;
+			},
+			returnParent() {
+				getApp().backParents();
+			},
+			calculateTimeDifferenceInSeconds(startTime, endTime) {
+				// 将时间字符串拆分为小时、分钟和秒
+				const startParts = startTime.split(':');
+				const endParts = endTime.split(':');
+
+				// 将时间部分转换为整数
+				const startHours = parseInt(startParts[0]);
+				const startMinutes = parseInt(startParts[1]);
+				const startSeconds = parseInt(startParts[2]);
+
+				const endHours = parseInt(endParts[0]);
+				const endMinutes = parseInt(endParts[1]);
+				const endSeconds = parseInt(endParts[2]);
+
+				// 将时间转换为秒
+				const startTotalSeconds = (startHours * 3600) + (startMinutes * 60) + startSeconds;
+				const endTotalSeconds = (endHours * 3600) + (endMinutes * 60) + endSeconds;
+
+				// 计算时间差并返回结果
+				const timeDifferenceInSeconds = Math.abs(endTotalSeconds - startTotalSeconds);
+				return timeDifferenceInSeconds;
+			}
+		},
+	};
+</script>
+
+<style>
+	.scroll-contain {
+		/* 导航栏占 10% 高度 */
+		background-color: #ffffff;
+	}
+
+	.map-view {
+		/* 导航栏占 10% 高度 */
+		/* background-color: #2fa6a0; */
+		position: relative;
+	}
+
+	.slider {
+		width: 30rpx;
+		height: 300px;
+		border-radius: 15px;
+		background-image: linear-gradient(to top, rgba(255, 88, 88, 1), rgba(240, 152, 25, 1));
+		position: relative;
+	}
+
+	.scale-border {
+		text-align: center;
+		margin-top: 10px;
+		height: 10%;
+		border-bottom: 1px solid #000000;
+		border-left: 1px solid #000000;
+		border-right: 1px solid #000000;
+	}
+
+	.slider-left {
+		height: 10px;
+		width: 0px;
+		background-color: rgba(47, 166, 160, 0.5);
+		border-radius: 5px;
+		position: relative;
+	}
+
+	.container {
+		position: fixed;
+		bottom: 0;
+		right: 0;
+		left: 0;
+		top: 0;
+	}
+
+	.slider-container {
+		display: flex;
+		flex-direction: row;
+		justify-content: flex-end;
+		align-items: center;
+		width: 200rpx;
+		height: 350px;
+		position: absolute;
+		top: 150px;
+		right: 50rpx;
+		/* background-color: #ffff00; */
+		/* padding-bottom: 10px; */
+		/* background-color: #2fa6a0; */
+	}
+
+	.slider-callout {
+		width: 120rpx;
+		height: 90rpx;
+		position: absolute;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+	}
+
+	.slider-thumb {
+		width: 90rpx;
+		height: 90rpx;
+		border-radius: 25rpx;
+
+		position: absolute;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.slider-value {
+		width: 45px;
+		text-align: center;
+		padding-left: 5px;
+	}
+
+	.map {
+		flex: 1;
+	}
+
+	.scroll-view-container {
+		flex: 1;
+		/* height: {{ scrollHeight }}; */
+		display: flex;
+		flex-direction: row;
+	}
+
+	.date-item {
+		height: 70rpx;
+		width: 70rpx;
+
+		margin: 14rpx;
+		border-radius: 35rpx;
+		border: 1px solid rgba(128, 128, 128, 1);
+		background-color: #ffffff;
+		/* color: #333333; */
+		/* font-family: jinshan; */
+		display: flex;
+		justify-content: center;
+		/* 水平居中 */
+		align-items: center;
+		/* 垂直居中 */
+	}
+
+	.date-text {
+		font-size: 30rpx;
+		color: rgba(128, 128, 128, 1.0);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.date-text-clicked {
+		font-size: 30rpx;
+		color: rgba(255, 255, 255, 1.0);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.date-item-clicked {
+		height: 70rpx;
+		width: 70rpx;
+
+		margin: 14rpx;
+		border-radius: 35rpx;
+		background-color: rgba(255, 87, 51, 1);
+		;
+
+		/* font-family: jinshan; */
+		display: flex;
+		justify-content: center;
+		/* 水平居中 */
+		align-items: center;
+		/* 垂直居中 */
+	}
+
+	.background_border {
+		position: fixed;
+		bottom: 0;
+		right: 0;
+		left: 0;
+		top: 0;
+		z-index: 100;
+	}
+
+	.dataShow {
+		display: flex;
+		flex-direction: column;
+		justify-content: start;
+		align-items: center;
+	}
+
+	.icon {}
+</style>

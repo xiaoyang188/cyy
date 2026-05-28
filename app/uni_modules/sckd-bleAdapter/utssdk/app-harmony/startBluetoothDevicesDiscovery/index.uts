@@ -1,0 +1,88 @@
+import {
+  StartBluetoothDevicesDiscoveryOptions,
+  CommonCallbackResult,
+  StartBluetoothDevicesDiscovery,
+  BluetoothDevice
+} from '../../interface.uts';
+
+import { BluetoothFailImpl } from '../../unierror.uts';
+import { ble } from '@kit.ConnectivityKit';
+import { getBleScanner, getAdapterInitialized } from '../openBluetoothAdapter/index.uts';
+import { addDiscoveredDevice } from '../global.uts';
+import { emitBluetoothDeviceFound } from '../onBluetoothDeviceFound/index.uts';
+
+const TAG = 'startBluetoothDevicesDiscovery';
+
+/**
+ * 开始搜索蓝牙设备
+ */
+export const startBluetoothDevicesDiscovery: StartBluetoothDevicesDiscovery = function (options: StartBluetoothDevicesDiscoveryOptions={}) {
+  try {
+    const isAdapterInitialized = getAdapterInitialized();
+    const bleScanner = getBleScanner();
+    
+    if (!isAdapterInitialized || !bleScanner) {
+      const failResult = new BluetoothFailImpl(10000); // not init
+      options.fail?.(failResult);
+      options.complete?.(failResult);
+      return;
+    }
+    
+    // 构造扫描配置参数
+    const scanOptions: ble.ScanOptions = {
+      interval: options.interval || 0,
+      dutyMode: ble.ScanDuty.SCAN_MODE_BALANCED,
+      matchMode: ble.MatchMode.MATCH_MODE_AGGRESSIVE
+    };
+    
+    // 设置扫描结果回调
+    const onReceiveEvent = (scanReport: ble.ScanReport) => {
+      // console.info(TAG, 'BLE scan device found:', JSON.stringify(scanReport));
+      
+      if (scanReport.scanResult && scanReport.scanResult.length > 0) {
+        scanReport.scanResult.forEach((result: ble.ScanResult) => {
+          const device: BluetoothDevice = {
+            name: result.deviceName || '',
+            deviceId: result.deviceId,
+            RSSI: result.rssi,
+            advertisData: result.data,
+            advertisServiceUUIDs: [], // ScanResult doesn't have serviceUuids property
+            localName: result.deviceName || '',
+            serviceData: {} // ScanResult doesn't have serviceData property
+          };
+          
+          // 添加到已发现设备列表
+          if (options.allowDuplicatesKey) {
+            addDiscoveredDevice(device); // 更新设备信息
+          } else {
+            addDiscoveredDevice(device);
+          }
+          
+          // 触发设备发现事件
+          emitBluetoothDeviceFound([device]);
+        });
+      }
+    };
+    
+    // 注册扫描结果监听
+    bleScanner.on('BLEDeviceFind', onReceiveEvent);
+    
+    // 开始扫描
+    const filters: ble.ScanFilter[] | null = options.services ? options.services.map(uuid => ({ serviceUuid: uuid } as ble.ScanFilter)) : null;
+    bleScanner.startScan(filters, scanOptions);
+    
+    const result: CommonCallbackResult = {
+      errMsg: 'startBluetoothDevicesDiscovery:ok'
+    };
+    
+    options.success?.(result);
+    options.complete?.(result);
+    
+    console.info(TAG, 'startBluetoothDevicesDiscovery success');
+  } catch (err) {
+    console.error(TAG, 'startBluetoothDevicesDiscovery failed:', err);
+    const failResult = new BluetoothFailImpl(10008); // system error
+    options.fail?.(failResult);
+    options.complete?.(failResult);
+  }
+};

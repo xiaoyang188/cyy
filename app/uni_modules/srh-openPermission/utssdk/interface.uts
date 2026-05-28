@@ -1,0 +1,11 @@
+
+export type SettingOptions = {
+	errMsg : string
+};
+export type SettingCallback = (result : SettingOptions) => void;
+
+export type SettingOptions = {
+	success ?: SettingSuccessCallback | null,
+	fail ?: SettingFailCallback | null,
+	complete ?: SettingCompleteCallback | null
+};

@@ -1,0 +1,13 @@
+export type KeepScreenOptions = {
+  keepOn: boolean;          // 是否保持屏幕常亮
+  success?: (res: void) => void;
+  fail?: (err: string) => void;
+};
+export type KeepScreenAPI = (options: KeepScreenOptions) => void;
+
+export type GetAmapAppId = () => string
+
+export type ActionType = () => string
+
+
+

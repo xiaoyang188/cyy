@@ -1,0 +1,76 @@
+import { geoLocationManager } from '@kit.LocationKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { OnLocationEnabledChange, OnLocationEnabledChangeOptions, OffLocationEnabledChange, OnLocationEnabledChangeCallback, CommonCallbackResult } from "../../interface.uts";
+
+// 存储位置服务状态变化回调函数的数组
+let locationEnabledCallbacks: OnLocationEnabledChangeCallback[] = [];
+
+// 是否已经注册了位置服务状态变化监听
+let isListenerRegistered = false;
+
+// 位置服务状态变化处理函数
+let locationEnabledChangeHandler = (state: boolean): void => {
+	console.info('locationEnabledChange: ' + JSON.stringify(state));
+	
+	// 通知所有注册的回调函数
+	locationEnabledCallbacks.forEach(callback => {
+		try {
+			callback({
+				enabled: state,
+				errMsg: 'location enabled state changed'
+			});
+		} catch (err) {
+			console.error('Error in location enabled change callback:', err);
+		}
+	});
+}
+
+// 注册位置服务状态变化监听
+function registerLocationEnabledListener() {
+	if (!isListenerRegistered) {
+		try {
+			geoLocationManager.on('locationEnabledChange', locationEnabledChangeHandler);
+			isListenerRegistered = true;
+			console.log('Location enabled listener registered');
+		} catch (err) {
+			console.error('Failed to register location enabled listener:', err);
+		}
+	}
+}
+
+// 取消注册位置服务状态变化监听
+function unregisterLocationEnabledListener() {
+	if (isListenerRegistered && locationEnabledCallbacks.length === 0) {
+		try {
+			geoLocationManager.off('locationEnabledChange', locationEnabledChangeHandler);
+			isListenerRegistered = false;
+			console.log('Location enabled listener unregistered');
+		} catch (err) {
+			console.error('Failed to unregister location enabled listener:', err);
+		}
+	}
+}
+
+// 监听位置服务状态变化
+export const onLocationEnabledChange: OnLocationEnabledChange = function(callback: OnLocationEnabledChangeCallback) {
+	if (locationEnabledCallbacks.indexOf(callback) === -1) {
+		locationEnabledCallbacks.push(callback);
+		registerLocationEnabledListener();
+	}
+};
+
+// 取消监听位置服务状态变化
+export const offLocationEnabledChange: OffLocationEnabledChange = function(callback?: OnLocationEnabledChangeCallback) {
+	if (callback) {
+		const index = locationEnabledCallbacks.indexOf(callback);
+		if (index > -1) {
+			locationEnabledCallbacks.splice(index, 1);
+		}
+	} else {
+		// 如果没有指定回调函数，则清空所有回调
+		locationEnabledCallbacks.length = 0;
+	}
+	
+	// 如果没有回调函数了，取消注册监听器
+	unregisterLocationEnabledListener();
+};

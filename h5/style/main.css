@@ -1,0 +1,901 @@
+/*
+  ColorUi for uniApp  v2.1.6 | by 文晓港 2019-05-31 10:44:24
+  仅供学习交流，如作它用所承受的法律责任一概与作者无关
+
+  *使用ColorUi开发扩展与插件时，请注明基于ColorUi开发
+
+  （QQ交流群：240787041）
+*/
+
+/* ==================
+        初始化
+ ==================== */
+body {
+  background-color: #f1f1f1;
+  font-size: 28rpx;
+  color: #333333;
+  font-family:
+    PingFang SC,
+    Helvetica Neue,
+    Helvetica,
+    sans-serif;
+  word-break: break-all;
+}
+
+view,
+scroll-view,
+swiper,
+button,
+input,
+textarea,
+label,
+navigator,
+image {
+  box-sizing: border-box;
+}
+
+button {
+  margin: 0;
+}
+
+.round {
+  border-radius: 5000rpx;
+}
+
+.radius {
+  border-radius: 6rpx;
+}
+
+/* ==================
+          图片
+ ==================== */
+image {
+  max-width: 100%;
+  display: inline-block;
+  position: relative;
+  z-index: 0;
+}
+
+
+.response {
+  width: 100%;
+}
+
+/* ==================
+         进度条
+ ==================== */
+
+.cu-progress {
+  overflow: hidden;
+  height: 28rpx;
+  background-color: #ebeef5;
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+}
+
+.cu-progress + view,
+.cu-progress + text {
+  line-height: 1;
+}
+
+.cu-progress.xs {
+  height: 10rpx;
+}
+
+.cu-progress.sm {
+  height: 20rpx;
+}
+
+.cu-progress view {
+  width: 0;
+  height: 100%;
+  align-items: center;
+  display: flex;
+  justify-items: flex-end;
+  justify-content: space-around;
+  font-size: 20rpx;
+  color: #ffffff;
+  transition: width 0.6s ease;
+}
+
+.cu-progress text {
+  align-items: center;
+  display: flex;
+  font-size: 20rpx;
+  color: #333333;
+  text-indent: 10rpx;
+}
+
+.cu-progress.text-progress {
+  padding-right: 60rpx;
+}
+
+.cu-progress.striped view {
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 72rpx 72rpx;
+}
+
+.cu-progress.active view {
+  animation: progress-stripes 2s linear infinite;
+}
+
+@keyframes progress-stripes {
+  from {
+    background-position: 72rpx 0;
+  }
+
+  to {
+    background-position: 0 0;
+  }
+}
+
+/* ==================
+         轮播
+ ==================== */
+swiper .a-swiper-dot {
+  display: inline-block;
+  width: 16rpx;
+  height: 16rpx;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+swiper[class*="-dot"] .wx-swiper-dots,
+swiper[class*="-dot"] .a-swiper-dots,
+swiper[class*="-dot"] .uni-swiper-dots {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: center;
+}
+
+swiper.square-dot .wx-swiper-dot,
+swiper.square-dot .a-swiper-dot,
+swiper.square-dot .uni-swiper-dot {
+  background-color: #ffffff;
+  opacity: 0.4;
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 20rpx;
+  margin: 0 8rpx !important;
+}
+
+swiper.square-dot .wx-swiper-dot.wx-swiper-dot-active,
+swiper.square-dot .a-swiper-dot.a-swiper-dot-active,
+swiper.square-dot .uni-swiper-dot.uni-swiper-dot-active {
+  opacity: 1;
+  width: 30rpx;
+}
+
+swiper.round-dot .wx-swiper-dot,
+swiper.round-dot .a-swiper-dot,
+swiper.round-dot .uni-swiper-dot {
+  width: 10rpx;
+  height: 10rpx;
+  position: relative;
+  margin: 4rpx 8rpx !important;
+}
+
+swiper.round-dot .wx-swiper-dot.wx-swiper-dot-active::after,
+swiper.round-dot .a-swiper-dot.a-swiper-dot-active::after,
+swiper.round-dot .uni-swiper-dot.uni-swiper-dot-active::after {
+  content: "";
+  position: absolute;
+  width: 10rpx;
+  height: 10rpx;
+  top: 0rpx;
+  left: 0rpx;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  background-color: #ffffff;
+  border-radius: 20rpx;
+}
+
+swiper.round-dot .wx-swiper-dot.wx-swiper-dot-active,
+swiper.round-dot .a-swiper-dot.a-swiper-dot-active,
+swiper.round-dot .uni-swiper-dot.uni-swiper-dot-active {
+  width: 18rpx;
+  height: 18rpx;
+}
+
+.screen-swiper {
+  min-height: 375rpx;
+}
+
+.screen-swiper image,
+.screen-swiper video,
+.swiper-item image,
+.swiper-item video {
+  width: 100%;
+  display: block;
+  height: 100%;
+  margin: 0;
+  pointer-events: none;
+}
+
+.card-swiper {
+  height: 420rpx !important;
+}
+
+.card-swiper swiper-item {
+  width: 610rpx !important;
+  left: 70rpx;
+  box-sizing: border-box;
+  padding: 40rpx 0rpx 70rpx;
+  overflow: initial;
+}
+
+.card-swiper swiper-item .swiper-item {
+  width: 100%;
+  display: block;
+  height: 100%;
+  border-radius: 10rpx;
+  transform: scale(0.9);
+  transition: all 0.2s ease-in 0s;
+  overflow: hidden;
+}
+
+.card-swiper swiper-item.cur .swiper-item {
+  transform: none;
+  transition: all 0.2s ease-in 0s;
+}
+
+.tower-swiper {
+  height: 420rpx;
+  position: relative;
+  max-width: 750rpx;
+  overflow: hidden;
+}
+
+.tower-swiper .tower-item {
+  position: absolute;
+  width: 300rpx;
+  height: 380rpx;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  margin: auto;
+  transition: all 0.2s ease-in 0s;
+  opacity: 1;
+}
+
+.tower-swiper .tower-item.none {
+  opacity: 0;
+}
+
+.tower-swiper .tower-item .swiper-item {
+  width: 100%;
+  height: 100%;
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+
+/* ==================
+          布局
+ ==================== */
+
+/*  -- flex弹性布局 -- */
+.flex {
+  display: flex;
+}
+.flex-sub {
+  flex: 1;
+}
+
+.flex-twice {
+  flex: 2;
+}
+
+.flex-treble {
+  flex: 3;
+}
+
+.flex-direction {
+  flex-direction: column;
+}
+
+.flex-direction-column-reverse {
+  flex-direction: column-reverse;
+}
+
+.flex-direction-row-reverse {
+  flex-direction: row-reverse;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.flex-wrap-reverse {
+  flex-wrap: wrap-reverse;
+}
+
+.align-start {
+  align-items: flex-start;
+}
+
+.align-end {
+  align-items: flex-end;
+}
+.align-baseline {
+  align-items: baseline;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.align-stretch {
+  align-items: stretch;
+}
+
+.self-start {
+  align-self: flex-start;
+}
+
+.self-center {
+  align-self: center;
+}
+
+.self-end {
+  align-self: flex-end;
+}
+
+.justify-start {
+  justify-content: flex-start;
+}
+
+.justify-end {
+  justify-content: flex-end;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-around {
+  justify-content: space-around;
+}
+
+/* grid布局 */
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.grid.grid-square {
+  overflow: hidden;
+}
+
+.grid.grid-square .cu-tag {
+  position: absolute;
+  right: 0;
+  top: 0;
+  border-bottom-left-radius: 6rpx;
+  padding: 6rpx 12rpx;
+  height: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.grid.grid-square > view > text[class*="cuIcon-"] {
+  font-size: 52rpx;
+  position: absolute;
+  color: #8799a3;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.grid.grid-square > view {
+  margin-right: 20rpx;
+  margin-bottom: 20rpx;
+  border-radius: 6rpx;
+  position: relative;
+  overflow: hidden;
+}
+
+.grid.grid-square > view.bg-img image {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+}
+
+.grid.col-1.grid-square > view {
+  padding-bottom: 100%;
+  height: 0;
+  margin-right: 0;
+}
+
+.grid.col-2.grid-square > view {
+  padding-bottom: calc((100% - 20rpx) / 2);
+  height: 0;
+  width: calc((100% - 20rpx) / 2);
+}
+
+.grid.col-3.grid-square > view {
+  padding-bottom: calc((100% - 40rpx) / 3);
+  height: 0;
+  width: calc((100% - 40rpx) / 3);
+}
+
+.grid.col-4.grid-square > view {
+  padding-bottom: calc((100% - 60rpx) / 4);
+  height: 0;
+  width: calc((100% - 60rpx) / 4);
+}
+
+.grid.col-5.grid-square > view {
+  padding-bottom: calc((100% - 80rpx) / 5);
+  height: 0;
+  width: calc((100% - 80rpx) / 5);
+}
+
+.grid.col-2.grid-square > view:nth-child(2n),
+.grid.col-3.grid-square > view:nth-child(3n),
+.grid.col-4.grid-square > view:nth-child(4n),
+.grid.col-5.grid-square > view:nth-child(5n) {
+  margin-right: 0;
+}
+
+.grid.col-1 > view {
+  width: 100%;
+}
+
+.grid.col-2 > view {
+  width: 50%;
+}
+
+.grid.col-3 > view {
+  width: 33.33%;
+}
+
+.grid.col-4 > view {
+  width: 25%;
+}
+
+.grid.col-5 > view {
+  width: 20%;
+}
+
+/*  -- 内外边距 -- */
+
+.margin-0 {
+  margin: 0;
+}
+
+.margin-xs {
+  margin: 10rpx;
+}
+
+.margin-sm {
+  margin: 20rpx;
+}
+
+.margin {
+  margin: 30rpx;
+}
+
+.margin-lg {
+  margin: 40rpx;
+}
+
+.margin-xl {
+  margin: 50rpx;
+}
+
+.margin-top-xs {
+  margin-top: 10rpx;
+}
+
+.margin-top-sm {
+  margin-top: 20rpx;
+}
+
+.margin-top {
+  margin-top: 30rpx;
+}
+
+.margin-top-lg {
+  margin-top: 40rpx;
+}
+
+.margin-top-xl {
+  margin-top: 50rpx;
+}
+
+.margin-right-xs {
+  margin-right: 10rpx;
+}
+
+.margin-right-sm {
+  margin-right: 20rpx;
+}
+
+.margin-right {
+  margin-right: 30rpx;
+}
+
+.margin-right-lg {
+  margin-right: 40rpx;
+}
+
+.margin-right-xl {
+  margin-right: 50rpx;
+}
+
+.margin-bottom-xs {
+  margin-bottom: 10rpx;
+}
+
+.margin-bottom-sm {
+  margin-bottom: 20rpx;
+}
+
+.margin-bottom {
+  margin-bottom: 30rpx;
+}
+
+.margin-bottom-lg {
+  margin-bottom: 40rpx;
+}
+
+.margin-bottom-xl {
+  margin-bottom: 50rpx;
+}
+
+.margin-left-xs {
+  margin-left: 10rpx;
+}
+
+.margin-left-sm {
+  margin-left: 20rpx;
+}
+
+.margin-left {
+  margin-left: 30rpx;
+}
+
+.margin-left-lg {
+  margin-left: 40rpx;
+}
+
+.margin-left-xl {
+  margin-left: 50rpx;
+}
+
+.margin-lr-xs {
+  margin-left: 10rpx;
+  margin-right: 10rpx;
+}
+
+.margin-lr-sm {
+  margin-left: 20rpx;
+  margin-right: 20rpx;
+}
+
+.margin-lr {
+  margin-left: 30rpx;
+  margin-right: 30rpx;
+}
+
+.margin-lr-lg {
+  margin-left: 40rpx;
+  margin-right: 40rpx;
+}
+
+.margin-lr-xl {
+  margin-left: 50rpx;
+  margin-right: 50rpx;
+}
+
+.margin-tb-xs {
+  margin-top: 10rpx;
+  margin-bottom: 10rpx;
+}
+
+.margin-tb-sm {
+  margin-top: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.margin-tb {
+  margin-top: 30rpx;
+  margin-bottom: 30rpx;
+}
+
+.margin-tb-lg {
+  margin-top: 40rpx;
+  margin-bottom: 40rpx;
+}
+
+.margin-tb-xl {
+  margin-top: 50rpx;
+  margin-bottom: 50rpx;
+}
+
+.padding-0 {
+  padding: 0;
+}
+
+.padding-xs {
+  padding: 10rpx;
+}
+
+.padding-sm {
+  padding: 20rpx;
+}
+
+.padding {
+  padding: 30rpx;
+}
+
+.padding-lg {
+  padding: 40rpx;
+}
+
+.padding-xl {
+  padding: 50rpx;
+}
+
+.padding-top-xs {
+  padding-top: 10rpx;
+}
+
+.padding-top-sm {
+  padding-top: 20rpx;
+}
+
+.padding-top {
+  padding-top: 30rpx;
+}
+
+.padding-top-lg {
+  padding-top: 40rpx;
+}
+
+.padding-top-xl {
+  padding-top: 50rpx;
+}
+
+.padding-right-xs {
+  padding-right: 10rpx;
+}
+
+.padding-right-sm {
+  padding-right: 20rpx;
+}
+
+.padding-right {
+  padding-right: 30rpx;
+}
+
+.padding-right-lg {
+  padding-right: 40rpx;
+}
+
+.padding-right-xl {
+  padding-right: 50rpx;
+}
+
+.padding-bottom-xs {
+  padding-bottom: 10rpx;
+}
+
+.padding-bottom-sm {
+  padding-bottom: 20rpx;
+}
+
+.padding-bottom {
+  padding-bottom: 30rpx;
+}
+
+.padding-bottom-lg {
+  padding-bottom: 40rpx;
+}
+
+.padding-bottom-xl {
+  padding-bottom: 50rpx;
+}
+
+.padding-left-xs {
+  padding-left: 10rpx;
+}
+
+.padding-left-sm {
+  padding-left: 20rpx;
+}
+
+.padding-left {
+  padding-left: 30rpx;
+}
+
+.padding-left-lg {
+  padding-left: 40rpx;
+}
+
+.padding-left-xl {
+  padding-left: 50rpx;
+}
+
+.padding-lr-xs {
+  padding-left: 10rpx;
+  padding-right: 10rpx;
+}
+
+.padding-lr-sm {
+  padding-left: 20rpx;
+  padding-right: 20rpx;
+}
+
+.padding-lr {
+  padding-left: 30rpx;
+  padding-right: 30rpx;
+}
+
+.padding-lr-lg {
+  padding-left: 40rpx;
+  padding-right: 40rpx;
+}
+
+.padding-lr-xl {
+  padding-left: 50rpx;
+  padding-right: 50rpx;
+}
+
+.padding-tb-xs {
+  padding-top: 10rpx;
+  padding-bottom: 10rpx;
+}
+
+.padding-tb-sm {
+  padding-top: 20rpx;
+  padding-bottom: 20rpx;
+}
+
+.padding-tb {
+  padding-top: 30rpx;
+  padding-bottom: 30rpx;
+}
+
+.padding-tb-lg {
+  padding-top: 40rpx;
+  padding-bottom: 40rpx;
+}
+
+.padding-tb-xl {
+  padding-top: 50rpx;
+  padding-bottom: 50rpx;
+}
+
+/* -- 浮动 --  */
+
+/* ==================
+          背景
+ ==================== */
+
+.bg-gray {
+  background-color: #f0f0f0;
+  color: #333333;
+}
+
+.bg-white {
+  background-color: #ffffff;
+  color: #666666;
+}
+
+.bg-img {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* ==================
+          文本
+ ==================== */
+
+.text-xs {
+  font-size: 20rpx;
+}
+
+.text-sm {
+  font-size: 24rpx;
+}
+
+.text-df {
+  font-size: 28rpx;
+}
+
+.text-lg {
+  font-size: 32rpx;
+}
+
+.text-xl {
+  font-size: 36rpx;
+}
+
+.text-Abc {
+  text-transform: Capitalize;
+}
+
+.text-ABC {
+  text-transform: Uppercase;
+}
+
+.text-abc {
+  text-transform: Lowercase;
+}
+
+.text-price::before {
+  content: "¥";
+  font-size: 80%;
+  margin-right: 4rpx;
+}
+
+.text-cut {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.text-bold {
+  font-weight: bold;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-content {
+  line-height: 1.6;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-red {
+  color: #e54d42;
+}
+
+.text-green {
+  color: #39b54a;
+}
+
+.text-blue {
+  color: #0081ff;
+}
+
+.text-gray {
+  color: #aaaaaa;
+}
+
+.text-white {
+  color: #ffffff;
+}

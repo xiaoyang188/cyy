@@ -1,0 +1,14 @@
+import { bundleManager } from '@kit.AbilityKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+
+export function canOpenLink(link:string){
+	try {
+		let data = bundleManager.canOpenLink(link);
+		console.log(0x0000, 'testTag', `canOpenLink successfully`, JSON.stringify(data));
+		return data;
+	} catch (err) {
+		let message = (err as BusinessError).message;
+		console.log(0x0000, 'testTag', 'canOpenLink failed', message);
+		return false
+	}
+}

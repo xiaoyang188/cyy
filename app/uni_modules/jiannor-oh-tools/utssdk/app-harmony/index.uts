@@ -1,0 +1,96 @@
+/**
+ * HarmonyOS 平台蓝牙适配器实现
+ * 调用鸿蒙原生蓝牙 API
+ */
+import { UTSWant } from "../interface.uts";
+import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
+import { window } from '@kit.ArkUI';
+import { systemShare } from '@kit.ShareKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+
+export { setKeepScreenOn } from "./setKeepScreenOn/index.uts"
+export { getLocation } from "./getLocation/index.uts"
+export { getAppId } from "./getAppId/index.uts"
+export { onLocationChange, offLocationChange, onLocationChangeError, offLocationChangeError } from "./onLocationChange/index.uts"
+export { startLocationUpdate } from "./startLocationUpdate/index.uts"
+export { stopLocationUpdate } from "./stopLocationUpdate/index.uts"
+export { getAppPath, getSpecificPath, checkPathExists } from "./getAppPath/index.uts"
+export type { AppPathInfo } from "./getAppPath/index.uts"
+export { compressFile, getCompressCacheDir } from "./compressFile/index.uts"
+export type { CompressOptions, CompressResult } from "./compressFile/index.uts"
+export { decompressFile, getDecompressCacheDir, isValidZipFile } from "./decompressFile/index.uts"
+export type { DecompressOptions, DecompressResult } from "./decompressFile/index.uts"
+export { setScreenOrientation, getScreenOrientation, lockPortrait, lockLandscape, unlockOrientation } from "./setScreenOrientation/index.uts"
+export type { SetScreenOrientationOptions, GetScreenOrientationOptions } from "./setScreenOrientation/index.uts"
+export { ScreenOrientation } from "./setScreenOrientation/index.uts"
+export { setBadgeNumber } from "./setBadgeNumber/index.uts"
+export { checkAppUpdate, showUpdateDialog, checkAndShowUpdate } from "./checkAppUpdate/index.uts"
+export type { CheckAppUpdateOptions, ShowUpdateDialogOptions, CheckAndShowUpdateOptions, CheckUpdateResult } from "./checkAppUpdate/index.uts"
+export { UpdateAvailableCode, ShowUpdateResultCode } from "./checkAppUpdate/index.uts"
+export type { SaveToDownloadOptions, SaveToDownloadResult, SaveToDownloadErrorResult } from "../interface.uts"
+export { openLink } from "./openLink/index.uts"
+export { canOpenLink } from "./canOpenLink/index.uts"
+export { startAbility } from "./startAbility/index.uts"
+export { startAbilityByNavigation } from "./startAbilityByNavigation/index.uts"
+export { chooseLocation } from "./chooseLocation/index.uts"
+export { getBluetoothState } from "./getBluetoothState/index.uts"
+export { BluetoothStateEnum } from "../interface.uts"
+export { enableBluetooth } from "./enableBluetooth/index.uts"
+export { onBluetoothStateChange, offBluetoothStateChange } from "./onBluetoothStateChange/index.uts"
+export { requestGlobalSwitch } from "./requestGlobalSwitch/index.uts"
+export { onLocationEnabledChange, offLocationEnabledChange } from "./onLocationEnabledChange/index.uts"
+export { isLocationEnabled } from "./isLocationEnabled/index.uts"
+export { default as saveImageToAlbum } from "./saveImageToAlbum/index.uts"
+export { default as saveToDownload } from "./saveToDownload/index.uts"
+export { onKnockShare } from "./onKnockShare/index.uts"
+export { offKnockShare } from "./offKnockShare/index.uts"
+export { onDataReceive } from "./onDataReceive/index.uts"
+export { offDataReceive } from "./offDataReceive/index.uts"
+export { onNewWant } from "./onNewWant/index.uts"
+export { parseURL } from "./parseURL/index.uts"
+export { setStorageOH, getStorageOH, removeStorageOH, clearStorageOH } from "./storageOH/index.uts"
+export {getStaticPath} from "./getStaticPath/index.uts"
+export {requestSystemPermission} from "./requestSystemPermission/index.uts"
+export {isNotificationEnabled} from "./isNotificationEnabled/index.uts"
+export {requestEnableNotification} from "./requestEnableNotification/index.uts"
+export {openNotificationSettings} from "./openNotificationSettings/index.uts"
+export {getOsTheme} from "./getOsTheme/index.uts"
+export {wgs84ToGcj02} from "./wgs84ToGcj02/index.uts"
+export {getAddressesFromLocation} from "./getAddressesFromLocation/index.uts"
+export {cleanCache} from "./cleanCache/index.uts"
+export {saveToFilesDir} from "./saveToFilesDir/index.uts"
+export {restartApp} from "./restartApp/index.uts"
+export {mergeWithCanvas} from "./mergeWithCanvas/index.uts"
+export type {MergeWithCanvasOptions, MergeWithCanvasSuccess, MergeImageItem} from "../interface.uts"
+
+UTSHarmony.onAppAbilityCreate((want : Want) => {
+
+	try {
+		systemShare.getSharedData(want)
+			.then((data : systemShare.SharedData) => {
+				data.getRecords().forEach((record : systemShare.SharedRecord) => {
+					// 处理分享数据
+					console.log("onAppAbilityCreate", JSON.stringify(record))
+				});
+			})
+			.catch((error : BusinessError) => {
+				console.error(`Failed to getSharedData. Code: ${error.code}, message: ${error.message}`);
+			});
+	} catch (err) {
+		console.log("onAppAbilityCreate Error", err)
+	}
+
+	let uw : UTSWant = {
+		deviceId: want.deviceId,
+		bundleName: want.bundleName,
+		moduleName: want.moduleName,
+		abilityName: want.abilityName,
+		action: want.action,
+		entities: want.entities,
+		uri: want.uri,
+		type: want.type,
+		parameters: JSON.parseObject(JSON.stringify(want.parameters)),
+		flags: want.flags
+	} as UTSWant
+	AppStorage.setOrCreate("createWant", uw)
+});

@@ -1,0 +1,270 @@
+/**
+ * 屏幕方向控制模块
+ * 提供锁定和解锁屏幕方向的功能
+ */
+
+import { common } from '@kit.AbilityKit';
+import { window,AppStorageV2,UIContext  } from '@kit.ArkUI';
+/**
+ * 屏幕方向枚举
+ */
+export enum ScreenOrientation {
+  /** 未定义，由系统决定 */
+  UNSPECIFIED = 0,
+  /** 竖屏 */
+  PORTRAIT = 1,
+  /** 横屏（竖屏顺时针旋转90度） */
+  LANDSCAPE = 2,
+  /** 反向竖屏（竖屏顺时针旋转180度） */
+  PORTRAIT_INVERTED = 3,
+  /** 反向横屏（竖屏顺时针旋转270度） */
+  LANDSCAPE_INVERTED = 4,
+  /** 跟随传感器自动旋转（支持4个方向），且不受控制中心旋转开关的控制 */
+  AUTO_ROTATION = 5,
+  /** 跟随传感器自动旋转（仅支持竖屏和反向竖屏），且不受控制中心旋转开关的控制 */
+  AUTO_ROTATION_PORTRAIT = 6,
+  /** 跟随传感器自动旋转（仅支持横屏和反向横屏），且不受控制中心旋转开关的控制 */
+  AUTO_ROTATION_LANDSCAPE = 7,
+  /** 跟随传感器自动旋转（支持4个方向），且受控制中心旋转开关的控制 */
+  AUTO_ROTATION_RESTRICTED = 8,
+  /** 跟随传感器自动旋转（仅支持竖屏和反向竖屏），且受控制中心旋转开关的控制 */
+  AUTO_ROTATION_PORTRAIT_RESTRICTED = 9,
+  /** 跟随传感器自动旋转（仅支持横屏和反向横屏），且受控制中心旋转开关的控制 */
+  AUTO_ROTATION_LANDSCAPE_RESTRICTED = 10,
+  /** 锁定当前方向 */
+  LOCKED = 11
+}
+
+/**
+ * 设置屏幕方向选项
+ */
+export interface SetScreenOrientationOptions {
+  /** 屏幕方向 */
+  orientation: ScreenOrientation;
+  /** 成功回调 */
+  success?: () => void;
+  /** 失败回调 */
+  fail?: (error: any) => void;
+  /** 完成回调（无论成功失败都会执行） */
+  complete?: () => void;
+}
+
+/**
+ * 获取屏幕方向结果
+ */
+export interface GetScreenOrientationResult {
+  /** 当前屏幕方向 */
+  orientation: ScreenOrientation;
+}
+
+/**
+ * 获取当前屏幕方向选项
+ */
+export interface GetScreenOrientationOptions {
+  /** 成功回调 */
+  success?: (result: GetScreenOrientationResult) => void;
+  /** 失败回调 */
+  fail?: (error: any) => void;
+  /** 完成回调（无论成功失败都会执行） */
+  complete?: () => void;
+}
+
+/**
+ * 基础屏幕方向选项（不包含orientation参数）
+ */
+export interface BaseScreenOrientationOptions {
+  /** 成功回调 */
+  success?: () => void;
+  /** 失败回调 */
+  fail?: (error: any) => void;
+  /** 完成回调（无论成功失败都会执行） */
+  complete?: () => void;
+}
+
+/**
+ * 设置屏幕方向
+ * @param options 设置选项
+ */
+export function setScreenOrientation(options: SetScreenOrientationOptions): void {
+  try {
+    const context = AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext() as common.UIAbilityContext;
+    const windowStage = context.windowStage;
+    const windowClass = windowStage.getMainWindowSync();
+    
+    // 将自定义枚举转换为系统枚举
+    let systemOrientation: window.Orientation;
+    switch (options.orientation) {
+      case ScreenOrientation.UNSPECIFIED:
+        systemOrientation = window.Orientation.UNSPECIFIED;
+        break;
+      case ScreenOrientation.PORTRAIT:
+        systemOrientation = window.Orientation.PORTRAIT;
+        break;
+      case ScreenOrientation.LANDSCAPE:
+        systemOrientation = window.Orientation.LANDSCAPE;
+        break;
+      case ScreenOrientation.PORTRAIT_INVERTED:
+        systemOrientation = window.Orientation.PORTRAIT_INVERTED;
+        break;
+      case ScreenOrientation.LANDSCAPE_INVERTED:
+        systemOrientation = window.Orientation.LANDSCAPE_INVERTED;
+        break;
+      case ScreenOrientation.AUTO_ROTATION:
+        systemOrientation = window.Orientation.AUTO_ROTATION;
+        break;
+      case ScreenOrientation.AUTO_ROTATION_PORTRAIT:
+        systemOrientation = window.Orientation.AUTO_ROTATION_PORTRAIT;
+        break;
+      case ScreenOrientation.AUTO_ROTATION_LANDSCAPE:
+        systemOrientation = window.Orientation.AUTO_ROTATION_LANDSCAPE;
+        break;
+      case ScreenOrientation.AUTO_ROTATION_RESTRICTED:
+        systemOrientation = window.Orientation.AUTO_ROTATION_RESTRICTED;
+        break;
+      case ScreenOrientation.AUTO_ROTATION_PORTRAIT_RESTRICTED:
+        systemOrientation = window.Orientation.AUTO_ROTATION_PORTRAIT_RESTRICTED;
+        break;
+      case ScreenOrientation.AUTO_ROTATION_LANDSCAPE_RESTRICTED:
+        systemOrientation = window.Orientation.AUTO_ROTATION_LANDSCAPE_RESTRICTED;
+        break;
+      case ScreenOrientation.LOCKED:
+        systemOrientation = window.Orientation.LOCKED;
+        break;
+      default:
+        systemOrientation = window.Orientation.UNSPECIFIED;
+        break;
+    }
+    
+    // 设置屏幕方向
+    windowClass.setPreferredOrientation(systemOrientation);
+	console.error('setScreenOrientation success');
+    
+    if (options.success) {
+      options.success();
+    }
+  } catch (error) {
+    console.error('setScreenOrientation error:', error);
+    if (options.fail) {
+      options.fail(error);
+    }
+  } finally {
+    if (options.complete) {
+      options.complete();
+    }
+  }
+}
+
+/**
+ * 获取当前屏幕方向
+ * @param options 获取选项
+ */
+export function getScreenOrientation(options: GetScreenOrientationOptions): void {
+  try {
+    const context = AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext() as common.UIAbilityContext;
+    const windowStage = context.windowStage;
+    const windowClass = windowStage.getMainWindowSync();
+    
+    // 获取当前屏幕方向
+    const currentOrientation = windowClass.getPreferredOrientation();
+    
+    // 将系统枚举转换为自定义枚举
+    let orientation: ScreenOrientation;
+    switch (currentOrientation) {
+      case window.Orientation.UNSPECIFIED:
+        orientation = ScreenOrientation.UNSPECIFIED;
+        break;
+      case window.Orientation.PORTRAIT:
+        orientation = ScreenOrientation.PORTRAIT;
+        break;
+      case window.Orientation.LANDSCAPE:
+        orientation = ScreenOrientation.LANDSCAPE;
+        break;
+      case window.Orientation.PORTRAIT_INVERTED:
+        orientation = ScreenOrientation.PORTRAIT_INVERTED;
+        break;
+      case window.Orientation.LANDSCAPE_INVERTED:
+        orientation = ScreenOrientation.LANDSCAPE_INVERTED;
+        break;
+      case window.Orientation.AUTO_ROTATION:
+        orientation = ScreenOrientation.AUTO_ROTATION;
+        break;
+      case window.Orientation.AUTO_ROTATION_PORTRAIT:
+        orientation = ScreenOrientation.AUTO_ROTATION_PORTRAIT;
+        break;
+      case window.Orientation.AUTO_ROTATION_LANDSCAPE:
+        orientation = ScreenOrientation.AUTO_ROTATION_LANDSCAPE;
+        break;
+      case window.Orientation.AUTO_ROTATION_RESTRICTED:
+        orientation = ScreenOrientation.AUTO_ROTATION_RESTRICTED;
+        break;
+      case window.Orientation.AUTO_ROTATION_PORTRAIT_RESTRICTED:
+        orientation = ScreenOrientation.AUTO_ROTATION_PORTRAIT_RESTRICTED;
+        break;
+      case window.Orientation.AUTO_ROTATION_LANDSCAPE_RESTRICTED:
+        orientation = ScreenOrientation.AUTO_ROTATION_LANDSCAPE_RESTRICTED;
+        break;
+      case window.Orientation.LOCKED:
+        orientation = ScreenOrientation.LOCKED;
+        break;
+      default:
+        orientation = ScreenOrientation.UNSPECIFIED;
+        break;
+    }
+    
+    if (options.success) {
+      const result: GetScreenOrientationResult = { orientation };
+      options.success(result);
+    }
+  } catch (error) {
+    console.error('getScreenOrientation error:', error);
+    if (options.fail) {
+      options.fail(error);
+    }
+  } finally {
+    if (options.complete) {
+      options.complete();
+    }
+  }
+}
+
+/**
+ * 锁定屏幕为竖屏
+ * @param options 设置选项（可选）
+ */
+export function lockPortrait(options?: BaseScreenOrientationOptions): void {
+  const fullOptions: SetScreenOrientationOptions = {
+    orientation: ScreenOrientation.PORTRAIT,
+    success: options?.success,
+    fail: options?.fail,
+    complete: options?.complete
+  };
+  setScreenOrientation(fullOptions);
+}
+
+/**
+ * 锁定屏幕为横屏
+ * @param options 设置选项（可选）
+ */
+export function lockLandscape(options?: BaseScreenOrientationOptions): void {
+  const fullOptions: SetScreenOrientationOptions = {
+    orientation: ScreenOrientation.LANDSCAPE,
+    success: options?.success,
+    fail: options?.fail,
+    complete: options?.complete
+  };
+  setScreenOrientation(fullOptions);
+}
+
+/**
+ * 解锁屏幕方向（允许自动旋转）
+ * @param options 设置选项（可选）
+ */
+export function unlockOrientation(options?: BaseScreenOrientationOptions): void {
+  const fullOptions: SetScreenOrientationOptions = {
+    orientation: ScreenOrientation.AUTO_ROTATION_RESTRICTED,
+    success: options?.success,
+    fail: options?.fail,
+    complete: options?.complete
+  };
+  setScreenOrientation(fullOptions);
+}

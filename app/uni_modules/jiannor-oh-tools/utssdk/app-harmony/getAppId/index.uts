@@ -1,0 +1,44 @@
+import {
+  GetAppIdOptions,
+  GetAppIdSuccess,
+  GetAppId
+} from '../../interface.uts';
+
+import { bundleManager } from '@kit.AbilityKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+
+const TAG = 'getAppId';
+
+/**
+ * 获取应用ID
+ */
+export const getAppId: GetAppId = function (options: GetAppIdOptions) {
+  try {
+    // 设置获取bundle信息的标志
+    let flag = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_SIGNATURE_INFO;
+    
+    // 获取当前应用的bundle信息
+    let bundleInfo = bundleManager.getBundleInfoForSelfSync(flag);
+    
+    // 从签名信息中获取appId
+    let appId = bundleInfo.signatureInfo.appId;
+    
+    const result: GetAppIdSuccess = {
+      appId: appId,
+      errMsg: 'getAppId:ok'
+    };
+    
+    options.success?.(result);
+    options.complete?.(result);
+    
+    console.info(TAG, 'getAppId success, appId:', appId);
+  } catch (err) {
+    console.error(TAG, 'getAppId failed:', err);
+    const failResult = {
+      errMsg: 'getAppId:fail',
+      errCode: -1
+    };
+    options.fail?.(failResult);
+    options.complete?.(failResult);
+  }
+};

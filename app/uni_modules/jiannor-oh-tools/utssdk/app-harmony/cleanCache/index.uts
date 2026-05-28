@@ -1,0 +1,95 @@
+import { CleanCacheOptions, CleanCacheSuccessResult, CleanCacheFailResult, CleanCacheCompleteResult } from '../../interface.uts';
+import { application, common, contextConstant } from '@kit.AbilityKit';
+import { AppStorageV2, UIContext } from '@kit.ArkUI';
+import { fileIo as fs } from '@kit.CoreFileKit';
+
+
+let paths:string[] = []
+
+export function cleanCache(options:CleanCacheOptions) {
+	let context = AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext() as common.UIAbilityContext;
+	
+	application.createModuleContext(context, 'entry').then((moduleContext) => {
+		// 缓存路径 /data/storage/el2/base/cache
+		paths.push(moduleContext.cacheDir)
+		// 缓存路径 /data/storage/el2/base/haps/entry/cache
+		paths.push(context.cacheDir)
+		// 缓存路径 /data/storage/el1/base/cache
+		// moduleContext.area = contextConstant.AreaMode.EL1
+		// paths.push(moduleContext.cacheDir)
+		// 缓存路径 /data/storage/el1/base/haps/entry/cache
+		// context.area = contextConstant.AreaMode.EL1
+		// paths.push(context.cacheDir)
+		clearAllCache(options)
+	})
+
+}
+
+function clearAllCache(options:CleanCacheOptions) {
+  let promises: Promise<void>[] = []
+  paths.forEach((cacheDir) => {
+    console.info(0x0000, 'CacheClean', cacheDir)
+    promises.push(deleteFile(cacheDir,options))
+  })
+  Promise.all(promises).then(() => {
+    options.complete?.({ errMsg: 'cleanCache:ok' } as CleanCacheCompleteResult)
+  })
+}
+
+function deleteFile(cacheDir: string,options:CleanCacheOptions): Promise<void> {
+  return fs.listFile(cacheDir)
+    .then((filenames) => {
+	  let totalFiles = filenames.length
+	  let processedFiles = 0
+	  
+	  if (totalFiles === 0) {
+		return
+	  }
+
+      let filePromises: Promise<void>[] = []
+
+      filenames.forEach((name) => {
+        let dirPath = cacheDir + '/' + name
+        console.info(0x0000, 'CacheClean', dirPath)
+        // 判断是否为文件夹
+        let isDirectory: boolean = false
+        try {
+          isDirectory = fs
+            .statSync(dirPath)
+            .isDirectory()
+        } catch (e) {
+          console.error(0x0000, 'CacheClean', JSON.stringify(e))
+		  options.fail?.({ errMsg: JSON.stringify(e), errCode: 1001 } as CleanCacheFailResult)
+        }
+        if (isDirectory) {
+          try {
+			fs.rmdirSync(dirPath)
+			processedFiles++
+			let percentage = (processedFiles / totalFiles) * 100
+			options.success?.({ percentage: percentage, errMsg: 'cleanCache:ok' } as CleanCacheSuccessResult)
+		  } catch (e) {
+			options.fail?.({ errMsg: JSON.stringify(e), errCode: 1002 } as CleanCacheFailResult)
+		  } 
+          filePromises.push(Promise.resolve())
+        } else {
+          let p = fs.unlink(dirPath)
+            .then(() => {
+              console.info(0x0000, 'CacheClean', 'Remove files successfully')
+			  processedFiles++
+			  let percentage = (processedFiles / totalFiles) * 100
+			  options.success?.({ percentage: percentage, errMsg: 'cleanCache:ok' } as CleanCacheSuccessResult)
+            })
+            .catch((err: Error) => {
+              let log = `Failed to remove files with error message: ${err.message}`
+              console.error(0x0000, 'CacheClean', log)
+			  options.fail?.({ errMsg: err.message, errCode: 1003 } as CleanCacheFailResult)
+            })
+          filePromises.push(p)
+        }
+      })
+      return Promise.all(filePromises).then(() => {})
+    }).catch((err)=>{
+		console.error(0x0000, 'CacheClean', err)
+		options.fail?.({ errMsg: JSON.stringify(err), errCode: 1000 } as CleanCacheFailResult)
+	})
+}

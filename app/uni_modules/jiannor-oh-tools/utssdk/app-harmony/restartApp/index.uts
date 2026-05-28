@@ -1,0 +1,11 @@
+import { Want } from '@kit.AbilityKit';
+
+export function restartApp() {
+	let context=UTSHarmony.getUIAbilityContext()
+	let want : Want = {
+		bundleName: context.abilityInfo.bundleName,
+		abilityName: context.abilityInfo.name
+	};
+	let applicationContext = context.getApplicationContext();
+	applicationContext.restartApp(want)
+}

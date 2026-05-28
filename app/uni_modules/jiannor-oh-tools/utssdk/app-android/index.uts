@@ -1,0 +1,370 @@
+/**
+ * Android 平台蓝牙状态监听实现
+ * 纯 UTS 实现
+ */
+
+import Context from "android.content.Context";
+import Intent from "android.content.Intent";
+import IntentFilter from "android.content.IntentFilter";
+import BroadcastReceiver from "android.content.BroadcastReceiver";
+import BluetoothAdapter from "android.bluetooth.BluetoothAdapter";
+import Configuration from "android.content.res.Configuration";
+import File from "java.io.File";
+import FileInputStream from "java.io.FileInputStream";
+import FileOutputStream from "java.io.FileOutputStream";
+import Thread from "java.lang.Thread";
+import Bitmap from "android.graphics.Bitmap";
+import BitmapFactory from "android.graphics.BitmapFactory";
+import Canvas from "android.graphics.Canvas";
+import Paint from "android.graphics.Paint";
+import RectF from "android.graphics.RectF";
+import Path from "android.graphics.Path";
+import { SaveToFilesDirOptions, MergeWithCanvasOptions, MergeImageItem } from '../interface.uts';
+
+// 蓝牙状态常量
+const STATE_ERR = -1
+const STATE_OFF = 0
+const STATE_TURNING_ON = 1
+const STATE_ON = 2
+const STATE_TURNING_OFF = 3
+const STATE_BLE_TURNING_ON = 4
+const STATE_BLE_ON = 5
+const STATE_BLE_TURNING_OFF = 6
+
+export const BluetoothState = {
+	STATE_ERR,
+	STATE_OFF,
+	STATE_TURNING_ON,
+	STATE_ON,
+	STATE_TURNING_OFF,
+	STATE_BLE_TURNING_ON,
+	STATE_BLE_ON,
+	STATE_BLE_TURNING_OFF
+}
+
+// 回调类型
+type BluetoothStateChangeResult = {
+	state: number
+	errMsg?: string
+}
+type BluetoothStateChangeCallback = (result: BluetoothStateChangeResult) => void
+
+// 存储回调函数
+let bluetoothStateCallbacks: BluetoothStateChangeCallback[] = [];
+let isListenerRegistered = false;
+let bluetoothReceiver: CustomBluetoothReceiver | null = null;
+
+// 状态转换
+function convertBluetoothState(state: Int): number {
+	if (state == BluetoothAdapter.STATE_OFF) return STATE_OFF;
+	if (state == BluetoothAdapter.STATE_TURNING_ON) return STATE_TURNING_ON;
+	if (state == BluetoothAdapter.STATE_ON) return STATE_ON;
+	if (state == BluetoothAdapter.STATE_TURNING_OFF) return STATE_TURNING_OFF;
+	if (state == 14) return STATE_BLE_TURNING_ON;
+	if (state == 15) return STATE_BLE_ON;
+	if (state == 16) return STATE_BLE_TURNING_OFF;
+	return STATE_ERR;
+}
+
+// 广播接收器
+class CustomBluetoothReceiver extends BroadcastReceiver() {
+	override onReceive(context: Context, intent: Intent): void {
+		const action = intent.getAction();
+		if (action == BluetoothAdapter.ACTION_STATE_CHANGED) {
+			const state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
+			const convertedState = convertBluetoothState(state);
+			const result: BluetoothStateChangeResult = {
+				state: convertedState,
+				errMsg: 'bluetooth state changed'
+			};
+			bluetoothStateCallbacks.forEach((callback) => {
+				try {
+					callback(result);
+				} catch (err) {
+					console.error('Bluetooth callback error:', err);
+				}
+			});
+		}
+	}
+}
+
+// 注册监听
+function registerBluetoothStateListener() {
+	if (!isListenerRegistered) {
+		try {
+			const context = UTSAndroid.getAppContext();
+			if (context != null) {
+				bluetoothReceiver = new CustomBluetoothReceiver();
+				const filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+				context.registerReceiver(bluetoothReceiver, filter);
+				isListenerRegistered = true;
+				console.log('Bluetooth state listener registered');
+			}
+		} catch (err) {
+			console.error('Failed to register bluetooth listener:', err);
+		}
+	}
+}
+
+// 取消注册
+function unregisterBluetoothStateListener() {
+	if (isListenerRegistered && bluetoothStateCallbacks.length == 0) {
+		try {
+			const context = UTSAndroid.getAppContext();
+			if (context != null && bluetoothReceiver != null) {
+				context.unregisterReceiver(bluetoothReceiver);
+				bluetoothReceiver = null;
+				isListenerRegistered = false;
+				console.log('Bluetooth state listener unregistered');
+			}
+		} catch (err) {
+			console.error('Failed to unregister bluetooth listener:', err);
+		}
+	}
+}
+
+// 监听蓝牙状态变化
+export function onBluetoothStateChange(callback: BluetoothStateChangeCallback) {
+	if (bluetoothStateCallbacks.indexOf(callback) == -1) {
+		bluetoothStateCallbacks.push(callback);
+		registerBluetoothStateListener();
+	}
+}
+
+// 取消监听
+export function offBluetoothStateChange(callback?: BluetoothStateChangeCallback | null) {
+	if (callback != null) {
+		const index = bluetoothStateCallbacks.indexOf(callback);
+		if (index > -1) {
+			bluetoothStateCallbacks.splice(index, 1);
+		}
+	} else {
+		bluetoothStateCallbacks.length = 0;
+	}
+	unregisterBluetoothStateListener();
+}
+
+export function getOsTheme(){
+	let context=UTSAndroid.getAppContext()!
+	let currentNightMode = context.getResources().getConfiguration().uiMode
+	            & Configuration.UI_MODE_NIGHT_MASK;
+	if(currentNightMode == Configuration.UI_MODE_NIGHT_YES){
+		return 'dark'
+	}else{
+		return 'light'
+	}
+}
+
+export function onAppConfigChange(change:(options:UTSJSONObject)=>void){
+	UTSAndroid.onAppConfigChange((res)=>{
+		change(res)
+	})
+}
+
+export function offAppConfigChange(){
+	UTSAndroid.offAppConfigChange()
+}
+
+
+
+export function saveToFilesDir(options: SaveToFilesDirOptions) {
+	new Thread(() => {
+		try {
+			const context = UTSAndroid.getAppContext();
+			if (context == null) {
+				options.fail?.({ errMsg: 'Context not found' });
+				return;
+			}
+	
+			const filesDir = context.getFilesDir().getAbsolutePath();
+			const destPath = filesDir + "/" + options.fileName;
+			let sourcePath = options.tempFilePath;
+			// 处理 uni 路径 (例如 _doc/)
+			if (!sourcePath.startsWith("/")) {
+				sourcePath = UTSAndroid.convert2AbsFullPath(sourcePath);
+			}
+			const sourceFile = new File(sourcePath);
+			const destFile = new File(destPath);
+	
+			if (!sourceFile.exists()) {
+				options.fail?.({ errMsg: `Source file does not exist: ${sourcePath}`, code: 13900016 });
+				return;
+			}
+	
+			// 确保目标目录存在
+			const destParent = destFile.getParentFile();
+			if (destParent != null && !destParent.exists()) {
+				destParent.mkdirs();
+			}
+	
+			// 如果目标文件已存在，先删除以确保覆盖
+			if (destFile.exists()) {
+				destFile.delete();
+			}
+	
+			// 尝试重命名（移动）
+			const renamed = sourceFile.renameTo(destFile);
+			if (renamed) {
+				options.success?.(destPath);
+				return;
+			}
+	
+			// 如果重命名失败，尝试复制然后删除
+			try {
+				const inputStream = new FileInputStream(sourceFile);
+				const outputStream = new FileOutputStream(destFile);
+				const channelIn = inputStream.getChannel();
+				const channelOut = outputStream.getChannel();
+				
+				channelIn.transferTo(0, channelIn.size(), channelOut);
+				
+				inputStream.close();
+				outputStream.close();
+				
+				// 删除源文件
+				sourceFile.delete();
+				
+				options.success?.(destPath);
+			} catch (e) {
+				const error = e as Error; // 类型断言
+				options.fail?.({ errMsg: `Copy failed: ${error.message}`, code: 13900016 });
+				return;
+			}
+	
+		} catch (err) {
+			options.fail?.({ errMsg: `Exception: ${JSON.stringify(err)}` });
+			return;
+		}
+	}).start();
+}
+
+function normalizeImagePath(url: string): string {
+	if (url.startsWith('/static/') || url.startsWith('_doc/')) {
+		return UTSAndroid.convert2AbsFullPath(url);
+	}
+	if (!url.startsWith('/')) {
+		return UTSAndroid.convert2AbsFullPath(url);
+	}
+	return url;
+}
+
+function loadBitmap(url: string): Bitmap | null {
+	const path = normalizeImagePath(url);
+	try {
+		return BitmapFactory.decodeFile(path);
+	} catch (err) {
+		console.error('decodeFile failed', err);
+		return null;
+	}
+}
+
+function drawImageItem(canvas: Canvas, item: MergeImageItem, paint: Paint) {
+	const dstRect = new RectF(item.x.toFloat(), item.y.toFloat(), item.x.toFloat() + item.width.toFloat(), item.y.toFloat() + item.height.toFloat());
+	const bitmap = loadBitmap(item.url);
+	if (bitmap == null) {
+		return;
+	}
+	if (item.shape === 'circle') {
+		const radius = Math.min(item.width, item.height) / 2;
+		const cx = item.x + item.width / 2;
+		const cy = item.y + item.height / 2;
+		const path = new Path();
+		path.addCircle(cx.toFloat(), cy.toFloat(), radius.toFloat(), Path.Direction.CW);
+		canvas.save();
+		canvas.clipPath(path);
+		canvas.drawBitmap(bitmap, null, dstRect, paint);
+		canvas.restore();
+	} else {
+		canvas.drawBitmap(bitmap, null, dstRect, paint);
+	}
+	bitmap.recycle();
+}
+
+export function getStaticPath(path: string): string {
+	return UTSAndroid.convert2AbsFullPath(path);
+}
+
+function forceCircleItem(item: MergeImageItem): MergeImageItem {
+	return {
+		url: item.url,
+		x: item.x,
+		y: item.y,
+		width: item.width,
+		height: item.height,
+		shape: 'circle'
+	};
+}
+
+function getLatestUniappTempDir(docDir: string): string | null {
+	try {
+		const base = new File(docDir);
+		if (!base.exists() || !base.isDirectory()) {
+			return null;
+		}
+		const files = base.listFiles();
+		if (files == null) {
+			return null;
+		}
+		let maxVal = -1;
+		let maxPath: string | null = null;
+		const size = files.size as Int;
+		for (let i = 0; i < size; i++) {
+			const f = files[i as Int];
+			if (f.isDirectory()) {
+				const name = f.getName();
+				if (name.startsWith("uniapp_temp_")) {
+					const suffix = name.substring("uniapp_temp_".length);
+					const val = parseInt(suffix);
+					if (!isNaN(val) && val > maxVal) {
+						maxVal = val;
+						maxPath = f.getAbsolutePath();
+					}
+				}
+			}
+		}
+		return maxPath;
+	} catch (err) {
+		return null;
+	}
+}
+
+export function mergeWithCanvas(options: MergeWithCanvasOptions) {
+	try {
+		const width = (Math.floor(options.width) as number).toInt();
+		const height = (Math.floor(options.height) as number).toInt();
+		const outputBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+		const canvas = new Canvas(outputBitmap);
+		const paint = new Paint();
+		paint.setAntiAlias(true);
+		const imagesSize = options.images.size as Int;
+		for (let i = 0; i < imagesSize; i++) {
+			const item = options.images[i as Int];
+			const drawItem = i == 0 ? item : forceCircleItem(item);
+			drawImageItem(canvas, drawItem, paint);
+		}
+		const docDir = UTSAndroid.convert2AbsFullPath("_doc/");
+		let targetBase = getLatestUniappTempDir(docDir);
+		if (targetBase == null) {
+			targetBase = docDir + "/uniapp_temp_" + Date.now();
+		}
+		const targetBaseFile = new File(targetBase);
+		if (!targetBaseFile.exists()) {
+			targetBaseFile.mkdirs();
+		}
+		const canvasDir = targetBase + "/canvas";
+		const canvasDirFile = new File(canvasDir);
+		if (!canvasDirFile.exists()) {
+			canvasDirFile.mkdirs();
+		}
+		const tempFilePath = canvasDir + "/" + Date.now() + ".png";
+		const outputFile = new File(tempFilePath);
+		const stream = new FileOutputStream(outputFile);
+		outputBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+		stream.flush();
+		stream.close();
+		outputBitmap.recycle();
+		options.success?.({ tempFilePath: tempFilePath });
+	} catch (err) {
+		options.fail?.({ errMsg: "Exception: " + err });
+	}
+}

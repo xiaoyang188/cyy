@@ -1,0 +1,10 @@
+import { offDataReceiveNative } from "./offDataReceive.ets"
+
+export function offDataReceive() {
+	try {
+		offDataReceiveNative()
+		console.log("offDataReceive unregistered Successfully")
+	} catch (err) {
+		console.log("offDataReceive unregistered Error:", err)
+	}
+}

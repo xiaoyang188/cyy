@@ -1,0 +1,47 @@
+
+export type WifiErrorCode= 0 | 12000 | 12001 | 12002 | 12005 | 12013 | 12014
+
+export interface WifiFail {
+	errCode : WifiErrorCode，
+	errMsg:string
+}
+
+export type WifiInfo={
+	SSID:string,
+	BSSID:string,
+	secure?:boolean,
+	signalStrength:number,
+	frequency:number
+}
+
+export type ScanWifiOptions={
+	success?:(res:WifiFail)=>void,
+	fail?:(err:WifiFail)=>void,
+	complete?:(res:WifiFail)=>void
+}
+
+export type ConnectedWifiOptions={
+	partialInfo?:boolean,
+	success?:(res:WifiInfo)=>void,
+	fail?:(err:WifiFail)=>void,
+	complete?:(res:any)=>void
+}
+
+export type ConnectOptions={
+	SSID:string,
+	BSSID:string,
+	password:string,
+	maunal:boolean,
+	partialInfo:boolean,
+	success?:(res:WifiFail)=>void,
+	fail?:(err:WifiFail)=>void,
+	complete?:(res:any)=>void
+}
+
+export type WifiScanResult = {
+	wifiList: WifiInfo[]
+}
+
+export type WifiResult = {
+	wifi: WifiInfo
+}

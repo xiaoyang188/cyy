@@ -1,0 +1,44 @@
+import {
+  GetBluetoothDevicesOptions,
+  GetBluetoothDevicesResult,
+  GetBluetoothDevices
+} from '../../interface.uts';
+
+import { BluetoothFailImpl } from '../../unierror.uts';
+import { getAdapterInitialized } from '../openBluetoothAdapter/index.uts';
+import { getDiscoveredDevices } from '../global.uts';
+
+const TAG = 'getBluetoothDevices';
+
+/**
+ * 获取已发现的蓝牙设备
+ */
+export const getBluetoothDevices: GetBluetoothDevices = function (options: GetBluetoothDevicesOptions={}) {
+  try {
+    const isAdapterInitialized = getAdapterInitialized();
+    
+    if (!isAdapterInitialized) {
+      const failResult = new BluetoothFailImpl(10000); // not init
+      options.fail?.(failResult);
+      options.complete?.(failResult);
+      return;
+    }
+    
+    const discoveredDevices = getDiscoveredDevices();
+    
+    const result: GetBluetoothDevicesResult = {
+      devices: discoveredDevices,
+      errMsg: 'getBluetoothDevices:ok'
+    };
+    
+    options.success?.(result);
+    options.complete?.(result);
+    
+    console.info(TAG, 'getBluetoothDevices success, count:', discoveredDevices.length);
+  } catch (err) {
+    console.error(TAG, 'getBluetoothDevices failed:', err);
+    const failResult = new BluetoothFailImpl(10008); // system error
+    options.fail?.(failResult);
+    options.complete?.(failResult);
+  }
+};

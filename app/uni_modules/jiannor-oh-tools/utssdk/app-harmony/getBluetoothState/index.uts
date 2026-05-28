@@ -1,0 +1,36 @@
+import { BusinessError } from '@kit.BasicServicesKit';
+import { access } from '@kit.ConnectivityKit';
+import { GetBluetoothStateCallbackResult,GetBluetoothState,BluetoothStateEnum, CommonCallbackResult } from "../../interface.uts"
+
+export const getBluetoothState:GetBluetoothState=function(options:GetBluetoothStateCallbackResult){
+	try {
+	    let state = access.getState();
+		let status=-1
+		if(state==access.BluetoothState.STATE_OFF){
+			status=BluetoothStateEnum.STATE_OFF
+		}else if(state==access.BluetoothState.STATE_TURNING_ON){
+			status=BluetoothStateEnum.STATE_BLE_TURNING_ON
+		}else if(state==access.BluetoothState.STATE_ON){
+			status=BluetoothStateEnum.STATE_ON
+		}else if(state==access.BluetoothState.STATE_TURNING_OFF){
+			status=BluetoothStateEnum.STATE_BLE_TURNING_OFF
+		}else if(state==access.BluetoothState.STATE_BLE_TURNING_ON){
+			status=BluetoothStateEnum.STATE_BLE_TURNING_ON
+		}else if(state==access.BluetoothState.STATE_BLE_ON){
+			status=BluetoothStateEnum.STATE_BLE_ON
+		}else if(state==access.BluetoothState.STATE_BLE_TURNING_OFF){
+			status=BluetoothStateEnum.STATE_BLE_TURNING_OFF
+		}else{
+			status=BluetoothStateEnum.STATE_ERR
+		}
+		options.success?.(status)
+		options.complete?.(state)
+	} catch (err) {
+	    console.error('errCode: ' + (err as BusinessError).code + ', errMessage: ' + (err as BusinessError).message);
+		let errResult:CommonCallbackResult={
+			errMsg:JSON.stringify(err)
+		} as CommonCallbackResult
+		options.fail?.(errResult)
+		options.complete?.(errResult)
+	}
+}

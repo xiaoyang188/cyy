@@ -1,0 +1,19 @@
+import { common,OpenLinkOptions } from '@kit.AbilityKit';
+import { AppStorageV2,UIContext  } from '@kit.ArkUI';
+
+export function openLink(uri:string，params?:OpenLinkOptions):void{
+	let p:OpenLinkOptions|null=null
+	if(!params){
+		p={
+		  appLinkingOnly: true
+		} as OpenLinkOptions
+	}else{
+		p=params
+	}
+	try{
+		let context = AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext() as common.UIAbilityContext;
+		context.openLink(uri, p)
+	}catch(err){
+		console.log(err)
+	}
+}

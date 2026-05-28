@@ -1,0 +1,110 @@
+
+{
+	"bid" : "com.client.chongyueyue",
+	"bver" : "130812",
+	"changed" : 
+	[
+		"Frameworks/libswiftAVFoundation.dylib",
+		"Frameworks/libswiftCore.dylib",
+		"Frameworks/libswiftCoreAudio.dylib",
+		"Frameworks/libswiftCoreFoundation.dylib",
+		"Frameworks/libswiftCoreGraphics.dylib",
+		"Frameworks/libswiftCoreImage.dylib",
+		"Frameworks/libswiftCoreMedia.dylib",
+		"Frameworks/libswiftDarwin.dylib",
+		"Frameworks/libswiftDispatch.dylib",
+		"Frameworks/libswiftFoundation.dylib",
+		"Frameworks/libswiftMetal.dylib",
+		"Frameworks/libswiftNetwork.dylib",
+		"Frameworks/libswiftObjectiveC.dylib",
+		"Frameworks/libswiftos.dylib",
+		"Frameworks/libswiftQuartzCore.dylib",
+		"Frameworks/libswiftsimd.dylib",
+		"Frameworks/libswiftUIKit.dylib",
+		"Frameworks/DCloudUTSExtAPI.framework/_CodeSignature/CodeResources",
+		"Frameworks/DCloudUTSExtAPI.framework/DCloudUTSExtAPI",
+		"Frameworks/DCloudUTSFoundation.framework/_CodeSignature/CodeResources",
+		"Frameworks/DCloudUTSFoundation.framework/DCloudUTSFoundation",
+		"Frameworks/DCUniBase.framework/_CodeSignature/CodeResources",
+		"Frameworks/DCUniBase.framework/DCUniBase",
+		"Frameworks/KSAdSDK.framework/_CodeSignature/CodeResources",
+		"Frameworks/KSAdSDK.framework/KSAdSDK",
+		"Frameworks/UPLiveSDKDll.framework/_CodeSignature/CodeResources",
+		"Frameworks/UPLiveSDKDll.framework/UPLiveSDKDll",
+		"embedded.mobileprovision"
+	],
+	"exec" : "HBuilder",
+	"files" : 
+	[
+		"Frameworks/libswiftAVFoundation.dylib",
+		"Frameworks/libswiftCore.dylib",
+		"Frameworks/libswiftCoreAudio.dylib",
+		"Frameworks/libswiftCoreFoundation.dylib",
+		"Frameworks/libswiftCoreGraphics.dylib",
+		"Frameworks/libswiftCoreImage.dylib",
+		"Frameworks/libswiftCoreMedia.dylib",
+		"Frameworks/libswiftDarwin.dylib",
+		"Frameworks/libswiftDispatch.dylib",
+		"Frameworks/libswiftFoundation.dylib",
+		"Frameworks/libswiftMetal.dylib",
+		"Frameworks/libswiftNetwork.dylib",
+		"Frameworks/libswiftObjectiveC.dylib",
+		"Frameworks/libswiftos.dylib",
+		"Frameworks/libswiftQuartzCore.dylib",
+		"Frameworks/libswiftsimd.dylib",
+		"Frameworks/libswiftUIKit.dylib"
+	],
+	"folders" : 
+	[
+		
+		{
+			"bid" : "io.dcloud.uts.extAPI",
+			"bver" : "1",
+			"exec" : "DCloudUTSExtAPI",
+			"path" : "Frameworks/DCloudUTSExtAPI.framework",
+			"sha1" : "JWUJHTplsbZkb/6Y+0/uU1rBH8Q=",
+			"sha2" : "8MJ4miTKOp7FVjxQoXK34vGzGwSJmfeU47eeo+iyqcE="
+		},
+		
+		{
+			"bid" : "io.dcloud.DCloudUTSFoundationUniMP",
+			"bver" : "1",
+			"exec" : "DCloudUTSFoundation",
+			"path" : "Frameworks/DCloudUTSFoundation.framework",
+			"sha1" : "UewpPI8hlP1Xh/LykWNHYyCLODA=",
+			"sha2" : "+7a9Z+PWzxs289onTEciNRLxy1IKYHl/SMk9r/SX2pU="
+		},
+		
+		{
+			"bid" : "io.dcloud.DCUniBaseUniMP",
+			"bver" : "1",
+			"exec" : "DCUniBase",
+			"path" : "Frameworks/DCUniBase.framework",
+			"sha1" : "2CM/fmT8mSnXc8qzB4PVTHGy07Y=",
+			"sha2" : "uCr2iDfDT8Uc8Exrs84CLfFXYLFes+RqG08ZocIX+D4="
+		},
+		
+		{
+			"bid" : "org.cocoapods.KSAdSDK",
+			"bver" : "1",
+			"exec" : "KSAdSDK",
+			"path" : "Frameworks/KSAdSDK.framework",
+			"sha1" : "mkr21+4EVEPKeHJe4dHCOu3Slz8=",
+			"sha2" : "Z9NplXKWcLK3b0qwE8NfkBUkoi65IzUvbPluwvOVtaA="
+		},
+		
+		{
+			"bid" : "upyun.UPLiveSDKDll",
+			"bver" : "1",
+			"exec" : "UPLiveSDKDll",
+			"path" : "Frameworks/UPLiveSDKDll.framework",
+			"sha1" : "9ptoKpCP6CY3FmnLi23Q+jvoi7c=",
+			"sha2" : "rFhl5jJHqlgZQGVpjM6Punk8/08j/bnaPAhh3+4Ydow="
+		}
+	],
+	"name" : "HBuilder",
+	"path" : "/",
+	"root" : "C:\\Users\\hyz\\AppData\\Local\\Temp\\HbuilderXSignture/Payload/HBuilder.app",
+	"sha1" : "xgSAIJgEWXJytZddhv4rW4PbQ4E=",
+	"sha2" : "IaegD7FmjWMISVbByHTz4VlBSyTQXsTUWYLqrL+seZQ="
+}

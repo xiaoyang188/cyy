@@ -1,0 +1,90 @@
+import {
+	GetBLEDeviceCharacteristicsOptions,
+	GetBLEDeviceCharacteristicsResult,
+	GetBLEDeviceCharacteristics,
+	BLECharacteristic,
+	BLECharacteristicProperties
+} from '../../interface.uts';
+
+import { BluetoothFailImpl } from '../../unierror.uts';
+import { ble } from '@kit.ConnectivityKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { getAdapterInitialized } from '../openBluetoothAdapter/index.uts';
+import { getBleConnection } from '../global.uts';
+
+const TAG = 'getBLEDeviceCharacteristics';
+
+/**
+ * 获取蓝牙设备特征值
+ */
+export const getBLEDeviceCharacteristics : GetBLEDeviceCharacteristics = function (options : GetBLEDeviceCharacteristicsOptions) {
+	try {
+		const isAdapterInitialized = getAdapterInitialized();
+
+		if (!isAdapterInitialized) {
+			const failResult = new BluetoothFailImpl(10000); // not init
+			options.fail?.(failResult);
+			options.complete?.(failResult);
+			return;
+		}
+
+		const gattClient : ble.GattClientDevice | null = getBleConnection(options.deviceId);
+		if (!gattClient) {
+			const failResult = new BluetoothFailImpl(10006); // no connection
+			options.fail?.(failResult);
+			options.complete?.(failResult);
+			return;
+		}
+
+		// 获取服务
+		gattClient.getServices((err : BusinessError, gattServices : Array<ble.GattService>) => {
+			if (err) {
+				console.error(TAG, 'getServices failed:', err);
+				const failResult = new BluetoothFailImpl(10004); // no service
+				options.fail?.(failResult);
+				options.complete?.(failResult);
+				return;
+			}
+
+			// 查找指定服务
+			const targetService = gattServices.find(service => service.serviceUuid === options.serviceId);
+			if (!targetService) {
+				const failResult = new BluetoothFailImpl(10004); // no service
+				options.fail?.(failResult);
+				options.complete?.(failResult);
+				return;
+			}
+
+			const characteristics : Array<BLECharacteristic> = targetService.characteristics.map((char : ble.BLECharacteristic) => {
+				const characteristicProperties : BLECharacteristicProperties = {
+					read: char.properties!.read!,
+					write: char.properties!.write!,
+					notify: char.properties!.notify!,
+					indicate: char.properties!.indicate!,
+					writeNoResponse: char.properties!.writeNoResponse!
+				};
+				const characteristic : BLECharacteristic = {
+					uuid: char.characteristicUuid,
+					properties: characteristicProperties
+				};
+				return characteristic;
+			});
+
+			const result : GetBLEDeviceCharacteristicsResult = {
+				serviceUUID: options.serviceId,
+				characteristics: characteristics,
+				errMsg: 'getBLEDeviceCharacteristics:ok'
+			};
+
+			options.success?.(result);
+			options.complete?.(result);
+
+			console.info(TAG, 'getBLEDeviceCharacteristics success, characteristics count:', characteristics.length);
+		});
+	} catch (err) {
+		console.error(TAG, 'getBLEDeviceCharacteristics failed:', err);
+		const failResult = new BluetoothFailImpl(10008); // system error
+		options.fail?.(failResult);
+		options.complete?.(failResult);
+	}
+};

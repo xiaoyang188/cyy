@@ -1,0 +1,84 @@
+import {
+	OpenBluetoothAdapterOptions,
+	CommonCallbackResult,
+	OpenBluetoothAdapter
+} from '../../interface.uts';
+
+import { BluetoothFailImpl } from '../../unierror.uts';
+import { ble } from '@kit.ConnectivityKit';
+import { access } from '@kit.ConnectivityKit';
+import { getBleScannerGlobal, getAdapterInitializedGlobal, setBleScannerGlobal, setAdapterInitializedGlobal } from "../global.uts"
+
+const TAG = 'openBluetoothAdapter';
+
+
+// 全局变量
+let bleScanner : ble.BleScanner | null = null;
+let isAdapterInitialized = false;
+
+/**
+ * 初始化蓝牙适配器
+ */
+export const openBluetoothAdapter : OpenBluetoothAdapter = function (options : OpenBluetoothAdapterOptions={}) {
+	try {
+		let state = access.getState();
+		if(state!=access.BluetoothState.STATE_ON){
+			console.error("Bluetooth can't active")
+			const failResult = new BluetoothFailImpl(10001); // not available
+			failResult.errMsg="Bluetooth can't active"
+			options.fail?.(failResult);
+			options.complete?.(failResult);
+			return
+		}
+		// 检查是否已经有未关闭的 adapter
+		if (getBleScanner() != null && getAdapterInitialized()) {
+			console.info(TAG, 'Bluetooth adapter already initialized, reusing existing instance');
+			const result : CommonCallbackResult = {
+				errMsg: 'openBluetoothAdapter:ok'
+			};
+			options.success?.(result);
+			options.complete?.(result);
+			return;
+		}
+		// 检查蓝牙权限
+		// 注意：实际项目中需要在 manifest.json 中配置相应权限
+
+		// 创建 BLE 扫描器
+		bleScanner = ble.createBleScanner();
+		isAdapterInitialized = true;
+
+		setBleScanner(bleScanner)
+		setAdapterInitialized(isAdapterInitialized)
+
+		const result : CommonCallbackResult = {
+			errMsg: 'openBluetoothAdapter:ok'
+		};
+
+		options.success?.(result);
+		options.complete?.(result);
+
+		console.info(TAG, 'openBluetoothAdapter success');
+	} catch (err) {
+		console.error(TAG, 'openBluetoothAdapter failed:', err);
+		const failResult = new BluetoothFailImpl(10001); // not available
+		options.fail?.(failResult);
+		options.complete?.(failResult);
+	}
+};
+
+// 导出全局状态访问函数
+export function getBleScanner() : ble.BleScanner | null {
+	return getBleScannerGlobal();
+}
+
+export function getAdapterInitialized() : boolean {
+	return getAdapterInitializedGlobal();
+}
+
+export function setBleScanner(scanner : ble.BleScanner | null) : void {
+	setBleScannerGlobal(scanner)
+}
+
+export function setAdapterInitialized(initialized : boolean) : void {
+	setAdapterInitializedGlobal(initialized)
+}

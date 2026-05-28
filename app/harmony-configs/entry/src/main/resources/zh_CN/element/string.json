@@ -1,0 +1,32 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "模块描述"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "$string:app_name"
+    },
+    {
+      "name": "scan_bluetooth",
+      "value": "为了搜寻附近的宠悦悦定位器"
+    },
+    {
+      "name": "bluetooth",
+      "value": "使用蓝牙连接宠悦悦定位器"
+    },
+    {
+      "name": "location",
+      "value": "用于在地图导航场景中获取位置信息。"
+    },
+	{
+	  "name": "APP_TRACKING_CONSENT",
+	  "value": "用于跨应用设备标识符共享。"
+	}
+  ]
+}

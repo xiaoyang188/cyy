@@ -1,0 +1,662 @@
+import {
+	GetPreferencesOptions,
+	SetPreferencesOptions,
+	DeletePreferencesOptions,
+	ClearPreferencesOptions,
+	GetPreferencesValueOptions,
+	DeletePreferencesValueOptions,
+	GetPreferencesResult,
+	SetPreferencesResult,
+	DeletePreferencesResult,
+	ClearPreferencesResult,
+	GetPreferencesValueResult,
+	DeletePreferencesValueResult,
+	GetPreferences,
+	SetPreferences,
+	DeletePreferences,
+	ClearPreferences,
+	GetPreferencesValue,
+	DeletePreferencesValue,
+	PreferencesSyncResult
+} from '../interface.uts';
+import { PreferencesFailImpl } from '../unierror';
+
+// Android SharedPreferences 相关导入
+import Context from "android.content.Context";
+import SharedPreferences from "android.content.SharedPreferences";
+
+// SharedPreferences 实例缓存
+const preferencesMap = new Map<string, SharedPreferences>();
+
+/**
+ * 获取或创建 SharedPreferences 实例
+ */
+
+function getSharedPreferences(context : Context, name : string) : SharedPreferences {
+	if (preferencesMap.has(name)) {
+		return preferencesMap.get(name)!;
+	}
+
+	const preferences = context.getSharedPreferences(name, Context.MODE_PRIVATE);
+	preferencesMap.set(name, preferences);
+	return preferences;
+}
+
+//#ifdef UNI-APP-X
+/**
+ * 获取Preferences实例（返回SharedPreferences实例）
+ * 
+ * @uniPlatform {
+ *   "app": {
+ *     "android": {
+ *       "osVer": "5.0",
+ *       "uniVer": "4.25",
+ *       "unixVer": "4.25"
+ *     },
+ *     "ios": {
+ *       "osVer": "x",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     },
+ *     "harmony": {
+ *       "osVer": "x",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     }
+ *   }
+ * }
+ * @uniVersion 4.25
+ * @uniVueVersion 2,3
+ * @autotest { generated: true }
+ */
+export const getPreferences : GetPreferences = function (options : GetPreferencesOptions) {
+	// 参数校验
+	if (options.name.length == 0) {
+		const error = new PreferencesFailImpl(9010005);
+		options.fail?.(error);
+		options.complete?.(error);
+		return;
+	}
+
+	try {
+		const context = UTSAndroid.getAppContext() as Context;
+		const preferences = getSharedPreferences(context, options.name);
+
+		const result : GetPreferencesResult = {
+			success: true,
+			data: preferences as any
+		};
+		options.success?.(result);
+		options.complete?.(result);
+	} catch (error) {
+		console.error(`Failed to get preferences. Error:${error}`);
+		const err = new PreferencesFailImpl(9010001);
+		options.fail?.(err);
+		options.complete?.(err);
+	}
+}
+export function getPreferencesSync(name : string) : PreferencesSyncResult {
+	let result : PreferencesSyncResult = {
+		success: false,
+		data: "",
+		errMsg: ""
+	}
+
+	if (name.length == 0) {
+		const error = new PreferencesFailImpl(9010005);
+		console.error("getPreferencesSync参数错误: name为空或无效", error);
+		result.success = false;
+		result.errMsg = JSON.stringify(error)
+		return result
+	}
+
+	try {
+		const context = UTSAndroid.getAppContext() as Context;
+		const preferences = getSharedPreferences(context, name);
+		result.success = true;
+		result.data = preferences;
+		return result
+	} catch (error) {
+		console.error("getPreferencesSync捕获错误:", error);
+		const err = new PreferencesFailImpl(9010001);
+		result.success = false;
+		result.errMsg = err.errMsg
+		return result
+	}
+
+}
+//#endif
+/**
+ * 设置Preferences值
+ * 
+ * @uniPlatform {
+ *   "app": {
+ *     "android": {
+ *       "osVer": "5.0",
+ *       "uniVer": "4.25",
+ *       "unixVer": "4.25"
+ *     },
+ *     "ios": {
+ *       "osVer": "x",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     },
+ *     "harmony": {
+ *       "osVer": "x",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     }
+ *   }
+ * }
+ * @uniVersion 4.25
+ * @uniVueVersion 2,3
+ * @autotest { generated: true }
+ */
+export const setPreferences : SetPreferences = function (options : SetPreferencesOptions) {
+	// 参数校验
+	if (options.name.length == 0) {
+		const error = new PreferencesFailImpl(9010005);
+		options.fail?.(error);
+		options.complete?.(error);
+		return;
+	}
+
+	if (options.key.length == 0) {
+		const error = new PreferencesFailImpl(9010005);
+		options.fail?.(error);
+		options.complete?.(error);
+		return;
+	}
+
+	try {
+		const context = UTSAndroid.getAppContext() as Context;
+		const preferences = getSharedPreferences(context, options.name);
+		const editor = preferences.edit();
+
+		const value = options.value?.toString() ?? "";
+		editor.putString(options.key, value);
+		const success = editor.commit();
+
+		if (success) {
+			const result : SetPreferencesResult = {
+				success: true
+			};
+			options.success?.(result);
+			options.complete?.(result);
+		} else {
+			console.error("Failed to commit preferences");
+			const error = new PreferencesFailImpl(9010002);
+			options.fail?.(error);
+			options.complete?.(error);
+		}
+	} catch (error) {
+		console.error(`Failed to set preferences. Error:${error}`);
+		const err = new PreferencesFailImpl(9010002);
+		options.fail?.(err);
+		options.complete?.(err);
+	}
+}
+
+export function setPreferencesSync(name : string, key : string, value : any) : PreferencesSyncResult {
+	let result : PreferencesSyncResult = {
+		success: false,
+		data: "",
+		errMsg: ""
+	}
+
+	if (name.length == 0) {
+		const error = new PreferencesFailImpl(9010005);
+		console.error("setPreferencesSync参数错误: name为空或无效", error);
+		result.success = false;
+		result.errMsg = JSON.stringify(error)
+		return result
+	}
+
+	if (key.length == 0) {
+		const error = new PreferencesFailImpl(9010005);
+		console.error("setPreferencesSync参数错误: key为空或无效", error);
+		result.success = false;
+		result.errMsg = JSON.stringify(error)
+		return result
+	}
+
+	if (value == null) {
+		const error = new PreferencesFailImpl(9010005);
+		console.error("setPreferencesSync参数错误: value为空", error);
+		result.success = false;
+		result.errMsg = JSON.stringify(error)
+		return result
+	}
+
+	try {
+		const context = UTSAndroid.getAppContext() as Context;
+		const preferences = getSharedPreferences(context, name);
+		const editor = preferences.edit();
+
+		const values = value.toString() ?? "";
+		editor.putString(key, values);
+		const success = editor.commit();
+		if (success) {
+			console.log("setPreferencesSync写入成功")
+			result.success = true;
+			return result
+		} else {
+			console.log("setPreferencesSync写入失败")
+			const error = new PreferencesFailImpl(9010002);
+			result.success = false;
+			result.errMsg = error.errMsg
+			return result
+		}
+	} catch (error) {
+		console.error("setPreferencesSync捕获错误:", error);
+		const err = new PreferencesFailImpl(9010002);
+		console.error("setPreferencesSync抛出错误:", err);
+		result.success = false;
+		result.errMsg = err.errMsg
+		return result
+	}
+}
+
+/**
+ * 获取指定键的值
+ * 
+ * @uniPlatform {
+ *   "app": {
+ *     "android": {
+ *       "osVer": "5.0",
+ *       "uniVer": "4.25",
+ *       "unixVer": "4.25"
+ *     },
+ *     "ios": {
+ *       "osVer": "x",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     },
+ *     "harmony": {
+ *       "osVer": "x",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     }
+ *   }
+ * }
+ * @uniVersion 4.25
+ * @uniVueVersion 2,3
+ * @autotest { generated: true }
+ */
+export const getPreferencesValue : GetPreferencesValue = function (options : GetPreferencesValueOptions) {
+	// 参数校验
+	if (options.name.length == 0) {
+		const error = new PreferencesFailImpl(9010005);
+		options.fail?.(error);
+		options.complete?.(error);
+		return;
+	}
+
+	if (options.key.length == 0) {
+		const error = new PreferencesFailImpl(9010005);
+		options.fail?.(error);
+		options.complete?.(error);
+		return;
+	}
+
+	try {
+		const context = UTSAndroid.getAppContext() as Context;
+		const preferences = getSharedPreferences(context, options.name);
+
+		const defaultValue = options.defaultValue?.toString() ?? "";
+		const value = preferences.getString(options.key, defaultValue) ?? defaultValue;
+
+		const result : GetPreferencesValueResult = {
+			success: true,
+			value: value
+		};
+		options.success?.(result);
+		options.complete?.(result);
+	} catch (error) {
+		console.error(`Failed to get preferences value. Error:${error}`);
+		const err = new PreferencesFailImpl(9010001);
+		options.fail?.(err);
+		options.complete?.(err);
+	}
+}
+
+export function getPreferencesValueSync(name : string, key : string, defaultValue : any) : PreferencesSyncResult {
+	let result : PreferencesSyncResult = {
+		success: false,
+		data: "",
+		errMsg: ""
+	}
+
+	if (name.length == 0) {
+		const error = new PreferencesFailImpl(9010005);
+		console.error("getPreferencesValueSync参数错误: name为空或无效", error);
+		result.success = false;
+		result.errMsg = JSON.stringify(error)
+		return result
+	}
+
+	if (key.length == 0) {
+		const error = new PreferencesFailImpl(9010005);
+		console.error("getPreferencesValueSync参数错误: key为空或无效", error);
+		result.success = false;
+		result.errMsg = JSON.stringify(error)
+		return result
+	}
+
+	try {
+		const context = UTSAndroid.getAppContext() as Context;
+		const preferences = getSharedPreferences(context, name);
+
+		const defaultValues = defaultValue?.toString() ?? "";
+		const value = preferences.getString(key, defaultValues) ?? defaultValues;
+		result.success = true;
+		result.data = value;
+		return result
+	} catch (error) {
+		console.error("getPreferencesValueSync捕获错误:", error);
+		const err = new PreferencesFailImpl(9010001);
+		console.error("getPreferencesValueSync抛出错误:", err);
+		result.success = false;
+		result.errMsg = err.errMsg
+		return result
+	}
+}
+
+/**
+ * 删除指定键的值
+ * 
+ * @uniPlatform {
+ *   "app": {
+ *     "android": {
+ *       "osVer": "5.0",
+ *       "uniVer": "4.25",
+ *       "unixVer": "4.25"
+ *     },
+ *     "ios": {
+ *       "osVer": "x",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     },
+ *     "harmony": {
+ *       "osVer": "x",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     }
+ *   }
+ * }
+ * @uniVersion 4.25
+ * @uniVueVersion 2,3
+ * @autotest { generated: true }
+ */
+export const deletePreferencesValue : DeletePreferencesValue = function (options : DeletePreferencesValueOptions) {
+	// 参数校验
+	if (options.name.length == 0) {
+		const error = new PreferencesFailImpl(9010005);
+		options.fail?.(error);
+		options.complete?.(error);
+		return;
+	}
+
+	if (options.key.length == 0) {
+		const error = new PreferencesFailImpl(9010005);
+		options.fail?.(error);
+		options.complete?.(error);
+		return;
+	}
+
+	try {
+		const context = UTSAndroid.getAppContext() as Context;
+		const preferences = getSharedPreferences(context, options.name);
+		const editor = preferences.edit();
+
+		editor.remove(options.key);
+		const success = editor.commit();
+
+		if (success) {
+			const result : DeletePreferencesValueResult = {
+				success: true
+			};
+			options.success?.(result);
+			options.complete?.(result);
+		} else {
+			console.error("Failed to commit preferences");
+			const error = new PreferencesFailImpl(9010006);
+			options.fail?.(error);
+			options.complete?.(error);
+		}
+	} catch (error) {
+		console.error(`Failed to delete preferences value. Error:${error}`);
+		const err = new PreferencesFailImpl(9010006);
+		options.fail?.(err);
+		options.complete?.(err);
+	}
+}
+
+export function deletePreferencesValueSync(name : string, key : string) : PreferencesSyncResult {
+	let result : PreferencesSyncResult = {
+		success: false,
+		data: "",
+		errMsg: ""
+	}
+
+	if (name.length == 0) {
+		const error = new PreferencesFailImpl(9010005);
+		console.error("deletePreferencesValueSync参数错误: name为空或无效", error);
+		result.success = false;
+		result.errMsg = JSON.stringify(error)
+		return result
+	}
+
+	if (key.length == 0) {
+		const error = new PreferencesFailImpl(9010005);
+		console.error("deletePreferencesValueSync参数错误: key为空或无效", error);
+		result.success = false;
+		result.errMsg = JSON.stringify(error)
+		return result
+	}
+
+	try {
+		const context = UTSAndroid.getAppContext() as Context;
+		const preferences = getSharedPreferences(context, name);
+		const editor = preferences.edit();
+
+		editor.remove(key);
+		const success = editor.commit();
+		if (success) {
+			console.log("deletePreferencesValueSync删除成功")
+			result.success = true;
+			return result
+		} else {
+			console.error("deletePreferencesValueSync删除失败")
+			const error = new PreferencesFailImpl(9010001);
+			result.success = false;
+			result.errMsg = error.errMsg
+			return result
+		}
+	} catch (error) {
+		console.error("deletePreferencesValueSync捕获错误:", error);
+		const err = new PreferencesFailImpl(9010001);
+		console.error("deletePreferencesValueSync抛出错误:", err);
+		result.success = false;
+		result.errMsg = err.errMsg
+		return result
+	}
+}
+
+/**
+ * 清空Preferences所有数据
+ * 
+ * @uniPlatform {
+ *   "app": {
+ *     "android": {
+ *       "osVer": "5.0",
+ *       "uniVer": "4.25",
+ *       "unixVer": "4.25"
+ *     },
+ *     "ios": {
+ *       "osVer": "x",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     },
+ *     "harmony": {
+ *       "osVer": "x",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     }
+ *   }
+ * }
+ * @uniVersion 4.25
+ * @uniVueVersion 2,3
+ * @autotest { generated: true }
+ */
+export const clearPreferences : ClearPreferences = function (options : ClearPreferencesOptions) {
+	// 参数校验
+	if (options.name.length == 0) {
+		const error = new PreferencesFailImpl(9010005);
+		options.fail?.(error);
+		options.complete?.(error);
+		return;
+	}
+
+	try {
+		const context = UTSAndroid.getAppContext() as Context;
+		const preferences = getSharedPreferences(context, options.name);
+		const editor = preferences.edit();
+
+		editor.clear();
+		const success = editor.commit();
+
+		if (success) {
+			const result : ClearPreferencesResult = {
+				success: true
+			};
+			options.success?.(result);
+			options.complete?.(result);
+		} else {
+			console.error("Failed to commit preferences");
+			const error = new PreferencesFailImpl(9010004);
+			options.fail?.(error);
+			options.complete?.(error);
+		}
+	} catch (error) {
+		console.error(`Failed to clear preferences. Error:${error}`);
+		const err = new PreferencesFailImpl(9010004);
+		options.fail?.(err);
+		options.complete?.(err);
+	}
+}
+
+export function clearPreferencesSync(name : string) : PreferencesSyncResult {
+	let result : PreferencesSyncResult = {
+		success: false,
+		data: "",
+		errMsg: ""
+	}
+
+	if (name.trim() === '') {
+		const err = new PreferencesFailImpl(9010005);
+		console.error("clearPreferencesSync参数错误: name为空或无效", err);
+		result.success = false;
+		result.errMsg = JSON.stringify(err)
+		return result
+	}
+
+	try {
+		const context = UTSAndroid.getAppContext() as Context;
+		const preferences = getSharedPreferences(context, name);
+		const editor = preferences.edit();
+
+		editor.clear();
+		const success = editor.commit();
+
+		if (success) {
+			console.log("clearPreferencesSync清除成功")
+			result.success = true;
+			return result
+		} else {
+			console.error("clearPreferencesSync清除失败")
+			const error = new PreferencesFailImpl(9010004);
+			result.success = false;
+			result.errMsg = error.errMsg
+			return result
+		}
+	} catch (error) {
+		console.error("clearPreferencesSync捕获错误:", error);
+		const err = new PreferencesFailImpl(9010004);
+		console.error("clearPreferencesSync抛出错误:", err);
+		result.success = false;
+		result.errMsg = err.errMsg
+		return result
+	}
+}
+
+/**
+ * 删除Preferences文件
+ * 
+ * @uniPlatform {
+ *   "app": {
+ *     "android": {
+ *       "osVer": "5.0",
+ *       "uniVer": "4.25",
+ *       "unixVer": "4.25"
+ *     },
+ *     "ios": {
+ *       "osVer": "x",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     },
+ *     "harmony": {
+ *       "osVer": "x",
+ *       "uniVer": "x",
+ *       "unixVer": "x"
+ *     }
+ *   }
+ * }
+ * @uniVersion 4.25
+ * @uniVueVersion 2,3
+ * @autotest { generated: true }
+ */
+export const deletePreferences : DeletePreferences = function (options : DeletePreferencesOptions) {
+	// 参数校验
+	if (options.name.length == 0) {
+		const error = new PreferencesFailImpl(9010005);
+		options.fail?.(error);
+		options.complete?.(error);
+		return;
+	}
+
+	try {
+		const context = UTSAndroid.getAppContext() as Context;
+
+		// 获取SharedPreferences实例并清空所有数据
+		const prefs = context.getSharedPreferences(options.name, Context.MODE_PRIVATE);
+		const editor = prefs.edit();
+		editor.clear();
+		const success = editor.commit();
+
+		// 从缓存中移除
+		preferencesMap.delete(options.name);
+
+		if (success) {
+			const result : DeletePreferencesResult = {
+				success: true
+			};
+			options.success?.(result);
+			options.complete?.(result);
+		} else {
+			console.error("Failed to delete preferences file");
+			const error = new PreferencesFailImpl(9010003);
+			options.fail?.(error);
+			options.complete?.(error);
+		}
+	} catch (error) {
+		console.error(`Failed to delete preferences. Error:${error}`);
+		const err = new PreferencesFailImpl(9010003);
+		options.fail?.(err);
+		options.complete?.(err);
+	}
+}
+
+/**
+ * 更多插件开发的信息详见：https://uniapp.dcloud.net.cn/plugin/uts-plugin.html
+ */

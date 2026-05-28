@@ -1,0 +1,394 @@
+import {
+	OnLocationChange,
+	OffLocationChange,
+	OnLocationChangeCallback,
+	OnLocationChangeCallbackResult,
+	OnLocationChangeError,
+	OffLocationChangeError,
+	OnLocationChangeErrorCallback,
+	OnLocationChangeErrorCallbackResult
+} from '../../interface.uts';
+import {wgs84ToGcj02} from "../wgs84ToGcj02/index.uts"
+import { geoLocationManager } from '@kit.LocationKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { Permissions } from '@kit.AbilityKit';
+import { abilityAccessCtrl, common } from '@kit.AbilityKit';
+import { AppStorageV2, UIContext } from '@kit.ArkUI';
+import { map, mapCommon } from '@kit.MapKit';
+
+const TAG = 'onLocationChange';
+
+// 坐标转换常量
+const x_PI = (3.14159265358979324 * 3000.0) / 180.0;
+const PI = 3.1415926535897932384626;
+const a = 6378245.0; // 卫星椭球坐标投影到平面地图坐标系的投影因子
+const ee = 0.00669342162296594323; // 椭球的偏心率
+
+// 全局变量
+let locationCallbacks : OnLocationChangeCallback[] = [];
+let errorCallbacks : OnLocationChangeErrorCallback[] = [];
+let isLocationUpdateStarted = false;
+let currentLocationType = 'wgs84';
+
+// 判断是否在国内，在中国国内的经纬度才需要做偏移
+// function outOfChina(lng : number, lat : number) : boolean {
+// 	return (
+// 		lng < 72.004 ||
+// 		lng > 137.8347 ||
+// 		(lat < 0.8293 || lat > 55.8271 || false)
+// 	);
+// }
+
+// // 转化经度
+// function transformLng(lng : number, lat : number) : number {
+// 	let ret =
+// 		300.0 +
+// 		lng +
+// 		2.0 * lat +
+// 		0.1 * lng * lng +
+// 		0.1 * lng * lat +
+// 		0.1 * Math.sqrt(Math.abs(lng));
+// 	ret +=
+// 		((20.0 * Math.sin(6.0 * lng * PI) +
+// 			20.0 * Math.sin(2.0 * lng * PI)) *
+// 			2.0) /
+// 		3.0;
+// 	ret +=
+// 		((20.0 * Math.sin(lng * PI) +
+// 			40.0 * Math.sin((lng / 3.0) * PI)) *
+// 			2.0) /
+// 		3.0;
+// 	ret +=
+// 		((150.0 * Math.sin((lng / 12.0) * PI) +
+// 			300.0 * Math.sin((lng / 30.0) * PI)) *
+// 			2.0) /
+// 		3.0;
+// 	return ret;
+// }
+
+// // 转化纬度
+// function transformLat(lng : number, lat : number) : number {
+// 	let ret =
+// 		-100.0 +
+// 		2.0 * lng +
+// 		3.0 * lat +
+// 		0.2 * lat * lat +
+// 		0.1 * lng * lat +
+// 		0.2 * Math.sqrt(Math.abs(lng));
+// 	ret +=
+// 		((20.0 * Math.sin(6.0 * lng * PI) +
+// 			20.0 * Math.sin(2.0 * lng * PI)) *
+// 			2.0) /
+// 		3.0;
+// 	ret +=
+// 		((20.0 * Math.sin(lat * PI) +
+// 			40.0 * Math.sin((lat / 3.0) * PI)) *
+// 			2.0) /
+// 		3.0;
+// 	ret +=
+// 		((160.0 * Math.sin((lat / 12.0) * PI) +
+// 			320 * Math.sin((lat * PI) / 30.0)) *
+// 			2.0) /
+// 		3.0;
+// 	return ret;
+// }
+
+// // WGS84 到 GCJ02 坐标转换（地球坐标系转火星坐标系）
+// function wgs84ToGcj02(lng : number, lat : number) : number[] {
+// 	// if (outOfChina(lng, lat)) {
+// 	// 	return [lng, lat];
+// 	// } else {
+// 	// 	let dlat = transformLat(lng - 105.0, lat - 35.0);
+// 	// 	let dlng = transformLng(lng - 105.0, lat - 35.0);
+// 	// 	const radlat = (lat / 180.0) * PI;
+// 	// 	let magic = Math.sin(radlat);
+// 	// 	magic = 1 - ee * magic * magic;
+// 	// 	const sqrtmagic = Math.sqrt(magic);
+// 	// 	dlat =
+// 	// 		(dlat * 180.0) /
+// 	// 		(((a * (1 - ee)) / (magic * sqrtmagic)) * PI);
+// 	// 	dlng =
+// 	// 		(dlng * 180.0) / ((a / sqrtmagic) * Math.cos(radlat) * PI);
+// 	// 	const mglat = lat + dlat;
+// 	// 	const mglng = lng + dlng;
+// 	// 	return [mglng, mglat];
+// 	// }
+// 	let wgs84Position : mapCommon.LatLng = {
+// 		latitude: lat,
+// 		longitude: lng
+// 	} as mapCommon.LatLng
+// 	let gcj02Position: mapCommon.LatLng = map.convertCoordinateSync(mapCommon.CoordinateType.WGS84, mapCommon.CoordinateType.GCJ02, wgs84Position);
+// 	return [gcj02Position.longitude,gcj02Position.latitude]
+// }
+
+// 位置变化回调处理
+function handleLocationChange(location : geoLocationManager.Location) {
+	try {
+		// 获取原始坐标（WGS84）
+		let resultLatitude = location.latitude;
+		let resultLongitude = location.longitude;
+
+		// 根据 type 参数进行坐标系转换
+		if (currentLocationType === 'gcj02') {
+			// WGS84 到 GCJ02 的坐标转换
+			const convertedCoords = wgs84ToGcj02(resultLongitude, resultLatitude);
+			resultLongitude = convertedCoords[0];
+			resultLatitude = convertedCoords[1];
+		}
+
+		// 构造回调结果
+		const result : OnLocationChangeCallbackResult = {
+			latitude: resultLatitude,
+			longitude: resultLongitude,
+			speed: location.speed || 0,
+			accuracy: location.accuracy || 0,
+			horizontalAccuracy: location.accuracy || 0,
+			altitude: location.altitude,
+			verticalAccuracy: location.accuracy || 0,
+			altitudeAccuracy: location.accuracy || 0,
+			city: null,
+			cityCode: null,
+			street: null,
+			country: null,
+			countryCode: null,
+			province: null,
+			streetNumber: null,
+			district: null,
+			isFullAccuracy: null
+		};
+
+		// 调用所有注册的回调函数
+		locationCallbacks.forEach(callback => {
+			try {
+				callback(result);
+			} catch (error) {
+				console.error(TAG, 'Location callback error:', error);
+			}
+		});
+
+		// console.info(TAG, 'Location change handled:', result);
+	} catch (error) {
+		console.error(TAG, 'handleLocationChange error:', error);
+		const errorResult : OnLocationChangeErrorCallbackResult = {
+			errCode: -1,
+			errMsg: `位置变化处理失败: ${error.message || error}`
+		};
+		handleLocationError(errorResult);
+	}
+}
+
+// 位置错误回调处理
+function handleLocationError(error : OnLocationChangeErrorCallbackResult) {
+	errorCallbacks.forEach(callback => {
+		try {
+			callback(error);
+		} catch (callbackError) {
+			console.error(TAG, 'Error callback error:', callbackError);
+		}
+	});
+	console.error(TAG, 'Location error handled:', error);
+}
+
+// 检查定位权限
+async function checkLocationPermission() : Promise<boolean> {
+	try {
+		const atManager = abilityAccessCtrl.createAtManager();
+		const context = AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext() as common.UIAbilityContext;
+
+		// 检查精确定位权限
+		const locationPermission : Permissions = 'ohos.permission.APPROXIMATELY_LOCATION';
+		const preciseLocationPermission : Permissions = 'ohos.permission.LOCATION';
+
+		const locationGrantStatus = await atManager.checkAccessToken(
+			context.applicationInfo.accessTokenId,
+			locationPermission
+		);
+
+		const preciseLocationGrantStatus = await atManager.checkAccessToken(
+			context.applicationInfo.accessTokenId,
+			preciseLocationPermission
+		);
+
+		return locationGrantStatus === abilityAccessCtrl.GrantStatus.PERMISSION_GRANTED ||
+			preciseLocationGrantStatus === abilityAccessCtrl.GrantStatus.PERMISSION_GRANTED;
+	} catch (error) {
+		console.error(TAG, 'checkLocationPermission error:', error);
+		return false;
+	}
+}
+
+/**
+ * 监听实时地理位置变化事件
+ */
+export const onLocationChange : OnLocationChange = function (callback : OnLocationChangeCallback) {
+	console.info(TAG, 'onLocationChange called');
+
+	if (typeof callback !== 'function') {
+		console.error(TAG, 'onLocationChange: callback must be a function');
+		return;
+	}
+
+	// 添加回调到列表
+	if (!locationCallbacks.includes(callback)) {
+		locationCallbacks.push(callback);
+		console.info(TAG, `Location callback added, total: ${locationCallbacks.length}`);
+	}
+};
+
+/**
+ * 移除实时地理位置变化事件的监听函数
+ */
+export const offLocationChange : OffLocationChange = function (callback ?: OnLocationChangeCallback) {
+	console.info(TAG, 'offLocationChange called');
+
+	if (callback) {
+		// 移除指定的回调函数
+		const index = locationCallbacks.indexOf(callback);
+		if (index > -1) {
+			locationCallbacks.splice(index, 1);
+			console.info(TAG, `Location callback removed, remaining: ${locationCallbacks.length}`);
+		}
+	} else {
+		// 移除所有回调函数
+		const count = locationCallbacks.length;
+		locationCallbacks = [];
+		console.info(TAG, `All location callbacks removed, count: ${count}`);
+	}
+};
+
+/**
+ * 监听持续定位接口返回失败时触发
+ */
+export const onLocationChangeError : OnLocationChangeError = function (callback : OnLocationChangeErrorCallback) {
+	console.info(TAG, 'onLocationChangeError called');
+
+	if (typeof callback !== 'function') {
+		console.error(TAG, 'onLocationChangeError: callback must be a function');
+		return;
+	}
+
+	// 添加错误回调到列表
+	if (!errorCallbacks.includes(callback)) {
+		errorCallbacks.push(callback);
+		console.info(TAG, `Error callback added, total: ${errorCallbacks.length}`);
+	}
+};
+
+/**
+ * 取消注册位置更新错误回调
+ */
+export const offLocationChangeError : OffLocationChangeError = function (callback ?: OnLocationChangeErrorCallback) {
+	console.info(TAG, 'offLocationChangeError called');
+
+	if (callback) {
+		// 移除指定的错误回调函数
+		const index = errorCallbacks.indexOf(callback);
+		if (index > -1) {
+			errorCallbacks.splice(index, 1);
+			console.info(TAG, `Error callback removed, remaining: ${errorCallbacks.length}`);
+		}
+	} else {
+		// 移除所有错误回调函数
+		const count = errorCallbacks.length;
+		errorCallbacks = [];
+		console.info(TAG, `All error callbacks removed, count: ${count}`);
+	}
+};
+
+// 导出内部函数供其他模块使用
+export function startLocationMonitoring(type : string = 'wgs84') {
+	return new Promise<void>((resolve, reject) => {
+		checkLocationPermission().then((hasPermission : boolean) => {
+			if (!hasPermission) {
+				const error : OnLocationChangeErrorCallbackResult = {
+					errCode: 1001,
+					errMsg: '缺少定位权限'
+				};
+				handleLocationError(error);
+				reject(error);
+				return;
+			}
+
+			try {
+				currentLocationType = type;
+
+				// 配置位置监听请求参数
+				// const requestInfo: geoLocationManager.LocationRequest = {
+				//   priority: geoLocationManager.LocationRequestPriority.ACCURACY,
+				//   scenario: geoLocationManager.LocationRequestScenario.TRAJECTORY_TRACKING,
+				//   timeInterval: 1, // 1秒间隔
+				//   distanceInterval: 0, // 距离间隔为0，即任何位置变化都触发
+				//   maxAccuracy: 0
+				// };
+				const requestInfo : geoLocationManager.ContinuousLocationRequest = {
+					interval: 0,
+					locationScenario:geoLocationManager.PowerConsumptionScenario.HIGH_POWER_CONSUMPTION
+				} as geoLocationManager.ContinuousLocationRequest;
+
+				// 开始位置监听
+				geoLocationManager.on('locationChange', requestInfo, (location : geoLocationManager.Location) => {
+					handleLocationChange(location);
+				});
+
+				// 注意：HarmonyOS LocationKit可能不支持locationServiceState事件
+				// 这里暂时注释掉，如需要可以通过其他方式检查位置服务状态
+				// geoLocationManager.on('locationServiceState', (state: boolean) => {
+				//   if (!state) {
+				//     const errorResult: OnLocationChangeErrorCallbackResult = {
+				//       errCode: 1003,
+				//       errMsg: '位置服务已关闭'
+				//     };
+				//     handleLocationError(errorResult);
+				//   }
+				// });
+
+				isLocationUpdateStarted = true;
+				console.info(TAG, 'Location monitoring started successfully');
+				resolve();
+			} catch (error) {
+				console.error(TAG, 'startLocationMonitoring error:', error);
+				const err : OnLocationChangeErrorCallbackResult = {
+					errCode: -1,
+					errMsg: `开始位置监听失败: ${error.message || error}`
+				};
+				handleLocationError(err);
+				reject(err);
+			}
+		}).catch((error) => {
+			console.error(TAG, 'checkLocationPermission failed:', error);
+			const err : OnLocationChangeErrorCallbackResult = {
+				errCode: 1002,
+				errMsg: '权限检查失败'
+			};
+			handleLocationError(err);
+			reject(err);
+		});
+	});
+}
+
+export function stopLocationMonitoring() {
+	try {
+		if (isLocationUpdateStarted) {
+			// 停止位置监听
+			geoLocationManager.off('locationChange');
+			// geoLocationManager.off('locationServiceState'); // 注释掉不支持的事件
+
+			isLocationUpdateStarted = false;
+			console.info(TAG, 'Location monitoring stopped successfully');
+		}
+	} catch (error) {
+		console.error(TAG, 'stopLocationMonitoring error:', error);
+	}
+}
+
+export function isLocationMonitoringActive() : boolean {
+	return isLocationUpdateStarted;
+}
+
+export function getLocationCallbackCount() : number {
+	return locationCallbacks.length;
+}
+
+export function getErrorCallbackCount() : number {
+	return errorCallbacks.length;
+}

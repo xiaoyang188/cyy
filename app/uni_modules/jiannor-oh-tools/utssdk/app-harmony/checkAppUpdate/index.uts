@@ -1,0 +1,201 @@
+import { updateManager } from '@kit.StoreKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { common } from '@kit.AbilityKit';
+import { AppStorageV2,UIContext  } from '@kit.ArkUI';
+/**
+ * 检查更新结果枚举
+ */
+export enum UpdateAvailableCode {
+  /** 不存在新版本 */
+  LATER_VERSION_NOT_EXIST = 0,
+  /** 存在新版本 */
+  LATER_VERSION_EXIST = 1
+}
+
+/**
+ * 显示更新弹窗结果枚举
+ */
+export enum ShowUpdateResultCode {
+  /** 显示升级弹框成功 */
+  SHOW_DIALOG_SUCCESS = 0,
+  /** 显示升级弹框失败 */
+  SHOW_DIALOG_FAILURE = 1
+}
+
+/**
+ * 检查更新结果接口
+ */
+export interface CheckUpdateResult {
+  /** 更新可用状态 */
+  updateAvailable: UpdateAvailableCode;
+}
+
+/**
+ * 检查更新选项接口
+ */
+export interface CheckAppUpdateOptions {
+  /** 成功回调 */
+  success?: (result: CheckUpdateResult) => void;
+  /** 失败回调 */
+  fail?: (error: any) => void;
+  /** 完成回调 */
+  complete?: () => void;
+}
+
+/**
+ * 显示更新弹窗选项接口
+ */
+export interface ShowUpdateDialogOptions {
+  /** 成功回调 */
+  success?: (resultCode: ShowUpdateResultCode) => void;
+  /** 失败回调 */
+  fail?: (error: any) => void;
+  /** 完成回调 */
+  complete?: () => void;
+}
+
+/**
+ * 错误结果接口
+ */
+export interface ErrorResult {
+  /** 错误代码 */
+  code: number;
+  /** 错误消息 */
+  message: string;
+  /** 错误详细信息 */
+  errMsg: string;
+}
+
+/**
+ * 检查应用是否存在新版本
+ * @param options 检查更新选项
+ */
+export function checkAppUpdate(options: CheckAppUpdateOptions = {}): void {
+  try {
+    // 获取应用上下文
+    const context: common.UIAbilityContext = AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext() as common.UIAbilityContext;
+    
+    // 调用HarmonyOS UpdateManager API检查更新
+    updateManager.checkAppUpdate(context)
+      .then((checkResult: updateManager.CheckUpdateResult) => {
+        const result: CheckUpdateResult = {
+          updateAvailable: checkResult.updateAvailable as unknown as UpdateAvailableCode
+        };
+        
+        // 调用成功回调
+        options.success?.(result);
+      })
+      .catch((error: BusinessError) => {
+        const errorResult: ErrorResult = {
+          code: error.code,
+          message: error.message,
+          errMsg: `checkAppUpdate:fail ${error.message}`
+        };
+        
+        // 调用失败回调
+        options.fail?.(errorResult);
+      })
+      .finally(() => {
+        // 调用完成回调
+        options.complete?.();
+      });
+  } catch (error) {
+    const catchError = error as BusinessError;
+    const errorResult: ErrorResult = {
+      code: catchError.code || -1,
+      message: catchError.message || 'Unknown error',
+      errMsg: `checkAppUpdate:fail ${catchError.message || 'Unknown error'}`
+    };
+    
+    // 调用失败回调
+    options.fail?.(errorResult);
+    // 调用完成回调
+    options.complete?.();
+  }
+}
+
+/**
+ * 显示应用更新弹窗
+ * @param options 显示更新弹窗选项
+ */
+export function showUpdateDialog(options: ShowUpdateDialogOptions = {}): void {
+  try {
+    // 获取应用上下文
+    const context: common.UIAbilityContext = AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext() as common.UIAbilityContext;
+    
+    // 调用HarmonyOS UpdateManager API显示更新弹窗
+    updateManager.showUpdateDialog(context)
+      .then((resultCode: updateManager.ShowUpdateResultCode) => {
+        // 调用成功回调
+        options.success?.(resultCode as unknown as ShowUpdateResultCode);
+      })
+      .catch((error: BusinessError) => {
+        const errorResult: ErrorResult = {
+          code: error.code,
+          message: error.message,
+          errMsg: `showUpdateDialog:fail ${error.message}`
+        };
+        
+        // 调用失败回调
+        options.fail?.(errorResult);
+      })
+      .finally(() => {
+        // 调用完成回调
+        options.complete?.();
+      });
+  } catch (error) {
+    const catchError = error as BusinessError;
+    const errorResult: ErrorResult = {
+      code: catchError.code || -1,
+      message: catchError.message || 'Unknown error',
+      errMsg: `showUpdateDialog:fail ${catchError.message || 'Unknown error'}`
+    };
+    
+    // 调用失败回调
+    options.fail?.(errorResult);
+    // 调用完成回调
+    options.complete?.();
+  }
+}
+
+/**
+ * 检查更新并显示弹窗的便捷方法
+ * @param options 检查更新选项，包含额外的showDialog选项
+ */
+export interface CheckAndShowUpdateOptions extends CheckAppUpdateOptions {
+  /** 是否自动显示更新弹窗，默认为true */
+  autoShowDialog?: boolean;
+  /** 显示弹窗的选项 */
+  dialogOptions?: ShowUpdateDialogOptions;
+}
+
+/**
+ * 检查更新并自动显示弹窗
+ * @param options 检查并显示更新选项
+ */
+export function checkAndShowUpdate(options: CheckAndShowUpdateOptions = {}): void {
+  const autoShowDialog = options.autoShowDialog ?? true;
+  const dialogOptions = options.dialogOptions ?? undefined;
+  
+  const checkOptions: CheckAppUpdateOptions = {
+    success: options.success,
+    fail: options.fail,
+    complete: options.complete
+  };
+  
+  const updateOptions: CheckAppUpdateOptions = {
+    success: (result: CheckUpdateResult) => {
+      // 先调用原始的成功回调
+      checkOptions.success?.(result);
+      
+      // 如果存在新版本且需要自动显示弹窗
+      if (result.updateAvailable === UpdateAvailableCode.LATER_VERSION_EXIST && autoShowDialog) {
+        showUpdateDialog(dialogOptions);
+      }
+    },
+    fail: checkOptions.fail,
+    complete: checkOptions.complete
+  };
+  
+  checkAppUpdate(updateOptions);
+}

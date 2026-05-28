@@ -1,0 +1,48 @@
+import {
+  StopBluetoothDevicesDiscoveryOptions,
+  CommonCallbackResult,
+  StopBluetoothDevicesDiscovery
+} from '../../interface.uts';
+
+import { BluetoothFailImpl } from '../../unierror.uts';
+import { ble } from '@kit.ConnectivityKit';
+import { getBleScanner, getAdapterInitialized } from '../openBluetoothAdapter/index.uts';
+
+const TAG = 'stopBluetoothDevicesDiscovery';
+
+/**
+ * 停止搜索蓝牙设备
+ */
+export const stopBluetoothDevicesDiscovery: StopBluetoothDevicesDiscovery = function (options: StopBluetoothDevicesDiscoveryOptions = {}) {
+  try {
+    const isAdapterInitialized = getAdapterInitialized();
+    const bleScanner = getBleScanner();
+    
+    if (!isAdapterInitialized || !bleScanner) {
+      const failResult = new BluetoothFailImpl(10000); // not init
+      options.fail?.(failResult);
+      options.complete?.(failResult);
+      return;
+    }
+    
+    // 取消监听
+    bleScanner.off('BLEDeviceFind');
+    
+    // 停止扫描
+    bleScanner.stopScan();
+    
+    const result: CommonCallbackResult = {
+      errMsg: 'stopBluetoothDevicesDiscovery:ok'
+    };
+    
+    options.success?.(result);
+    options.complete?.(result);
+    
+    console.info(TAG, 'stopBluetoothDevicesDiscovery success');
+  } catch (err) {
+    console.error(TAG, 'stopBluetoothDevicesDiscovery failed:', err);
+    const failResult = new BluetoothFailImpl(10008); // system error
+    options.fail?.(failResult);
+    options.complete?.(failResult);
+  }
+};

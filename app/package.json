@@ -1,0 +1,21 @@
+{
+    "id": "yll1024335892-ayi-slider",
+    "name": "官方slider的封装",
+    "displayName": "官方slider的封装",
+    "version": "1.0.0",
+    "description": "官方slider的封装",
+    "keywords": [
+        "slider"
+    ],
+    "dcloudext": {
+        "category": [
+            "前端组件",
+            "通用组件"
+        ]
+    },
+    "dependencies": {
+        "pinyin-pro": "^3.26.0",
+        "three": "^0.151.0",
+        "three-platformize": "^1.133.3"
+    }
+}

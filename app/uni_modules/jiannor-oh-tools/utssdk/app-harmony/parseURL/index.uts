@@ -1,0 +1,25 @@
+import { url } from '@kit.ArkTS';
+import { HarmonyURL } from "../../interface.uts"
+export function parseURL(u : string) {
+	let pu : url.URL = url.URL.parseURL(u);
+	let param : url.URLParams = pu.params
+	let p : UTSJSONObject = {} as UTSJSONObject
+	param.forEach((value : string, key : string, searchParams : url.URLParams) => {
+		p.set(key, value)
+	})
+	let hurl : HarmonyURL = {
+		hash: pu.hash,
+		host: pu.host,
+		hostname: pu.hostname,
+		href:pu.href,
+		origin:pu.origin,
+		password:pu.password,
+		pathname:pu.pathname,
+		port:pu.port,
+		protocol:pu.protocol,
+		search:pu.search,
+		params:p,
+		username:pu.username
+	} as HarmonyURL
+	return hurl
+}

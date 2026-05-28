@@ -1,0 +1,79 @@
+import {
+  WriteBLECharacteristicValueOptions,
+  WriteBLECharacteristicValueSuccess,
+  CommonCallbackResult,
+  WriteBLECharacteristicValue
+} from '../../interface.uts';
+
+import { BluetoothFailImpl } from '../../unierror.uts';
+import { ble } from '@kit.ConnectivityKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { getAdapterInitialized } from '../openBluetoothAdapter/index.uts';
+import { getBleConnection } from '../global.uts';
+
+const TAG = 'writeBLECharacteristicValue';
+
+/**
+ * 写入低功耗蓝牙设备特征值
+ */
+export const writeBLECharacteristicValue: WriteBLECharacteristicValue = function (options: WriteBLECharacteristicValueOptions) {
+  try {
+    const isAdapterInitialized = getAdapterInitialized();
+    
+    if (!isAdapterInitialized) {
+      const failResult = new BluetoothFailImpl(10000); // not init
+      options.fail?.(failResult);
+      options.complete?.(failResult);
+      return;
+    }
+    
+    const gattClient: ble.GattClientDevice | null = getBleConnection(options.deviceId);
+    if (!gattClient) {
+      const failResult = new BluetoothFailImpl(10006); // no connection
+      options.fail?.(failResult);
+      options.complete?.(failResult);
+      return;
+    }
+    
+    // 构造特征值描述符
+    const characteristic: ble.BLECharacteristic = {
+      serviceUuid: options.serviceId,
+      characteristicUuid: options.characteristicId,
+      characteristicValue: options.value,
+      descriptors: []
+    };
+    
+    // 确定写入类型
+    const writeType: ble.GattWriteType = options.writeType === 'writeNoResponse' ?
+      ble.GattWriteType.WRITE_NO_RESPONSE : ble.GattWriteType.WRITE;
+    
+    // 写入特征值
+    gattClient.writeCharacteristicValue(characteristic, writeType, (err: BusinessError) => {
+      if (err) {
+        console.error(TAG, 'writeCharacteristicValue failed:', err);
+        const failResult = new BluetoothFailImpl(10007); // property not support
+        options.fail?.(failResult);
+        options.complete?.(failResult);
+        return;
+      }
+      
+      const result: WriteBLECharacteristicValueSuccess = {
+        errMsg: 'writeBLECharacteristicValue:ok'
+      };
+      
+      if (options.success) {
+        options.success(result);
+      }
+      if (options.complete) {
+        options.complete(result);
+      }
+      
+      console.info(TAG, 'writeBLECharacteristicValue success');
+    });
+  } catch (err) {
+    console.error(TAG, 'writeBLECharacteristicValue failed:', err);
+    const failResult = new BluetoothFailImpl(10008); // system error
+    options.fail?.(failResult);
+    options.complete?.(failResult);
+  }
+};

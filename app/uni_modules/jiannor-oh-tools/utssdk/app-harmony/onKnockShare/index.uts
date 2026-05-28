@@ -1,0 +1,30 @@
+import { OnKnockShareCallback, KnockShareData } from '../../interface.uts'
+import {onKnockShareNative} from "./onKnockShare.ets"
+
+/**
+ * 监听碰一碰分享事件
+ * @param callback 分享数据回调函数
+ */
+export const onKnockShare : OnKnockShareCallback = function (options : KnockShareData) {
+	try {
+
+		// 注册鸿蒙碰一碰分享监听
+		// 根据官方文档，事件名称应该是 'knockShare'
+		// harmonyShare.on('knockShare', (sharableTarget : harmonyShare.SharableTarget) => {
+		// 	let shareData : systemShare.SharedData = new systemShare.SharedData({
+		// 		utd: utd.UniformDataType.HYPERLINK,
+		// 		content: options.content,
+		// 		// 根据title,description,thumbnailUri会生成不同的卡片模板，具体可参考配套分享卡片模板章节。
+		// 		title: options.title ?? '无',
+		// 		description: options.description ?? '无',
+		// 		thumbnailUri: options.thumbnailUri ?? ''
+		// 	} as systemShare.SharedRecord);
+		// 	sharableTarget.share(shareData);
+		// })
+		onKnockShareNative(options.content,options.title!,options.description!,options.thumbnailUri!)
+
+		console.log('onKnockShare registered successfully')
+	} catch (error) {
+		console.error('Failed to register onKnockShare:', error)
+	}
+}

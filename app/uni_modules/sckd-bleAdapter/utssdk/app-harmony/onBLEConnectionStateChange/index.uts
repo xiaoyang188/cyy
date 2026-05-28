@@ -1,0 +1,67 @@
+import {
+  CommonCallbackResult
+} from '../../interface.uts';
+
+// BLE连接状态变化事件数据
+export type OnBLEConnectionStateChangeCallbackResult = {
+  deviceId: string
+  connected: boolean
+}
+
+// BLE连接状态变化事件监听器
+export type OnBLEConnectionStateChangeCallback = (result: OnBLEConnectionStateChangeCallbackResult) => void
+
+const TAG = 'onBLEConnectionStateChange';
+
+// 存储事件监听器
+let connectionStateChangeListeners: Array<OnBLEConnectionStateChangeCallback> = [];
+
+/**
+ * 监听低功耗蓝牙连接状态的改变事件
+ */
+export const onBLEConnectionStateChange = function (callback: OnBLEConnectionStateChangeCallback) {
+  try {
+    if (typeof callback === 'function') {
+      connectionStateChangeListeners.push(callback);
+      console.info(TAG, 'onBLEConnectionStateChange listener added');
+    } else {
+      console.error(TAG, 'callback must be a function');
+    }
+  } catch (err) {
+    console.error(TAG, 'onBLEConnectionStateChange failed:', err);
+  }
+};
+
+/**
+ * 取消监听低功耗蓝牙连接状态的改变事件
+ */
+export const offBLEConnectionStateChange = function (callback?: OnBLEConnectionStateChangeCallback) {
+  try {
+    if (callback) {
+      const index = connectionStateChangeListeners.indexOf(callback);
+      if (index > -1) {
+        connectionStateChangeListeners.splice(index, 1);
+        console.info(TAG, 'specific onBLEConnectionStateChange listener removed');
+      }
+    } else {
+      connectionStateChangeListeners = [];
+      console.info(TAG, 'all onBLEConnectionStateChange listeners removed');
+    }
+  } catch (err) {
+    console.error(TAG, 'offBLEConnectionStateChange failed:', err);
+  }
+};
+
+/**
+ * 触发BLE连接状态变化事件
+ */
+export const emitBLEConnectionStateChange = function (data: OnBLEConnectionStateChangeCallbackResult) {
+  try {
+    connectionStateChangeListeners.forEach(listener => {
+      listener(data);
+    });
+    console.info(TAG, 'BLE connection state change event emitted:', data);
+  } catch (err) {
+    console.error(TAG, 'emitBLEConnectionStateChange failed:', err);
+  }
+};

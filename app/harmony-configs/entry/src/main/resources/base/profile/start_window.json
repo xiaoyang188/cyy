@@ -1,0 +1,7 @@
+{
+	"startWindowAppIcon":"$media:middle_icon",
+	"startWindowBrandingImage":"$media:cyy_logo",
+	"startWindowBackgroundColor":"$color:splash_bg",
+	"startWindowBackgroundImage":"$media:splash_bg",
+	"startWindowBackgroundImageFit":"Auto"
+}

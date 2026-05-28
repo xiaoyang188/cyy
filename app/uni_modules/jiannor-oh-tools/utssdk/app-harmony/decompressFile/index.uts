@@ -1,0 +1,207 @@
+import { zlib, BusinessError } from '@kit.BasicServicesKit';
+import { fileIo as fs } from '@kit.CoreFileKit';
+import { common } from '@kit.AbilityKit';
+import { AppStorageV2,UIContext  } from '@kit.ArkUI';
+/**
+ * 解压文件选项
+ */
+export interface DecompressOptions {
+  // 压缩文件路径（.zip格式）
+  inFile: string;
+  // 解压输出目录路径
+  outDir: string;
+  // 是否覆盖已存在的文件
+  overwrite?: boolean;
+}
+
+/**
+ * 解压结果
+ */
+export interface DecompressResult {
+  success: boolean;
+  message: string;
+  outputDir?: string;
+  extractedFiles?: string[];
+}
+
+/**
+ * 解压文件
+ * @param options 解压选项
+ * @returns Promise<DecompressResult> 解压结果
+ */
+export function decompressFile(options: DecompressOptions): Promise<DecompressResult> {
+  return new Promise<DecompressResult>((resolve, reject) => {
+    try {
+      // 验证输入参数
+      if (!options.inFile || !options.outDir) {
+          const result: DecompressResult = {
+            success: false,
+            message: '压缩文件路径和输出目录路径不能为空'
+          };
+          resolve(result);
+        return;
+      }
+
+      // 验证输入文件是否为zip格式
+      if (!options.inFile.endsWith('.zip')) {
+          const result: DecompressResult = {
+            success: false,
+            message: '输入文件必须是.zip格式'
+          };
+          resolve(result);
+        return;
+      }
+
+      // 检查压缩文件是否存在
+      if (!fs.accessSync(options.inFile)) {
+          const result: DecompressResult = {
+            success: false,
+            message: `压缩文件不存在: ${options.inFile}`
+          };
+          resolve(result);
+        return;
+      }
+
+      // 确保输出目录存在
+      try {
+        if (!fs.accessSync(options.outDir)) {
+          fs.mkdirSync(options.outDir, true);
+        }
+      } catch (error) {
+          const result: DecompressResult = {
+            success: false,
+            message: `创建输出目录失败: ${error}`
+          };
+          resolve(result);
+        return;
+      }
+
+      console.log(`开始解压文件: ${options.inFile} -> ${options.outDir}`);
+
+      // 调用鸿蒙原生解压API
+      const decompressOptions:zlib.Options = {
+          strategy: zlib.CompressStrategy.COMPRESS_STRATEGY_DEFAULT_STRATEGY
+        };
+        zlib.decompressFile(options.inFile, options.outDir, decompressOptions).then((data) => {
+        console.log(`文件解压成功: ${options.outDir}`);
+        console.log('解压结果:', JSON.stringify(data));
+        
+        // 获取解压后的文件列表
+        let extractedFiles: string[] = [];
+        try {
+          extractedFiles = getExtractedFileList(options.outDir);
+        } catch (error) {
+          console.warn('获取解压文件列表失败:', error);
+        }
+        
+        const result: DecompressResult = {
+          success: true,
+          message: '文件解压成功',
+          outputDir: options.outDir,
+          extractedFiles: extractedFiles
+        };
+        resolve(result);
+      }).catch((err: BusinessError) => {
+        console.error(`文件解压失败: ${err.code} - ${err.message}`);
+        const result: DecompressResult = {
+          success: false,
+          message: `文件解压失败: ${err.message}`
+        };
+        resolve(result);
+      });
+
+    } catch (error) {
+      console.error('解压文件时发生异常:', error);
+      const result: DecompressResult = {
+        success: false,
+        message: `解压文件时发生异常: ${error}`
+      };
+      resolve(result);
+    }
+  });
+}
+
+// 注意：鸿蒙 zlib API 只提供异步方法，没有同步版本
+// 如需同步行为，请使用 Promise.resolve() 包装异步方法
+
+/**
+ * 获取目录下的文件列表（递归）
+ * @param dirPath 目录路径
+ * @returns string[] 文件路径列表
+ */
+function getExtractedFileList(dirPath: string): string[] {
+  const fileList: string[] = [];
+  
+  try {
+    const files = fs.listFileSync(dirPath);
+    
+    for (const file of files) {
+      const fullPath = `${dirPath}/${file}`;
+      const stat = fs.statSync(fullPath);
+      
+      if (stat.isFile()) {
+        fileList.push(fullPath);
+      } else if (stat.isDirectory()) {
+        // 递归获取子目录文件
+        const subFiles = getExtractedFileList(fullPath);
+        fileList.push(...subFiles);
+      }
+    }
+  } catch (error) {
+    console.warn(`获取目录文件列表失败: ${dirPath}`, error);
+  }
+  
+  return fileList;
+}
+
+/**
+ * 获取应用沙盒路径用于解压操作
+ * @returns Promise<string> 缓存目录路径
+ */
+export function getDecompressCacheDir(): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    try {
+      const context = AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext() as common.UIAbilityContext;
+      if (!context || !context.cacheDir) {
+        reject(new Error('无法获取应用缓存目录'));
+        return;
+      }
+      resolve(context.cacheDir);
+    } catch (error) {
+      reject(new Error(`获取缓存目录失败: ${error}`));
+    }
+  });
+}
+
+/**
+ * 检查是否为有效的zip文件
+ * @param filePath 文件路径
+ * @returns Promise<boolean> 是否为有效zip文件
+ */
+export function isValidZipFile(filePath: string): Promise<boolean> {
+  return new Promise<boolean>((resolve) => {
+    try {
+      if (!filePath.endsWith('.zip')) {
+        resolve(false);
+        return;
+      }
+      
+      if (!fs.accessSync(filePath)) {
+        resolve(false);
+        return;
+      }
+      
+      // 简单检查文件大小
+      const stat = fs.statSync(filePath);
+      if (stat.size <= 0) {
+        resolve(false);
+        return;
+      }
+      
+      resolve(true);
+    } catch (error) {
+      console.warn('检查zip文件有效性失败:', error);
+      resolve(false);
+    }
+  });
+}

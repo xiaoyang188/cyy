@@ -1,0 +1,7 @@
+{
+  "name": "cyy_push",
+  "dependencies": {},
+  "extensions": {
+    "uni-cloud-push": {}
+  }
+}

@@ -1,0 +1,15 @@
+{
+    "id": "liiy-battery",
+    "displayName": "电池电量",
+    "version": "1.0",
+    "description": "显示电池电量",
+    "keywords": [
+        "电池,电量"
+    ],
+    "dcloudext": {
+        "category": [
+            "前端组件",
+            "通用组件"
+        ]
+    }
+}

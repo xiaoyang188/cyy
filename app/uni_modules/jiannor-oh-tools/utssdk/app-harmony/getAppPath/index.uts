@@ -1,0 +1,126 @@
+import { common } from '@kit.AbilityKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { AppStorageV2,UIContext  } from '@kit.ArkUI';
+/**
+ * 获取应用沙盒路径信息
+ */
+export interface AppPathInfo {
+  // 应用数据目录
+  filesDir: string | null;
+  // 应用缓存目录
+  cacheDir: string | null;
+  // 应用临时目录
+  tempDir: string | null;
+  // 应用数据库目录
+  databaseDir: string | null;
+  // 应用首选项目录
+  preferencesDir: string | null;
+  // 应用分布式文件目录
+  distributedFilesDir: string | null;
+  // 应用包代码目录
+  bundleCodeDir: string | null;
+}
+
+/**
+ * 获取应用沙盒内各种路径
+ * @returns Promise<AppPathInfo> 返回路径信息
+ */
+export function getAppPath(): Promise<AppPathInfo> {
+  return new Promise<AppPathInfo>((resolve, reject) => {
+    try {
+      // 通过 UIAbility 获取 Context
+      const context = AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext() as common.UIAbilityContext;
+      if (!context) {
+        reject(new Error('无法获取 Context'));
+        return;
+      }
+      
+      // 获取各种路径
+      const pathInfo: AppPathInfo = {
+        filesDir: context.filesDir || null,
+        cacheDir: context.cacheDir || null,
+        tempDir: context.tempDir || null,
+        databaseDir: context.databaseDir || null,
+        preferencesDir: context.preferencesDir || null,
+        distributedFilesDir: context.distributedFilesDir || null,
+        bundleCodeDir: context.bundleCodeDir || null
+      };
+      
+      resolve(pathInfo);
+    } catch (error) {
+      reject(new Error(`获取应用路径失败: ${error}`));
+    }
+  });
+}
+
+/**
+ * 获取特定类型的路径
+ * @param pathType 路径类型
+ * @returns Promise<string | null> 返回指定类型的路径
+ */
+export function getSpecificPath(pathType: 'files' | 'cache' | 'temp' | 'database' | 'preferences' | 'distributedFiles' | 'bundleCode'): Promise<string | null> {
+  return new Promise<string | null>((resolve, reject) => {
+    try {
+      const context = AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext() as common.UIAbilityContext;
+      if (!context) {
+        reject(new Error('无法获取 Context'));
+        return;
+      }
+      
+      let path: string | null = null;
+      
+      switch (pathType) {
+        case 'files':
+          path = context.filesDir || null;
+          break;
+        case 'cache':
+          path = context.cacheDir || null;
+          break;
+        case 'temp':
+          path = context.tempDir || null;
+          break;
+        case 'database':
+          path = context.databaseDir || null;
+          break;
+        case 'preferences':
+          path = context.preferencesDir || null;
+          break;
+        case 'distributedFiles':
+          path = context.distributedFilesDir || null;
+          break;
+        case 'bundleCode':
+          path = context.bundleCodeDir || null;
+          break;
+        default:
+          reject(new Error(`不支持的路径类型: ${pathType}`));
+          return;
+      }
+      
+      resolve(path);
+    } catch (error) {
+      reject(new Error(`获取${pathType}路径失败: ${error}`));
+    }
+  });
+}
+
+/**
+ * 检查路径是否存在
+ * @param path 要检查的路径
+ * @returns Promise<boolean> 路径是否存在
+ */
+export function checkPathExists(path: string): Promise<boolean> {
+  return new Promise<boolean>((resolve) => {
+    try {
+      if (!path) {
+        resolve(false);
+        return;
+      }
+      
+      // 这里可以添加文件系统检查逻辑
+      // 暂时返回 true，表示路径有效
+      resolve(true);
+    } catch (error) {
+      resolve(false);
+    }
+  });
+}

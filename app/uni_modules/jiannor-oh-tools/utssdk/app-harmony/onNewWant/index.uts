@@ -1,0 +1,51 @@
+import { AbilityConstant, Want } from '@kit.AbilityKit';
+import { systemShare } from '@kit.ShareKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { UTSWant,OnNewWantOptions,OnNewWantCallback } from "../../interface.uts"
+
+export const onNewWant:OnNewWantCallback=function(options:OnNewWantOptions) {
+	try{
+		UTSHarmony.onAppAbilityNewWant((want : Want, launchParam : AbilityConstant.LaunchParam) => {
+			// console.log("onAppAbilityNewWant",want)
+			let uw=wantToUTSWant(want)
+			options.onNewWant?.(uw)
+			if(options.receiveShare==true){
+				systemShare.getSharedData(want)
+					.then((data : systemShare.SharedData) => {
+						let dataList:UTSJSONObject[]=[]
+						data.getRecords().forEach((record : systemShare.SharedRecord) => {
+							// 处理分享数据
+							console.log("onAppAbilityCreate", JSON.stringify(record))
+							let parsedRecord = JSON.parseObject(JSON.stringify(record));
+							if (parsedRecord !== null) {
+								dataList.push(parsedRecord);
+							}
+						});
+						options.onShare?.(dataList)
+					})
+					.catch((error : BusinessError) => {
+						console.error(`Failed to getSharedData. Code: ${error.code}, message: ${error.message}`);
+					});
+			}
+		})
+	}catch(err){
+		console.log("onAppAbility",err)
+		options.error?.(err)
+	}
+}
+
+function wantToUTSWant(want:Want):UTSWant{
+	let uw:UTSWant={
+		deviceId:want.deviceId,
+		bundleName:want.bundleName,
+		moduleName:want.moduleName,
+		abilityName:want.abilityName,
+		action:want.action,
+		entities:want.entities,
+		uri:want.uri,
+		type:want.type,
+		parameters:JSON.parseObject(JSON.stringify(want.parameters))
+		flags:want.flags
+	} as UTSWant
+	return uw
+}

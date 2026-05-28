@@ -1,0 +1,15 @@
+
+
+export function setStorageOH<T>(key:string,value:T){
+	AppStorage.setOrCreate(key,value)
+}
+export function getStorageOH<T>(key:string){
+	let value=AppStorage.get<T>(key)
+	return value
+}
+export function removeStorageOH(key:string){
+	AppStorage.delete(key)
+}
+export function clearStorageOH(){
+	AppStorage.clear()
+}

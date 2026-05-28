@@ -1,0 +1,69 @@
+import {
+  GetBLEDeviceServicesOptions,
+  GetBLEDeviceServicesSuccess,
+  GetBLEDeviceServices,
+  BLEService
+} from '../../interface.uts';
+
+import { BluetoothFailImpl } from '../../unierror.uts';
+import { ble } from '@kit.ConnectivityKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { getAdapterInitialized } from '../openBluetoothAdapter/index.uts';
+import { getBleConnection } from '../global.uts';
+
+const TAG = 'getBLEDeviceServices';
+
+/**
+ * 获取蓝牙设备服务
+ */
+export const getBLEDeviceServices: GetBLEDeviceServices = function (options: GetBLEDeviceServicesOptions) {
+  try {
+    const isAdapterInitialized = getAdapterInitialized();
+    
+    if (!isAdapterInitialized) {
+      const failResult = new BluetoothFailImpl(10000); // not init
+      options.fail?.(failResult);
+      options.complete?.(failResult);
+      return;
+    }
+    
+    const gattClient: ble.GattClientDevice | null = getBleConnection(options.deviceId);
+    if (!gattClient) {
+      const failResult = new BluetoothFailImpl(10006); // no connection
+      options.fail?.(failResult);
+      options.complete?.(failResult);
+      return;
+    }
+    
+    // 获取服务
+    gattClient.getServices((err: BusinessError, gattServices: Array<ble.GattService>) => {
+      if (err) {
+        console.error(TAG, 'getServices failed:', err);
+        const failResult = new BluetoothFailImpl(10004); // no service
+        options.fail?.(failResult);
+        options.complete?.(failResult);
+        return;
+      }
+      
+      const services: Array<BLEService> = gattServices.map((service: ble.GattService) => ({
+          uuid: service.serviceUuid,
+          isPrimary: service.isPrimary
+        } as BLEService));
+      
+      const result: GetBLEDeviceServicesSuccess = {
+        services: services,
+        errMsg: 'getBLEDeviceServices:ok'
+      };
+      
+      options.success?.(result);
+      options.complete?.(result);
+      
+      console.info(TAG, 'getBLEDeviceServices success, services count:', services.length);
+    });
+  } catch (err) {
+    console.error(TAG, 'getBLEDeviceServices failed:', err);
+    const failResult = new BluetoothFailImpl(10008); // system error
+    options.fail?.(failResult);
+    options.complete?.(failResult);
+  }
+};

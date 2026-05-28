@@ -1,0 +1,366 @@
+import { SaveImageToAlbumOptions, SaveImageToAlbumResult, SaveImageToAlbumErrorResult, DownloadProgressInfo, MediaType, MediaFileType } from '../../interface.uts'
+import { fileIo as fs, fileUri } from '@kit.CoreFileKit'
+import { common } from '@kit.AbilityKit'
+import { photoAccessHelper } from '@kit.MediaLibraryKit'
+import { http } from '@kit.NetworkKit'
+import { BusinessError } from '@kit.BasicServicesKit'
+import { AppStorageV2, UIContext } from '@kit.ArkUI'
+
+export default function saveImageToAlbum(options: SaveImageToAlbumOptions): Promise<SaveImageToAlbumResult> {
+  return new Promise<SaveImageToAlbumResult>((resolve, reject) => {
+    try {
+      // 输入验证
+      if (!options || !options.imageUrl) {
+        const errorResult: SaveImageToAlbumErrorResult = {
+          errCode: -1,
+          errMsg: '图片路径不能为空'
+        }
+        if (options?.fail) {
+          options.fail(errorResult)
+        }
+        reject(errorResult)
+        return
+      }
+	  
+      const imageUrl = options.imageUrl.trim()
+      if (imageUrl.length === 0) {
+        const errorResult: SaveImageToAlbumErrorResult = {
+          errCode: -1,
+          errMsg: '图片路径不能为空'
+        }
+        if (options.fail) {
+          options.fail(errorResult)
+        }
+        reject(errorResult)
+        return
+      }
+      
+      // 验证 mediaType 参数
+      if (options.mediaType !== undefined && 
+          options.mediaType !== 'network' && 
+          options.mediaType !== 'local') {
+        const errorResult: SaveImageToAlbumErrorResult = {
+          errCode: -1,
+          errMsg: 'mediaType 参数只能是 "network" 或 "local"'
+        }
+        if (options.fail) {
+          options.fail(errorResult)
+        }
+        if (options.complete) {
+          options.complete({})
+        }
+        reject(errorResult)
+        return
+      }
+      
+      // 验证 fileType 参数
+      if (options.fileType !== undefined && 
+          options.fileType !== 'image' && 
+          options.fileType !== 'video') {
+        const errorResult: SaveImageToAlbumErrorResult = {
+          errCode: -1,
+          errMsg: 'fileType 参数只能是 "image" 或 "video"'
+        }
+        if (options.fail) {
+          options.fail(errorResult)
+        }
+        if (options.complete) {
+          options.complete({})
+        }
+        reject(errorResult)
+        return
+      }
+      
+      // 获取当前应用上下文
+      const context = AppStorageV2.connect(UIContext, 'uiContext', () => new UIContext())?.getHostContext() as common.UIAbilityContext
+      
+      // 处理媒体文件保存
+      processImageSave(options, context)
+        .then((result) => {
+          // 调用成功回调
+          if (options.success) {
+            options.success(result)
+          }
+          resolve(result)
+        })
+        .catch((error) => {
+          const errorResult: SaveImageToAlbumErrorResult = {
+            errCode: -1,
+            errMsg: error.message || '保存图片失败'
+          }
+          // 调用失败回调
+          if (options.fail) {
+            options.fail(errorResult)
+          }
+          reject(errorResult)
+        })
+        .finally(() => {
+          // 调用完成回调
+          if (options.complete) {
+            options.complete({})
+          }
+        })
+    } catch (error) {
+      const errorResult: SaveImageToAlbumErrorResult = {
+        errCode: -1,
+        errMsg: '获取应用上下文失败'
+      }
+      if (options?.fail) {
+        options.fail(errorResult)
+      }
+      if (options?.complete) {
+        options.complete({})
+      }
+      reject(errorResult)
+    }
+  })
+}
+
+async function processImageSave(options: SaveImageToAlbumOptions, context: common.UIAbilityContext): Promise<SaveImageToAlbumResult> {
+  let tempFilePath: string = ''
+  
+  try {
+    // 判断媒体来源类型
+    const isNetworkFile = determineMediaType(options)
+    // 判断文件类型
+    const fileType = determineFileType(options)
+    
+    if (isNetworkFile) {
+      // 网络文件，先下载到临时目录
+      tempFilePath = await downloadNetworkFile(
+        options.imageUrl, 
+        context,
+        fileType,
+        options.onDownloadStart,
+        options.onDownloadComplete
+      )
+    } else {
+      // 本地文件，直接使用
+      tempFilePath = options.imageUrl
+    }
+    
+    // 获取文件扩展名
+    const fileExtension = getFileExtension(tempFilePath) || 'jpg'
+    
+    // 创建临时文件用于保存
+    const tempDir = context.tempDir
+    const tempFileName = `temp_${Date.now()}.${fileExtension}`
+    const tempSavePath = `${tempDir}/${tempFileName}`
+    const tempSaveUri = fileUri.getUriFromPath(tempSavePath)
+    
+    // 复制文件到临时目录
+    if (tempFilePath !== tempSavePath) {
+      const srcFile = fs.openSync(tempFilePath, fs.OpenMode.READ_ONLY)
+      const destFile = fs.openSync(tempSavePath, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE)
+      fs.copyFileSync(srcFile.fd, destFile.fd)
+      fs.closeSync(srcFile)
+      fs.closeSync(destFile)
+    }
+    
+    // 使用 showAssetsCreationDialog 保存到相册
+    const srcFileUris: Array<string> = [tempSaveUri]
+    const photoType = fileType === 'video' ? photoAccessHelper.PhotoType.VIDEO : photoAccessHelper.PhotoType.IMAGE
+    const photoCreationConfigs: Array<photoAccessHelper.PhotoCreationConfig> = [{
+      fileNameExtension: fileExtension,
+      photoType: photoType,
+    }]
+    
+    const phAccessHelper = photoAccessHelper.getPhotoAccessHelper(context)
+    const desFileUris: Array<string> = await phAccessHelper.showAssetsCreationDialog(srcFileUris, photoCreationConfigs)
+    
+    if (desFileUris.length > 0) {
+      // 复制文件到目标位置
+      const srcFile = fs.openSync(srcFileUris[0], fs.OpenMode.READ_ONLY)
+      const desFile = fs.openSync(desFileUris[0], fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE)
+      fs.copyFileSync(srcFile.fd, desFile.fd)
+      fs.closeSync(srcFile)
+      fs.closeSync(desFile)
+      
+      // 清理临时文件
+      try {
+        fs.unlinkSync(tempSavePath)
+      } catch (e) {
+        console.warn('清理临时文件失败:', e)
+      }
+      
+      return {
+        errCode: 0,
+        errMsg: '保存成功',
+        savedPath: desFileUris[0]
+      }
+    } else {
+      throw new Error('用户取消保存')
+    }
+    
+  } catch (error) {
+    // 清理临时文件
+    if (tempFilePath && tempFilePath.includes(context.tempDir)) {
+      try {
+        fs.unlinkSync(tempFilePath)
+      } catch (e) {
+        console.warn('清理临时文件失败:', e)
+      }
+    }
+    
+    if (error instanceof Error) {
+      throw error
+    } else {
+      throw new Error(String(error))
+    }
+  }
+}
+
+async function downloadNetworkFile(
+  fileUrl: string, 
+  context: common.UIAbilityContext,
+  fileType: MediaFileType,
+  onDownloadStart?: () => void,
+  onDownloadComplete?: (filePath: string) => void
+): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    const httpRequest = http.createHttp()
+    
+    // 调用下载开始回调
+    if (onDownloadStart) {
+      onDownloadStart()
+    }
+    
+
+    
+    const requestOptions: http.HttpRequestOptions = {
+      method: http.RequestMethod.GET,
+      expectDataType: http.HttpDataType.ARRAY_BUFFER
+    }
+    
+    httpRequest.request(fileUrl, requestOptions).then((response: http.HttpResponse) => {
+      if (response.responseCode === 200) {
+        try {
+          // 获取文件扩展名
+          let fileExtension = getFileExtension(fileUrl)
+          if (!fileExtension) {
+            fileExtension = fileType === 'video' ? 'mp4' : 'jpg'
+          }
+          
+          // 创建临时文件
+          const tempDir = context.tempDir
+          const tempFileName = `download_${Date.now()}.${fileExtension}`
+          const tempFilePath = `${tempDir}/${tempFileName}`
+          
+          // 写入文件
+          const file = fs.openSync(tempFilePath, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE)
+          const arrayBuffer = response.result as ArrayBuffer
+          const uint8Array = new Uint8Array(arrayBuffer)
+          fs.writeSync(file.fd, uint8Array.buffer)
+          fs.closeSync(file)
+          
+          // 调用下载完成回调
+          if (onDownloadComplete) {
+            onDownloadComplete(tempFilePath)
+          }
+          
+          resolve(tempFilePath)
+        } catch (error) {
+          const errorMsg = error instanceof Error ? error.message : String(error)
+          reject(new Error('保存网络文件失败: ' + errorMsg))
+        }
+      } else {
+        reject(new Error('下载文件失败，状态码: ' + response.responseCode))
+      }
+    }).catch((error: BusinessError) => {
+      reject(new Error('网络请求失败: ' + error.message))
+    }).finally(() => {
+      httpRequest.destroy()
+    })
+  })
+}
+
+function getFileExtension(filePath: string): string {
+  const lastDotIndex = filePath.lastIndexOf('.')
+  if (lastDotIndex === -1) {
+    return 'jpg' // 默认扩展名
+  }
+  
+  const extension = filePath.substring(lastDotIndex + 1).toLowerCase()
+  
+  // 支持的图片格式
+  const supportedImageFormats = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']
+  // 支持的视频格式
+  const supportedVideoFormats = ['mp4', 'avi', 'mov', 'mkv', 'wmv', 'flv', '3gp', 'webm']
+  
+  if (supportedImageFormats.includes(extension)) {
+    return extension === 'jpeg' ? 'jpg' : extension
+  }
+  
+  if (supportedVideoFormats.includes(extension)) {
+    return extension
+  }
+  
+  return 'jpg' // 默认扩展名
+}
+
+/**
+ * 判断文件类型（图片或视频）
+ * @param options 保存文件选项
+ * @returns 'image' 表示图片，'video' 表示视频
+ */
+function determineFileType(options: SaveImageToAlbumOptions): MediaFileType {
+  // 如果明确指定了文件类型，直接使用
+  if (options.fileType !== undefined && options.fileType !== null) {
+    return options.fileType
+  }
+  
+  // 根据文件扩展名判断
+  const extension = getFileExtension(options.imageUrl).toLowerCase()
+  const imageFormats = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']
+  const videoFormats = ['mp4', 'avi', 'mov', 'mkv', 'wmv', 'flv', '3gp', 'webm']
+  
+  if (videoFormats.includes(extension)) {
+    return 'video'
+  }
+  
+  return 'image' // 默认为图片
+}
+
+/**
+ * 判断媒体来源类型
+ * @param options 保存文件选项
+ * @returns true 表示网络文件，false 表示本地文件
+ */
+function determineMediaType(options: SaveImageToAlbumOptions): boolean {
+  // 如果明确指定了媒体类型，直接使用
+  if (options.mediaType !== undefined && options.mediaType !== null) {
+    return options.mediaType === 'network'
+  }
+  
+  // 如果没有指定类型，根据 URL 自动判断
+  const fileUrl = options.imageUrl.trim()
+  
+  // 检查是否为网络文件 (HTTP/HTTPS)
+  if (fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
+    return true
+  }
+  
+  // 检查是否为 FTP 协议 (也算网络文件)
+  if (fileUrl.startsWith('ftp://') || fileUrl.startsWith('ftps://')) {
+    return true
+  }
+  
+  // 检查是否为 data URL (Base64 编码文件，当作本地处理)
+  if (fileUrl.startsWith('data:image/') || fileUrl.startsWith('data:video/')) {
+    return false
+  }
+  
+  // 检查是否为文件协议
+  if (fileUrl.startsWith('file://')) {
+    return false
+  }
+  
+  // 检查是否为绝对路径 (以 / 开头的路径)
+  if (fileUrl.startsWith('/')) {
+    return false
+  }
+  
+  // 检查是否为相对路径或其他本地路径格式
+  // 包括: ./xxx, ../xxx, xxx/xxx 等
+  return false
+}
