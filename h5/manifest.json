@@ -235,7 +235,13 @@
             }
         },
         "sdkConfigs" : {
-            "maps" : {}
+            "maps" : {
+                "amap" : {
+                    "key" : "",
+                    "securityJsCode" : "",
+                    "serviceHost" : ""
+                }
+            }
         },
         "template" : "",
         "unipush" : {

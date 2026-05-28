@@ -326,15 +326,16 @@ export default {
         this.$emit('update:member-price', skuGoods.member_price)
         this.$emit('update:price', skuGoods[this.priceName])
         this.$emit('update:stock', skuGoods.stock)
-        let updateNumber = this.number || this.minLimit
-        if (+skuGoods.stock < +this.number) updateNumber = skuGoods.stock
+        const isSkuChanged = String(skuGoods.sku_id) !== String(this.skuId)
+        let updateNumber = isSkuChanged ? (+this.minLimit || 1) : (+this.number || +this.minLimit)
+        if (+skuGoods.stock < +updateNumber) updateNumber = skuGoods.stock
         if (skuGoods.hasOwnProperty('limit') && skuGoods.limit != 0) {
           this.$emit('update:limit', skuGoods.limit)
-          if (+skuGoods.limit < +this.number && +skuGoods.stock > +skuGoods.limit && skuGoods.limit > 1) updateNumber = skuGoods.limit
+          if (+skuGoods.limit < +updateNumber && +skuGoods.stock > +skuGoods.limit && skuGoods.limit > 1) updateNumber = skuGoods.limit
         }
         if (skuGoods.hasOwnProperty('minLimit') && skuGoods.limit != 0) {
           this.$emit('update:min-limit', skuGoods.limit)
-          if (+skuGoods.minLimit > +this.number && +skuGoods.stock > +skuGoods.minLimit && skuGoods.minLimit >= 1) updateNumber = skuGoods.minLimit
+          if (+skuGoods.minLimit > +updateNumber && +skuGoods.stock > +skuGoods.minLimit && skuGoods.minLimit >= 1) updateNumber = skuGoods.minLimit
         }
         this.$emit('update:number', updateNumber)
         this.$emit('update:sku-id', skuGoods.sku_id)

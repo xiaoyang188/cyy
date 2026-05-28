@@ -53,7 +53,7 @@ statusBar = e.statusBarHeight
 customBar = e.statusBarHeight + e.titleBarHeight
 // #endif
 let unitRatio = 750 / e.windowWidth
-let StatusBarRpx = statusBar * unitRatio
+let StatusBarRpx = statusBar * unitRatio+60
 let CustomBarRpx = customBar * unitRatio
 let bottomSafeArea = e.safeAreaInsets.bottom
 // #ifdef H5
@@ -104,6 +104,8 @@ app.$mount();
 
 // #ifdef H5
 // App web-view 内嵌时：须在 H5 的 uni 初始化后再注入 web-view SDK（须用 uni.webView.navigateTo 跳原生页）
-import { reinjectWebviewSdkAfterAppReady } from '@/common/utils/hostAppPay.js'
+import {
+  reinjectWebviewSdkAfterAppReady
+} from '@/common/utils/hostAppPay.js'
 reinjectWebviewSdkAfterAppReady()
 // #endif

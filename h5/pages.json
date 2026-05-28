@@ -364,7 +364,10 @@
                         "enablePullDownRefresh": false,
                         "navigationBarTextStyle": "black",
                         "navigationStyle": "custom",
-                        "navigationBarBackgroundColor": "#ffffff"
+                        "navigationBarBackgroundColor": "#ffffff",
+                        "app-plus": {
+                            "softinputMode": "adjustResize"
+                        }
                     }
                 },
                 {

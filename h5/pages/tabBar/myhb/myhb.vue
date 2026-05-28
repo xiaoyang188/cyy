@@ -32,14 +32,10 @@
           <view class="flex flex-direction flex-wrap align-stretch flex-sub myhb_fd2_0_c1_dija">
             <view class="flex flex-wrap align-center" v-if="isLogin === true">
               <text class="myhb_fd2_0_c1_c0_c0_dija">{{ dataMessage.nickname }}</text>
-              <image
-                class="myhb_fd2_0_c1_c0_c1_dija"
-                mode="aspectFit"
-                :src="dataDetails.icon"
-                @tap.stop="handleJumpDiy"
+              <!--    @tap.stop="handleJumpDiy"
                 data-type="navigateTo"
-                :data-url="`/pages/wd/member/member`"
-              ></image>
+                :data-url="`/pages/wd/member/member`" -->
+              <image class="myhb_fd2_0_c1_c0_c1_dija" mode="aspectFit" :src="dataDetails.icon"></image>
             </view>
             <view class="flex flex-wrap align-center myhb_fd2_0_c1_c1_dija" v-if="isLogin === true">
               <text class="myhb_fd2_0_c1_c1_c0_dija">{{ $t('邀请码：') }}</text>
@@ -124,7 +120,7 @@
               <text class="myhb_fd4_0_c0_c2_c0_dija">0</text>
             </view>
           </view>
-          <view
+          <!-- <view
             class="flex flex-wrap align-center"
             @tap.stop="handleJumpDiy"
             data-type="navigateTo"
@@ -139,7 +135,7 @@
             <view class="flex flex-wrap align-center" v-if="isLogin === false">
               <text class="myhb_fd4_0_c1_c2_c0_dija">0</text>
             </view>
-          </view>
+          </view> -->
           <view class="flex flex-wrap align-center" @tap.stop="handleJumpDiy" data-type="navigateTo" :data-url="`/pages/wd/myTrack/myTrack`">
             <image class="myhb_fd4_0_c0_c0_dija" mode="aspectFit" :src="STATIC_URL + '459.png'"></image>
             <text class="myhb_fd4_0_c2_c1_dija">{{ $t('足迹') }}</text>
@@ -619,7 +615,8 @@ export default {
         joinin_state: '',
         reason: '',
       },
-      /** chat_url【客服链接】 **/ dataKefu: {
+      /** chat_url【客服链接】 **/
+      dataKefu: {
         chat_url: '',
       },
       /** messageNum【未读消息数量】
@@ -633,7 +630,8 @@ export default {
         chat: '',
         all: '',
       },
-      /** pageScrollTopBuilt【页面滚动距离】 **/ pageScrollTopBuilt: 0,
+      /** pageScrollTopBuilt【页面滚动距离】 **/
+      pageScrollTopBuilt: 0,
       /** follow_count【关注的店铺数量】
        *   browse_count【足迹数量】
        *   collection_count【收藏数量】 **/
@@ -651,7 +649,8 @@ export default {
       },
       dataGoodsList: [],
       dibu: false,
-      /** sku_id【选择规格id】 **/ sku_id: '',
+      /** sku_id【选择规格id】 **/
+      sku_id: '',
       /** sharedInfo【分享需要的链接】
        *   market_price【划线价】
        *   goods_price【商品价格】
@@ -979,7 +978,7 @@ export default {
   overflow-x: hidden;
   min-height: calc(100vh - var(--benben-window-bottom, 0px));
   background: url(#{image-path('455.png')
-    }) no-repeat;
+  }) no-repeat;
   background-size: 100% auto;
 
   .myhb_flex_5_dija {
