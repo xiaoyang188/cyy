@@ -1,10 +1,8 @@
 <template>
   <view class="uni-numbox">
-    <view :class="{ 'uni-numbox--disabled': inputValue <= min || disabled }" class="uni-numbox__minus"
-      @click.stop="_calcValue('minus')">－</view>
-    <text @click="handleInput" class="uni-numbox__value input-class "> {{ inputValue }} </text>
-    <view :class="{ 'uni-numbox--disabled': inputValue >= max || disabled }" class="uni-numbox__plus"
-      @click.stop="_calcValue('plus')">＋</view>
+    <view :class="{ 'uni-numbox--disabled': inputValue <= min || disabled }" class="uni-numbox__minus" @click.stop="_calcValue('minus')">－</view>
+    <text @click="handleInput" class="uni-numbox__value input-class">{{ inputValue }}</text>
+    <view :class="{ 'uni-numbox--disabled': inputValue >= max || disabled }" class="uni-numbox__plus" @click.stop="_calcValue('plus')">＋</view>
   </view>
 </template>
 <script>
@@ -32,6 +30,10 @@ export default {
       default: false,
     },
     disabled: {
+      type: Boolean,
+      default: false,
+    },
+    jzDisabled: {
       type: Boolean,
       default: false,
     },
@@ -86,6 +88,10 @@ export default {
     },
     _calcValue(type) {
       if (this.disabled) return
+      if (this.jzDisabled) {
+        this.$emit('openInput', this.inputValue)
+        return
+      }
       if (this.max == 0) return this.$message.info(global.i18n.t('该商品已售馨'))
       if (type === 'minus' && this.inputValue == 1) return this.$message.info(global.i18n.t('不能再少了呦~'))
       if (type === 'plus' && +this.max <= +this.inputValue)

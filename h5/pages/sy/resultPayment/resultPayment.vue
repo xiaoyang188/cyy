@@ -75,9 +75,7 @@ export default {
   },
   onUnload() {},
   onReady() {},
-  onShow() {
-    this.getDrawnumberFunc()
-  },
+  onShow() {},
   onHide() {},
   onResize() {},
   onPullDownRefresh() {},

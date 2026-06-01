@@ -706,6 +706,7 @@ export default {
       },
       invite_code: '',
       runtimeSafeTopRpx: 0,
+      ifH5: false,
     }
   },
   computed: {
@@ -2116,7 +2117,6 @@ export default {
     z-index: 10;
     top: 0rpx;
     box-sizing: border-box;
-    transition: all linear 0.7s;
     background: var(--benbenbgColor3);
     background-size: 100% auto;
 

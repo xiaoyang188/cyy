@@ -20,6 +20,7 @@ import {
   TAB_BAR_MESSAGE,
 } from '@/common/config.js'
 import onlineStore from './onlineStore.js'
+import { SYSTEM_INFO_CSS_KEYS } from '@/common/utils/systemInfo.js'
 const store = new Vuex.Store({
   state: {
     userInfo: {}, // 用户信息
@@ -46,7 +47,11 @@ const store = new Vuex.Store({
     SystemInfo: {
       StatusBar: 0,
       CustomBar: 0,
+      StatusBarRpx: 0,
+      CustomBarRpx: 0,
       bottomSafeArea: 0,
+      bottomSafeAreaRpx: 0,
+      unitRatio: 2,
     },
     ...onlineStore?.state,
   },
@@ -81,7 +86,7 @@ const store = new Vuex.Store({
       this.commit('setAppTabbarType', state.appTabBarType)
     },
     setSystemInfo(state, SystemInfo) {
-      state.SystemInfo = SystemInfo
+      state.SystemInfo = { ...state.SystemInfo, ...SystemInfo }
     },
     setBadge(state, num) {
       state.cartNum = num
@@ -168,8 +173,8 @@ const store = new Vuex.Store({
     themeColor(state, getters) {
       let projectConfig = themeColorConfig[state.themeType]
       let themeColor = ''
-      Object.keys(state.SystemInfo)?.map((key) => {
-        themeColor += `--benben${key}:${state.SystemInfo[key]}px;`
+      SYSTEM_INFO_CSS_KEYS.forEach((key) => {
+        themeColor += `--benben${key}:${state.SystemInfo[key] || 0}px;`
       })
       projectConfig?.colorConfig?.map((item, index) => {
         if (item) themeColor += `--benbenFontColor${index}:${item};`
@@ -191,8 +196,8 @@ const store = new Vuex.Store({
     themeColorObj(state, getters) {
       let projectConfig = themeColorConfig[state.themeType]
       let themeColor = {}
-      Object.keys(state.SystemInfo)?.map((key) => {
-        themeColor[`var(--benben${key})`] = `${state.SystemInfo[key]}px;`
+      SYSTEM_INFO_CSS_KEYS.forEach((key) => {
+        themeColor[`var(--benben${key})`] = `${state.SystemInfo[key] || 0}px;`
       })
       projectConfig?.colorConfig?.map((item, index) => {
         if (item) themeColor[`var(--benbenFontColor${index})`] = item

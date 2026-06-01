@@ -8,6 +8,7 @@ import getFontFamily from '@/font/fontFamily.js'
 import appMixin from './appMixin.js'
 // #ifdef H5
 import { applyAppWebviewTokenFromUrl, fetchAndCacheUserInfo } from '@/common/utils/appWebviewAuth.js'
+import { refreshSystemInfo } from '@/common/utils/systemInfo.js'
 // #endif
 export default {
   mixins: [appMixin],
@@ -47,6 +48,7 @@ export default {
     // #endif
     this.$store.commit('initApp')
     // #ifdef H5
+    refreshSystemInfo(this.$store)
     if (this.$store.state.token) {
       fetchAndCacheUserInfo(this.$store, { force: hadUrlToken })
     }

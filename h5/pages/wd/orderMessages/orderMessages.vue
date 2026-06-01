@@ -126,7 +126,7 @@ if (id !== undefined) this.id = id
         .orderMessages_fd1_0_c1_c0_babdd{
         width:140rpx;height:140rpx;margin:0rpx 16rpx 0rpx 0rpx;border-radius:0rpx 0rpx 0rpx 0rpx;
     }    .orderMessages_fd1_0_c1_c1_babdd{
-        font-size:28rpx;font-weight:400;color:var(--benbenFontColor1);-webkit-line-clamp:3;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-box-orient:vertical;line-height:43rpx;
+        font-size:28rpx;font-weight:400;color:var(--benbenFontColor1);display:-webkit-box;-webkit-box-orient:vertical;line-height:43rpx;
     }}    .orderMessages_fd1_0_c2_c0_babdd{
         font-size:24rpx;font-weight:400;color:var(--benbenFontColor2);line-height:33rpx;-webkit-line-clamp:1;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-box-orient:vertical;
     }}}

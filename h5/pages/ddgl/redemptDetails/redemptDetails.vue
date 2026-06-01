@@ -312,8 +312,8 @@
           </view>
           <view class="flex flex-wrap align-stretch redemptDetails_fd3_2_c0_c0_babdd">
             <text class="redemptDetails_fd3_3_c1_c0_babdd">{{ $t('订单备注') }}</text>
-            <text class="flex-sub redemptDetails_fd3_3_c1_c1_babdd" v-if="dataDetails.order_info_pickup.remark != ''">
-              {{ dataDetails.order_info_pickup.remark }}
+            <text class="flex-sub redemptDetails_fd3_3_c1_c1_babdd" v-if="dataDetails.order_info.remark != ''">
+              {{ dataDetails.order_info.remark }}
             </text>
             <text class="flex-sub redemptDetails_fd3_3_c1_c1_1_babdd" v-if="dataDetails.order_info_pickup.remark == ''">{{ $t('无') }}</text>
           </view>

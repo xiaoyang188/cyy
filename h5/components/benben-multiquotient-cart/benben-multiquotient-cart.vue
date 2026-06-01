@@ -103,6 +103,7 @@
                   @openInput="openInput($event, i, index, Number(item.stock))"
                   :inhibit-input="inhibitInput"
                   :min="1"
+                  :jzDisabled="true"
                   :disabled="item.is_valid == 2 || disabled_add_num"
                   @tapIcon="addingNumChange"
                   :max="Number(item.stock)"
@@ -394,7 +395,7 @@ export default {
           } else {
             j.checked = false
           }
-        })
+        }),
       )
     },
     /** @description 数量改变
@@ -479,7 +480,7 @@ export default {
       this.$emit('createOrder')
     },
     toDetail(item, type) {
-      if (item.is_valid == 2) return
+      // if (item.is_valid == 2) return///
       this.$emit('update:goods-id', item.goods_id)
       this.$emit('toGoods')
     },

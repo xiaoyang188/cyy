@@ -23,6 +23,7 @@ import {
   LANGUAGES
 } from '@/common/config.js';
 import * as utils from '@/common/utils/utils';
+import { initSystemInfo, systemInfoMixin, refreshSystemInfo } from '@/common/utils/systemInfo.js';
 import './common/filter/index.js';
 import './common/mixin/index.js';
 const router = new Router({
@@ -31,55 +32,9 @@ const router = new Router({
 Vue.config.productionTip = false;
 global.i18n = i18n
 global.locale = i18n.locale;
-//获取系统信息
-let e = uni.getSystemInfoSync()
-let statusBar, customBar, custom
-// #ifndef MP
-statusBar = e.statusBarHeight
-customBar = 0
-if (e.platform == 'android') {
-  customBar = e.statusBarHeight + 50
-} else {
-  customBar = e.statusBarHeight + 45
-}
-// #endif
-// #ifdef MP-WEIXIN
-statusBar = e.statusBarHeight
-custom = wx.getMenuButtonBoundingClientRect()
-customBar = custom.bottom + custom.top - e.statusBarHeight
-// #endif
-// #ifdef MP-ALIPAY
-statusBar = e.statusBarHeight
-customBar = e.statusBarHeight + e.titleBarHeight
-// #endif
-let unitRatio = 750 / e.windowWidth
-let StatusBarRpx = statusBar * unitRatio + 60
-let CustomBarRpx = customBar * unitRatio
-let bottomSafeArea = e.safeAreaInsets.bottom
-// #ifdef H5
-if (e.platform == 'ios') {
-  bottomSafeArea = 34
-}
-// #endif
-let bottomSafeAreaRpx = bottomSafeArea * unitRatio
-store.commit('setSystemInfo', {
-  StatusBar: statusBar,
-  CustomBar: customBar,
-  bottomSafeArea: bottomSafeArea,
-})
-Vue.mixin({
-  data() {
-    return {
-      StatusBar: statusBar, //状态栏高度(px)
-      CustomBar: customBar, //整个标题栏高度(px)
-      StatusBarRpx: StatusBarRpx, //状态栏高度(rpx)
-      CustomBarRpx: CustomBarRpx, //整个标题栏高度(rpx)
-      bottomSafeArea: bottomSafeArea, //底部安全区(px)
-      bottomSafeAreaRpx: bottomSafeAreaRpx, //底部安全区(rpx)
-      unitRatio,
-    }
-  },
-})
+// 获取系统信息（H5 WebView 内会在就绪后延迟刷新）
+initSystemInfo(store)
+Vue.mixin(systemInfoMixin)
 Vue.prototype._i18n = i18n;
 // 加载语言包 END
 Vue.prototype.$urouter = router;
@@ -107,5 +62,5 @@ app.$mount();
 import {
   reinjectWebviewSdkAfterAppReady
 } from '@/common/utils/hostAppPay.js'
-reinjectWebviewSdkAfterAppReady()
+reinjectWebviewSdkAfterAppReady().then(() => refreshSystemInfo(store))
 // #endif
