@@ -44,29 +44,28 @@
 <text class='fu-iconfont2  myInfo_fd1_0_c0_c2_babdd'  >&#xe792;</text>
 </view>
  -->
-          <view
-            class="myInfo_cell_babdd"
-            @tap="handleJumpDiy"
-            data-type="navigateTo"
-            :data-url="`/pages/wd/editNameX/editNameX`"
-          >
+          <view class="myInfo_cell_babdd" @tap="handleJumpDiy" data-type="navigateTo" :data-url="`/pages/wd/editNameX/editNameX`">
             <text class="myInfo_cell_label_babdd">{{ $t('昵称') }}</text>
             <view class="myInfo_cell_body_babdd">
-              <text
-                class="myInfo_cell_value_babdd"
-                :class="{ 'myInfo_cell_value_placeholder_babdd': !dataDetails.nickname }"
-              >{{ dataDetails.nickname || $t('请输入昵称') }}</text>
+              <text class="myInfo_cell_value_babdd" :class="{ myInfo_cell_value_placeholder_babdd: !dataDetails.nickname }">
+                {{ dataDetails.nickname || $t('请输入昵称') }}
+              </text>
             </view>
             <text class="fu-iconfont2 myInfo_cell_arrow_babdd">&#xe792;</text>
           </view>
-
+          <view class="myInfo_cell_babdd">
+            <text class="myInfo_cell_label_babdd">{{ $t('手机号') }}</text>
+            <view class="myInfo_cell_body_babdd">
+              <text class="myInfo_cell_value_babdd" :class="{ myInfo_cell_value_placeholder_babdd: !dataDetails._mobile }">
+                {{ dataDetails._mobile || $t('请输入手机号') }}
+              </text>
+            </view>
+            <text class="fu-iconfont2 myInfo_cell_arrow_babdd">&#xe792;</text>
+          </view>
           <view class="myInfo_cell_babdd" @tap.stop="pickerDiy1656985489961 = true">
             <text class="myInfo_cell_label_babdd">{{ $t('性别') }}</text>
             <view class="myInfo_cell_body_babdd">
-              <text
-                class="myInfo_cell_value_babdd"
-                :class="{ 'myInfo_cell_value_placeholder_babdd': !sex }"
-              >{{ sex || $t('请选择性别') }}</text>
+              <text class="myInfo_cell_value_babdd" :class="{ myInfo_cell_value_placeholder_babdd: !sex }">{{ sex || $t('请选择性别') }}</text>
             </view>
             <text class="fu-iconfont2 myInfo_cell_arrow_babdd">&#xe792;</text>
           </view>
@@ -74,10 +73,9 @@
           <view class="myInfo_cell_babdd myInfo_cell_last_babdd" @tap.stop="pickerDiy1656986153485 = true">
             <text class="myInfo_cell_label_babdd">{{ $t('生日') }}</text>
             <view class="myInfo_cell_body_babdd">
-              <text
-                class="myInfo_cell_value_babdd"
-                :class="{ 'myInfo_cell_value_placeholder_babdd': !dataDetails.birthday }"
-              >{{ dataDetails.birthday || $t('请选择生日') }}</text>
+              <text class="myInfo_cell_value_babdd" :class="{ myInfo_cell_value_placeholder_babdd: !dataDetails.birthday }">
+                {{ dataDetails.birthday || $t('请选择生日') }}
+              </text>
             </view>
             <text class="fu-iconfont2 myInfo_cell_arrow_babdd">&#xe792;</text>
           </view>

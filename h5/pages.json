@@ -300,6 +300,16 @@
                     }
                 },
                 {
+                    "path": "buyerAsk/buyerAsk",
+                    "style": {
+                        "navigationBarTitleText": "确认发票",
+                        "enablePullDownRefresh": false,
+                        "navigationBarTextStyle": "black",
+                        "navigationStyle": "custom",
+                        "navigationBarBackgroundColor": "#ffffff"
+                    }
+                },
+                {
                     "path": "detailsComment/detailsComment",
                     "style": {
                         "navigationBarTitleText": "评论详情",
@@ -346,6 +356,46 @@
                     "path": "suitInfo/suitInfo",
                     "style": {
                         "navigationBarTitleText": "套餐详情",
+                        "enablePullDownRefresh": false,
+                        "navigationBarTextStyle": "black",
+                        "navigationStyle": "custom",
+                        "navigationBarBackgroundColor": "#ffffff"
+                    }
+                },
+                {
+                    "path": "answerQuestion/answerQuestion",
+                    "style": {
+                        "navigationBarTitleText": "问答",
+                        "enablePullDownRefresh": false,
+                        "navigationBarTextStyle": "black",
+                        "navigationStyle": "custom",
+                        "navigationBarBackgroundColor": "#ffffff"
+                    }
+                },
+                {
+                    "path": "questionsAnswers/questionsAnswers",
+                    "style": {
+                        "navigationBarTitleText": "确认发票",
+                        "enablePullDownRefresh": false,
+                        "navigationBarTextStyle": "black",
+                        "navigationStyle": "custom",
+                        "navigationBarBackgroundColor": "#ffffff"
+                    }
+                },
+                {
+                    "path": "detailsQuestion/detailsQuestion",
+                    "style": {
+                        "navigationBarTitleText": "确认发票",
+                        "enablePullDownRefresh": false,
+                        "navigationBarTextStyle": "black",
+                        "navigationStyle": "custom",
+                        "navigationBarBackgroundColor": "#ffffff"
+                    }
+                },
+                {
+                    "path": "answer/answer",
+                    "style": {
+                        "navigationBarTitleText": "确认发票",
                         "enablePullDownRefresh": false,
                         "navigationBarTextStyle": "black",
                         "navigationStyle": "custom",

@@ -50,6 +50,7 @@
                 </view>
               </template>
             </benben-digital-password>
+            <text class="commissionWithdrawals_fd1_0_forgot_babdd" @tap.stop="goForgotPayPwdFunc()">{{ $t('忘记密码？') }}</text>
             <view class="flex align-stretch commissionWithdrawals_fd1_0_c2_babdd">
               <button class="commissionWithdrawals_fd1_0_c2_c0_babdd" @tap.stop="closePopupFunc()">{{ $t('取消') }}</button>
               <button class="commissionWithdrawals_fd1_0_c2_c1_babdd" @tap.stop="postWithdrawalFunc()">{{ $t('确定') }}</button>
@@ -130,12 +131,7 @@
                 :src="STATIC_URL + '448.png'"
                 v-if="item.method_code == embody_id"
               ></image>
-              <image
-                class="commissionWithdrawals_method_check_babdd"
-                mode="aspectFit"
-                :src="STATIC_URL + '333.png'"
-                v-else
-              ></image>
+              <image class="commissionWithdrawals_method_check_babdd" mode="aspectFit" :src="STATIC_URL + '333.png'" v-else></image>
             </view>
           </template>
         </view>
@@ -496,6 +492,11 @@ export default {
     closePopupFunc() {
       this.pay_password = ''
       this.popupShow1701842027676 = false
+    },
+    // 忘记支付密码
+    goForgotPayPwdFunc() {
+      this.closePopupFunc()
+      this.$urouter.navigateTo('/pages/xtsz/changePayPwd/changePayPwd')
     },
     //校验支付密码
     async verifyPayCodeFunc() {
@@ -951,6 +952,13 @@ export default {
       width: 68rpx;
       height: 68rpx;
       border: 1px solid #ccc;
+    }
+
+    .commissionWithdrawals_fd1_0_forgot_babdd {
+      margin: 0rpx 0rpx 24rpx 0rpx;
+      font-size: 28rpx;
+      font-weight: 400;
+      color: var(--benbenFontColor0);
     }
 
     .commissionWithdrawals_fd1_0_c2_babdd {

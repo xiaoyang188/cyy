@@ -346,80 +346,83 @@
           </view>
         </view>
         <view class="flex flex-direction align-stretch justify-end redemptDetails_fd3_4_babdd">
-          <view class="flex flex-wrap align-center justify-end">
-            <button
-              class="redemptDetails_fd3_4_c0_c0_babdd"
-              @tap.stop="popupShow1657247297312 = true"
-              v-if="dataDetails.btn_list.cancel_order == '1'"
-            >
-              {{ $t('取消订单') }}
-            </button>
-            <button
-              class="redemptDetails_fd3_4_c0_c0_babdd"
-              @tap.stop="isMultiplePackagesFunc(dataDetails.is_multiple_package)"
-              v-if="dataDetails.btn_list.view_logistics == '1'"
-            >
-              {{ $t('查看物流') }}
-            </button>
-            <button
-              class="redemptDetails_fd3_4_c0_c1_babdd"
-              @tap.stop="popupShow1679650134928 = true"
-              v-if="dataDetails.btn_list.apply_invoice == '1'"
-            >
-              {{ $t('申请开票') }}
-            </button>
-            <button
-              class="redemptDetails_fd3_4_c0_c1_babdd"
-              @tap.stop="handleJumpDiy"
-              data-type="navigateTo"
-              :data-url="`/pages/fp/invoiceDetail/invoiceDetail?order_id=${order_id}`"
-              v-if="dataDetails.btn_list.view_invoice == '1'"
-            >
-              {{ $t('查看发票') }}
-            </button>
-            <button
-              class="redemptDetails_fd3_4_c0_c1_babdd"
-              @tap.stop="popupShow1698806556276 = true"
-              v-if="dataDetails.btn_list.delete_order == '1'"
-            >
-              {{ $t('删除订单') }}
-            </button>
-            <button class="redemptDetails_fd3_4_c0_c2_babdd" @tap.stop="goPayFunc()" v-if="dataDetails.btn_list.go_pay == '1'">
-              {{ $t('去付款') }}
-            </button>
-            <button
-              class="redemptDetails_fd3_4_c0_c2_babdd"
-              @tap.stop="handleJumpDiy"
-              data-type="navigateTo"
-              :data-url="`/pages/sy/offerPay/offerPay?order_sn=${dataDetails.final_order_sn}&order_type=3`"
-              v-if="dataDetails.btn_list.pay_balance == '1' && dataDetails.order_type == '7'"
-            >
-              {{ $t('支付尾款') }}
-            </button>
-            <button
-              class="redemptDetails_fd3_4_c0_c3_babdd"
-              @tap.stop="remindShopFunc()"
-              v-if="dataDetails.status == '1' && dataDetails.btn_list.remind_send == '1'"
-            >
-              {{ $t('提醒发货') }}
-            </button>
-            <button class="redemptDetails_fd3_4_c0_c2_babdd" v-if="dataDetails.btn_list.remind_already == '1'">{{ $t('已提醒') }}</button>
-            <button
-              class="redemptDetails_fd3_4_c0_c3_babdd"
-              @tap.stop="popupShow1763608410324 = true"
-              v-if="dataDetails.btn_list.confirm_receive == '1'"
-            >
-              {{ $t('确认收货') }}
-            </button>
-            <button
-              class="redemptDetails_fd3_4_c0_c2_babdd"
-              @tap.stop="handleJumpDiy"
-              data-type="navigateTo"
-              :data-url="`/pages/ddgl/evaluation/evaluation?id=${order_id}`"
-              v-if="dataDetails.btn_list.evaluate == '1'"
-            >
-              {{ $t('评价') }}
-            </button>
+          <view class="flex flex-wrap align-center redemptDetails_fd3_4_bar_babdd">
+            <button class="redemptDetails_fd3_4_contact_babdd" @tap.stop="callMobile(systemsInfo)">{{ $t('联系商家') }}</button>
+            <view class="flex flex-wrap align-center justify-end flex-sub redemptDetails_fd3_4_actions_babdd">
+              <button
+                class="redemptDetails_fd3_4_c0_c0_babdd"
+                @tap.stop="popupShow1657247297312 = true"
+                v-if="dataDetails.btn_list.cancel_order == '1'"
+              >
+                {{ $t('取消订单') }}
+              </button>
+              <button
+                class="redemptDetails_fd3_4_c0_c0_babdd"
+                @tap.stop="isMultiplePackagesFunc(dataDetails.is_multiple_package)"
+                v-if="dataDetails.btn_list.view_logistics == '1'"
+              >
+                {{ $t('查看物流') }}
+              </button>
+              <button
+                class="redemptDetails_fd3_4_c0_c1_babdd"
+                @tap.stop="popupShow1679650134928 = true"
+                v-if="dataDetails.btn_list.apply_invoice == '1'"
+              >
+                {{ $t('申请开票') }}
+              </button>
+              <button
+                class="redemptDetails_fd3_4_c0_c1_babdd"
+                @tap.stop="handleJumpDiy"
+                data-type="navigateTo"
+                :data-url="`/pages/fp/invoiceDetail/invoiceDetail?order_id=${order_id}`"
+                v-if="dataDetails.btn_list.view_invoice == '1'"
+              >
+                {{ $t('查看发票') }}
+              </button>
+              <button
+                class="redemptDetails_fd3_4_c0_c1_babdd"
+                @tap.stop="popupShow1698806556276 = true"
+                v-if="dataDetails.btn_list.delete_order == '1'"
+              >
+                {{ $t('删除订单') }}
+              </button>
+              <button class="redemptDetails_fd3_4_c0_c2_babdd" @tap.stop="goPayFunc()" v-if="dataDetails.btn_list.go_pay == '1'">
+                {{ $t('去付款') }}
+              </button>
+              <button
+                class="redemptDetails_fd3_4_c0_c2_babdd"
+                @tap.stop="handleJumpDiy"
+                data-type="navigateTo"
+                :data-url="`/pages/sy/offerPay/offerPay?order_sn=${dataDetails.final_order_sn}&order_type=3`"
+                v-if="dataDetails.btn_list.pay_balance == '1' && dataDetails.order_type == '7'"
+              >
+                {{ $t('支付尾款') }}
+              </button>
+              <button
+                class="redemptDetails_fd3_4_c0_c3_babdd"
+                @tap.stop="remindShopFunc()"
+                v-if="dataDetails.status == '1' && dataDetails.btn_list.remind_send == '1'"
+              >
+                {{ $t('提醒发货') }}
+              </button>
+              <button class="redemptDetails_fd3_4_c0_c2_babdd" v-if="dataDetails.btn_list.remind_already == '1'">{{ $t('已提醒') }}</button>
+              <button
+                class="redemptDetails_fd3_4_c0_c3_babdd"
+                @tap.stop="popupShow1763608410324 = true"
+                v-if="dataDetails.btn_list.confirm_receive == '1'"
+              >
+                {{ $t('确认收货') }}
+              </button>
+              <button
+                class="redemptDetails_fd3_4_c0_c2_babdd"
+                @tap.stop="handleJumpDiy"
+                data-type="navigateTo"
+                :data-url="`/pages/ddgl/evaluation/evaluation?id=${order_id}`"
+                v-if="dataDetails.btn_list.evaluate == '1'"
+              >
+                {{ $t('评价') }}
+              </button>
+            </view>
           </view>
           <!-- <benben-safe-area></benben-safe-area> -->
         </view>
@@ -843,6 +846,7 @@ export default {
       order_type: '3',
       usermerchant_id: '24',
       currentOrderSn: '',
+      systemsInfo: '',
     }
   },
   computed: {
@@ -866,6 +870,7 @@ export default {
     if (usermerchant_id !== undefined) this.usermerchant_id = usermerchant_id
     this.getShopDataFunc()
     this.setupHostAppPaySuccess()
+    this.getmobileFunc()
   },
   onUnload() {
     this.teardownHostAppPaySuccess()
@@ -954,6 +959,58 @@ export default {
         this.$urouter.navigateBack(1)
       }, 500)
     },
+    //获取手机号
+    getmobileFunc() {
+      this.isShowLoading = true
+      this.$api
+        .post(global.apiUrls.post64534cbb2c352, {
+          code: 'tel',
+        })
+        .then((res) => {
+          this.isShowLoading = false
+          if (res.data.code == 1) {
+            this.systemsInfo = res.data.data
+          }
+        })
+        .catch((err) => {
+          this.isShowLoading = false
+        })
+    },
+    //联系商家（客服）
+    // async contactMerchantFunc() {
+    //   const storeId = this.dataDetails.usermerchant_id || this.dataDetails.shop_info?.store_id || this.dataDetails.shop_info?.aid
+    //   const firstGoods = this.dataDetails.order_goods_list && this.dataDetails.order_goods_list[0]
+    //   await this.openMerchantChatFunc(storeId, firstGoods)
+    // },
+    // async openMerchantChatFunc(storeId, goods) {
+    //   if (!storeId) {
+    //     this.$message.info(this.$t('暂无商家联系方式'))
+    //     return
+    //   }
+    //   if (this.isLogin !== true) {
+    //     uni.showToast({
+    //       title: this.$t('请先登录'),
+    //       mask: true,
+    //       icon: 'none',
+    //       duration: 1500,
+    //     })
+    //     this.toLoginDiy()
+    //     return
+    //   }
+    //   const params = { store_id: storeId }
+    //   if (goods && goods.goods_id) {
+    //     params.goods_id = goods.goods_id
+    //   }
+    //   if (goods && goods.sku_id) {
+    //     params.sku_id = goods.sku_id
+    //   }
+    //   const datachatMessage = await this.$api.get(global.apiUrls.post64897f6fd5486, params)
+    //   if (datachatMessage.data.code != 1) {
+    //     this.$message.info(datachatMessage.data.msg)
+    //     return
+    //   }
+    //   this.dynamicJump(datachatMessage.data.data.chat_url)
+    // },
     //订单-订单详情
     async getDetailFunc() {
       //请求方法
@@ -1423,7 +1480,7 @@ export default {
 
   .redemptDetails_flex_3_babdd {
     padding: 5rpx 24rpx 32rpx 24rpx;
-    margin: 0rpx 0rpx 88rpx 0rpx;
+    margin: 0rpx 0rpx 120rpx 0rpx;
 
     .redemptDetails_fd3_0_babdd {
       padding: 12rpx 0rpx 0rpx 0rpx;
@@ -1613,7 +1670,8 @@ export default {
       bottom: calc(0rpx + var(--benben-window-bottom, 0px));
       width: 750rpx;
       left: 0rpx;
-      padding: 12rpx 24rpx 12rpx 24rpx;
+      padding: 12rpx 16rpx 12rpx 24rpx;
+      box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.06);
     }
   }
 
@@ -1866,6 +1924,32 @@ export default {
     max-width: 150rpx;
   }
 
+  .redemptDetails_fd3_4_bar_babdd {
+    width: 100%;
+    align-items: center;
+  }
+
+  .redemptDetails_fd3_4_contact_babdd {
+    flex-shrink: 0;
+    border-radius: 40rpx;
+    font-size: 24rpx;
+    background: #ffffff;
+    color: var(--benbenbtnColor0);
+    border: 2rpx solid var(--benbenbtnColor0);
+    min-width: 160rpx;
+    height: 60rpx;
+    line-height: 56rpx;
+    font-weight: 500;
+    margin: 0;
+    padding: 0 24rpx;
+  }
+
+  .redemptDetails_fd3_4_actions_babdd {
+    min-width: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
   .redemptDetails_fd3_4_c0_c0_babdd {
     border-radius: 50rpx 50rpx 50rpx 50rpx;
     font-size: 24rpx;
@@ -1875,7 +1959,7 @@ export default {
     height: 60rpx;
     line-height: 60rpx;
     font-weight: 400;
-    margin: 0rpx 0rpx 0rpx 24rpx;
+    margin: 0rpx 0rpx 0rpx 16rpx;
   }
 
   .redemptDetails_fd3_4_c0_c1_babdd {

@@ -23,7 +23,11 @@ import {
   LANGUAGES
 } from '@/common/config.js';
 import * as utils from '@/common/utils/utils';
-import { initSystemInfo, systemInfoMixin, refreshSystemInfo } from '@/common/utils/systemInfo.js';
+import {
+  initSystemInfo,
+  systemInfoMixin,
+  refreshSystemInfo
+} from '@/common/utils/systemInfo.js';
 import './common/filter/index.js';
 import './common/mixin/index.js';
 const router = new Router({

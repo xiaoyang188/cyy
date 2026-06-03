@@ -134,6 +134,7 @@ const publicApi = {
   post637df1ea39d16: `/${API_VERSION}/637df1ea39d16`, //地址管理-编辑地址
   post636f773e8d763: `/${API_VERSION}/636f773e8d763`, //地址管理-删除地址
   post649e954010762: `/${API_VERSION}/649e954010762`, //地址管理-DIY逆地理编码
+  post67a1b2c3d4e5f: `/${API_VERSION}/67a1b2c3d4e5f`, //地址管理-智能识别地址(待后端提供)
   post5ff6859e3c4fd: `/${API_VERSION}/5ff6859e3c4fd`, //地址管理-获取地址标签
   post6389ad65f28d9: `/${API_VERSION}/6389ad65f28d9`, //地址管理-设置默认地址
   post636cbb376d5d8: `/${API_VERSION}/636cbb376d5d8`, //钱包-查询提现账户

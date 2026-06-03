@@ -45,6 +45,19 @@
             </view>
             <image class="promotionTeam_points_arrow_babdd" mode="aspectFit" :src="STATIC_URL + '273.png'"></image>
           </view>
+          <view
+            class="flex flex-wrap align-center promotionTeam_bind_account_babdd"
+            @tap.stop="handleJumpDiy"
+            data-type="navigateTo"
+            :data-url="`/pages/wd/bindAccount/bindAccount`"
+          >
+            <text class="promotionTeam_bind_account_label_babdd">{{ $t('绑定提现账户') }}</text>
+            <view class="flex flex-wrap align-center promotionTeam_bind_account_right_babdd">
+              <text class="promotionTeam_bind_account_status_babdd" :class="{ promotionTeam_bind_account_status_done_babdd: bindAccountBound }">
+              </text>
+              <image class="promotionTeam_points_arrow_babdd" mode="aspectFit" :src="STATIC_URL + '273.png'"></image>
+            </view>
+          </view>
           <view class="promotionTeam_fd2_body_babdd">
             <!-- <view
               class="flex flex-direction flex-wrap align-start"
@@ -58,7 +71,7 @@
               </view>
               <text class="promotionTeam_fd2_0_c0_c0_c1_babdd">{{ $t('冻结金额') }}</text>
             </view> -->
-            <view class="promotionTeam_fd2_0_c1_babdd">
+            <view class="promotionTeam_fd2_0_c1_babdd" style="margin-top: 20rpx">
               <text class="promotionTeam_stats_row_title_babdd">{{ $t('推广数据') }}</text>
               <view class="flex flex-wrap align-stretch promotionTeam_stats_grid_babdd">
                 <view class="flex flex-direction align-center promotionTeam_stats_cell_babdd">
@@ -389,6 +402,7 @@ export default {
       },
       tabs: 'all',
       jfMoney: '',
+      bindAccountBound: false,
     }
   },
   computed: {},
@@ -402,6 +416,7 @@ export default {
     this.queryListFunc()
     this.getUserinfoFunc()
     this.getJfMoneyFunc()
+    this.getBindAccountFunc()
   },
   onHide() {},
   onResize() {},
@@ -410,6 +425,7 @@ export default {
     this.queryListFunc()
     this.getUserinfoFunc()
     this.getJfMoneyFunc()
+    this.getBindAccountFunc()
   },
   onReachBottom(e) {},
   onPageScroll(e) {},
@@ -482,6 +498,15 @@ export default {
       }
       let infodataMy = datadataMy.data
       this.dataMy = infodataMy.data
+    },
+    // 查询提现账户绑定状态
+    async getBindAccountFunc() {
+      let res = await this.$api.get(global.apiUrls.post62fc4f70a9d44, {
+        scene: 'money',
+      })
+      if (res.data.code != 1) return
+      const list = res.data.data || []
+      this.bindAccountBound = list.some((item) => item.is_bind == '1')
     },
     pagingListPostData() {
       return this.pagingListPostDataContent
@@ -717,6 +742,40 @@ export default {
     height: 24rpx;
     flex-shrink: 0;
     opacity: 0.35;
+  }
+
+  .promotionTeam_bind_account_babdd {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24rpx;
+    border-bottom: 1px solid rgba(240, 240, 240, 0.9);
+  }
+
+  .promotionTeam_bind_account_label_babdd {
+    color: var(--benbenFontColor0);
+    font-size: 28rpx;
+    font-weight: 500;
+    line-height: 40rpx;
+  }
+
+  .promotionTeam_bind_account_right_babdd {
+    flex-shrink: 0;
+    margin-left: 16rpx;
+  }
+
+  .promotionTeam_bind_account_status_babdd {
+    color: var(--benbenFontColor1);
+    font-size: 24rpx;
+    font-weight: 400;
+    line-height: 34rpx;
+    margin-right: 8rpx;
+  }
+
+  .promotionTeam_bind_account_status_done_babdd {
+    color: #b82441;
   }
 
   .promotionTeam_stats_row_title_babdd {

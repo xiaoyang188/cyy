@@ -157,6 +157,7 @@
               </text>
             </view>
             <view class="flex flex-wrap align-center justify-end order_fd2_0_c3_babdd">
+              <button class="order_fd2_0_c3_contact_babdd" @tap.stop="callMobile(systemsInfo)">{{ $t('联系商家') }}</button>
               <button class="order_fd2_0_c3_c0_babdd" @tap.stop="getinvoice_order_idFunc(item.aid)" v-if="item.btn_list.apply_invoice == '1'">
                 {{ $t('申请开票') }}
               </button>
@@ -592,6 +593,7 @@ export default {
       type: 'all',
       isNativePay: '',
       currentOrderSn: '',
+      systemsInfo: '',
     }
   },
   computed: {},
@@ -603,6 +605,7 @@ export default {
     this.getTabsFunc()
     this.diyPageListen()
     this.setupHostAppPaySuccess()
+    this.getmobileFunc()
   },
   onUnload() {
     this.diyOffPageListen()
@@ -621,6 +624,24 @@ export default {
   onReachBottom(e) {},
   onPageScroll(e) {},
   methods: {
+    //获取手机号
+    getmobileFunc() {
+      this.isShowLoading = true
+      this.$api
+        .post(global.apiUrls.post64534cbb2c352, {
+          code: 'tel',
+        })
+        .then((res) => {
+          this.isShowLoading = false
+          if (res.data.code == 1) {
+            this.systemsInfo = res.data.data
+          }
+        })
+        .catch((err) => {
+          this.isShowLoading = false
+        })
+    },
+
     //aaa
     backUrl() {
       if (this.isNativePay == 1) {
@@ -1686,6 +1707,20 @@ export default {
     font-size: 24rpx;
     font-weight: 400;
     color: var(--benbenFontColor1);
+  }
+
+  .order_fd2_0_c3_contact_babdd {
+    border-radius: 28rpx;
+    font-size: 24rpx;
+    background: #ffffff;
+    color: var(--benbenbtnColor0);
+    border: 2rpx solid var(--benbenbtnColor0);
+    min-width: 144rpx;
+    height: 56rpx;
+    line-height: 52rpx;
+    font-weight: 500;
+    margin: 0 12rpx 0 0;
+    padding: 0 20rpx;
   }
 
   .order_fd2_0_c3_c0_babdd {

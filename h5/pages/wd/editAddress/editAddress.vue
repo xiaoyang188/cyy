@@ -21,10 +21,23 @@
       <view :style="{ height: 88 + StatusBarRpx + 'rpx' }"></view>
       <!---添加地址flex布局开始-->
       <view class="flex flex-direction align-stretch benben-flex-layout">
-        <view class="flex flex-direction align-stretch editAddress_fd1_0_babdd">
+        <view class="editAddress_smart_card" v-if="id == ''">
+          <text class="editAddress_smart_title">{{ $t('智能识别地址') }}</text>
+          <view class="editAddress_field_box">
+            <textarea
+              class="editAddress_smart_textarea"
+              v-model="smartAddressText"
+              :placeholder="$t('粘贴整段文字如：张三，18337283440，河南省郑州市二七区华城国际中心1918')"
+              placeholder-style="color:var(--benbenFontColor2);font-size:28rpx;line-height:44rpx"
+              maxlength="500"
+              @blur="recognizeAddressFunc()"
+              @paste="handleSmartAddressPaste()"
+            />
+          </view>
+        </view>
+        <view class="flex flex-direction align-stretch editAddress_fd1_0_babdd" :class="{ editAddress_fd1_0_babdd_first: id != '' }">
           <view class="flex flex-wrap align-center editAddress_fd1_0_c0_babdd">
             <text class="editAddress_fd1_0_c0_c0_babdd">{{ $t('标签') }}</text>
-
             <benben-address-label class="editAddress_fd1_0_c0_c1_babdd" v-model="dataMessage.label_name"></benben-address-label>
           </view>
           <view class="flex align-center editAddress_fd1_0_c0_babdd">
@@ -95,13 +108,13 @@
               />
               <text class="fu-iconfont2 editAddress_fd1_0_c3_c0_c2_babdd" @tap.stop="mapSelectFunc()">&#xe65a;</text>
             </view>
-            <view class="flex flex-wrap editAddress_fd1_0_c3_c1_babdd">
+            <view class="editAddress_field_box editAddress_field_box_detail">
               <benben-textarea
                 class="flex editAddress_input_fd1_0_c3_c1_babdd"
                 confirm-type="done"
                 :placeholder="$t('请填写详细地址：如道路、门牌号、小区、楼栋号等')"
                 :maxlength="240"
-                placeholder-style="color:var(--benbenFontColor2);font-size:28rpx"
+                placeholder-style="color:var(--benbenFontColor2);font-size:28rpx;line-height:44rpx"
                 v-model="dataMessage.detail"
               />
             </view>
@@ -119,6 +132,7 @@
             size="72"
           ></benben-switch>
         </view>
+        <view class="aa" style="height: 80rpx"></view>
         <view class="flex flex-wrap align-center justify-center editAddress_fd1_2_babdd">
           <button class="editAddress_fd1_2_c0_babdd" @tap.stop="addAddressFunc()" v-if="id == ''">{{ $t('保存') }}</button>
           <button class="editAddress_fd1_2_c0_1_babdd" @tap.stop="editAddressFunc()" v-if="id != ''">{{ $t('保存') }}</button>
@@ -278,6 +292,8 @@ export default {
         district: '',
       },
       id: '',
+      smartAddressText: '',
+      addressRecognizing: false,
     }
   },
   computed: {},
@@ -298,10 +314,10 @@ export default {
   methods: {
     //添加地址
     async addAddressFunc() {
-      if (!validate(this.dataMessage.label_name, 'require')) {
-        this.$message.info(this.$t('请选择地址标签'))
-        return false
-      }
+      // if (!validate(this.dataMessage.label_name, 'require')) {
+      //   this.$message.info(this.$t('请选择地址标签'))
+      //   return false
+      // }
       if (!validate(this.dataMessage.real_name, 'require')) {
         this.$message.info(this.$t('请输入收货人名称'))
         return false
@@ -382,10 +398,10 @@ export default {
     },
     //编辑地址
     async editAddressFunc() {
-      if (!validate(this.dataMessage.label_name, 'require')) {
-        this.$message.info(this.$t('请选择地址标签'))
-        return false
-      }
+      // if (!validate(this.dataMessage.label_name, 'require')) {
+      //   this.$message.info(this.$t('请选择地址标签'))
+      //   return false
+      // }
       if (!validate(this.dataMessage.real_name, 'require')) {
         this.$message.info(this.$t('请输入收货人名称'))
         return false
@@ -486,6 +502,52 @@ export default {
         this.$urouter.navigateBack(1)
       }, 500)
     },
+    // 粘贴后触发智能识别
+    handleSmartAddressPaste() {
+      this.$nextTick(() => {
+        setTimeout(() => {
+          this.recognizeAddressFunc()
+        }, 100)
+      })
+    },
+    // 智能识别地址
+    async recognizeAddressFunc() {
+      const text = (this.smartAddressText || '').trim()
+      if (!text || this.addressRecognizing) return
+      this.$message.info('等待三方对接')
+      return
+
+      this.addressRecognizing = true
+      try {
+        let res = await this.$api.dbPost(global.apiUrls.post67a1b2c3d4e5f, {
+          address_text: text,
+        })
+        if (!res) return
+        if (res.data.code != 1) {
+          this.$message.info(res.data.msg)
+          return
+        }
+        const data = res.data.data || {}
+        if (data.real_name) this.dataMessage.real_name = data.real_name
+        if (data.mobile) this.dataMessage.mobile = data.mobile
+        if (data.province) this.dataMessage.address_code_province = data.province
+        if (data.city) this.dataMessage.address_code_city = data.city
+        if (data.district) this.dataMessage.address_code_district = data.district
+        if (data.detail) this.dataMessage.detail = data.detail
+        if (data.address_code_area_str) {
+          this.dataMessage.address_code_area_str = data.address_code_area_str
+        } else if (data.province && data.city && data.district) {
+          this.dataMessage.address_code_area_str = `${data.province}${data.city}${data.district}`
+        }
+        if (data.sex) this.dataMessage.sex = String(data.sex)
+        if (data.lng) this.dataMessage.lng = data.lng
+        if (data.lat) this.dataMessage.lat = data.lat
+      } catch (e) {
+        console.error('智能识别地址失败', e)
+      } finally {
+        this.addressRecognizing = false
+      }
+    },
     //输入监听事件
     valueInspectFunc(e) {
       var str = e
@@ -576,12 +638,55 @@ export default {
     }
   }
 
+  .editAddress_smart_card {
+    padding: 32rpx;
+    margin: 24rpx 24rpx 0rpx 24rpx;
+    background: var(--benbenbgColor1);
+    border-radius: 16rpx;
+
+    .editAddress_smart_title {
+      line-height: 45rpx;
+      font-size: 32rpx;
+      font-weight: 400;
+      color: var(--benbenFontColor0);
+      margin-bottom: 32rpx;
+    }
+
+    .editAddress_smart_textarea {
+      width: 100%;
+      min-height: 160rpx;
+      font-size: 28rpx;
+      line-height: 44rpx;
+      font-weight: 400;
+      color: var(--benbenFontColor0);
+      background: transparent;
+      border: none;
+      box-sizing: border-box;
+    }
+  }
+
+  .editAddress_field_box {
+    border-radius: 10rpx;
+    background: var(--benbenbgColor2);
+    padding: 24rpx;
+    box-sizing: border-box;
+    margin-top: 20rpx;
+  }
+
+  .editAddress_field_box_detail {
+    margin: 0rpx 32rpx 0rpx 0rpx;
+  }
+
   .editAddress_fd1_0_babdd {
     padding: 0rpx 24rpx 32rpx 24rpx;
     background: var(--benbenbgColor1);
     background-size: 100% auto !important;
-    margin: 24rpx 24rpx 20rpx 24rpx;
+    margin: 20rpx 24rpx 20rpx 24rpx;
     border-radius: 16rpx;
+
+    &.editAddress_fd1_0_babdd_first {
+      margin-top: 24rpx;
+    }
 
     .editAddress_fd1_0_c3_c0_babdd {
       padding: 32rpx 32rpx 32rpx 0rpx;
@@ -609,19 +714,13 @@ export default {
       }
     }
 
-    .editAddress_fd1_0_c3_c1_babdd {
-      border-radius: 10rpx 10rpx 10rpx 10rpx;
-      background: var(--benbenbgColor2);
-      padding: 24rpx 42rpx 48rpx 24rpx;
-      width: 680rpx;
-
-      .editAddress_input_fd1_0_c3_c1_babdd {
-        width: 100%;
-        height: 88rpx;
-        font-size: 28rpx;
-        font-weight: 400;
-        color: var(--benbenFontColor0);
-      }
+    .editAddress_input_fd1_0_c3_c1_babdd {
+      width: 100%;
+      min-height: 88rpx;
+      font-size: 28rpx;
+      line-height: 44rpx;
+      font-weight: 400;
+      color: var(--benbenFontColor0);
     }
   }
 

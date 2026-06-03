@@ -1,296 +1,296 @@
 {
-    "name" : "宠悦悦",
-    "appid" : "__UNI__D34B03B",
-    "description" : "",
-    "versionName" : "2.2.0",
-    "versionCode" : 226,
-    "transformPx" : false,
-    "app-harmony" : {
-        "darkmode" : true,
-        "safearea" : {
-            "bottom" : {
-                "offset" : "none"
-            }
-        },
-        "projectPath" : "C:\\hongmen_sdk\\package",
-        "distribute" : {
-            "bundleName" : "com.chongyueyue.client",
-            "modules" : {
-                "uni-push" : {},
-                "uni-verify" : {}
-            },
-            "signingConfigs" : {
-                "default" : {
-                    "certpath" : "/Users/jiannor/Library/Application Support/HBuilder X/extensions/launcher/agc-certs/1772514958175.cer",
-                    "keyAlias" : "debugKey",
-                    "keyPassword" : "0000001A246A1944703CB12D81821EDB286381F06E9388FEBC1E574D4677EFB1F5ADFBC7A635637ACCA5",
-                    "profile" : "/Users/jiannor/Library/Application Support/HBuilder X/extensions/launcher/agc-certs/1772514958175.p7b",
-                    "signAlg" : "SHA256withECDSA",
-                    "storeFile" : "/Users/jiannor/Library/Application Support/HBuilder X/extensions/launcher/agc-certs/1772514958175.p12",
-                    "storePassword" : "0000001A246A1944703CB12D81821EDB286381F06E9388FEBC1E574D4677EFB1F5ADFBC7A635637ACCA5"
-                },
-                "release" : {
-                    "certpath" : "/Users/jiannor/harmonykey/chongyueyue/chongyueyue_release.cer",
-                    "keyAlias" : "chongyueyue",
-                    "keyPassword" : "0000001BD00FFD12D499C2CFD9DF073914611997E80538320C59D28A872B7726F0E242720D20FC9FA58101",
-                    "profile" : "/Users/jiannor/harmonykey/chongyueyue/chongyueyue_releaseRelease.p7b",
-                    "signAlg" : "SHA256withECDSA",
-                    "storeFile" : "/Users/jiannor/harmonykey/chongyueyue/chongyueyue_release.p12",
-                    "storePassword" : "0000001BB2602D2052AACD863916BD5035D8368002B66398F28DE56D64F7A6CA93DCD5D9A0AD88EF977B37"
-                }
-            },
-            "icons" : {
-                "foreground" : "static/oh/foreground.png",
-                "background" : "static/oh/background.png"
-            },
-            "splashScreens" : {
-                "startWindowBackground" : "#ff5733",
-                "startWindowIcon" : "static/oh/middle_icon.png"
-            },
-            "compatibleSdkVersion" : "6.0.0(20)",
-            "targetSdkVersion" : "6.0.1(21)"
-        }
-    },
-    /* 5+App特有相关 */
-    "app-plus" : {
-        "darkmode" : false,
-        "networkTimeout" : {
-            "request" : 30000
-        },
-        "safearea" : {
-            "bottom" : {
-                "offset" : "none"
-            }
-        },
-        "ssl" : {
-            "protocols" : {
-                "tlsv1" : false,
-                "tlsv1.1" : true,
-                "tlsv1.2" : true
-            }
-        },
-        "compatible" : {
-            "ignoreVersion" : true //忽略弹窗
-        },
-        "permissions" : {
-            "filesystem" : {}
-        },
-        "usingComponents" : true,
-        "nvueStyleCompiler" : "cyy",
-        "compilerVersion" : 3,
-        "splashscreen" : {
-            "alwaysShowBeforeRender" : true,
-            "waiting" : true,
-            "autoclose" : true,
-            "delay" : 200,
-            "image" : "/static/imgs/splash/splash.png"
-        },
-        /* 模块配置 */
-        "modules" : {
-            "Bluetooth" : {},
-            "Maps" : {},
-            "Camera" : {},
-            "Barcode" : {},
-            "Geolocation" : {},
-            "Orientation" : {
-                "description" : "传感器"
-            },
-            "Push" : {},
-            "OAuth" : {},
-            "Payment" : {}
-        },
-        /* 应用发布信息 */
-        "distribute" : {
-            /* android打包配置 */
-            "android" : {
-                "permissions" : [
-                    "<uses-feature android:name=\"android.hardware.camera\"/>",
-                    "<uses-feature android:name=\"android.hardware.camera.autofocus\"/>",
-                    "<uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\"/>",
-                    "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\"/>",
-                    "<uses-permission android:name=\"android.permission.ACCESS_BACKGROUND_LOCATION\"/>",
-                    "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>",
-                    "<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>",
-                    "<uses-permission android:name=\"android.permission.BLUETOOTH_SCAN\"/>",
-                    "<uses-permission android:name=\"android.permission.BLUETOOTH_CONNECT\"/>",
-                    "<uses-permission android:name=\"android.permission.BLUETOOTH_ADMIN\"/>",
-                    "<uses-permission android:name=\"android.permission.CAMERA\"/>",
-                    "<uses-permission android:name=\"android.permission.CHANGE_NETWORK_STATE\"/>",
-                    "<uses-permission android:name=\"android.permission.CHANGE_WIFI_STATE\"/>",
-                    "<uses-permission android:name=\"android.permission.FLASHLIGHT\"/>",
-                    "<uses-permission android:name=\"android.permission.GET_TASKS\"/>",
-                    "<uses-permission android:name=\"android.permission.INTERNET\"/>",
-                    "<uses-permission android:name=\"android.permission.MOUNT_UNMOUNT_FILESYSTEMS\"/>",
-                    "<uses-permission android:name=\"android.permission.READ_LOGS\"/>",
-                    "<uses-permission android:name=\"android.permission.READ_PHONE_STATE\"/>",
-                    "<uses-permission android:name=\"android.permission.RECEIVE_BOOT_COMPLETED\"/>",
-                    "<uses-permission android:name=\"android.permission.VIBRATE\"/>",
-                    "<uses-permission android:name=\"android.permission.WAKE_LOCK\"/>",
-                    "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"/>",
-                    "<uses-permission android:name=\"android.permission.WRITE_SETTINGS\"/>",
-                    "<uses-permission android:name=\"android.permission.READ_MEDIA_IMAGES\"/>"
-                ],
-                "abiFilters" : [ "armeabi-v7a", "arm64-v8a", "x86" ],
-                "targetSdkVersion" : 35
-            },
-            /* ios打包配置 */
-            "ios" : {
-                "dSYMs" : false,
-                "idfa" : false,
-                "privacyDescription" : {
-                    "NSPhotoLibraryUsageDescription" : "从手机相册中选取一张照片作为头像图片",
-                    "NSCameraUsageDescription" : "拍摄一张照片作为头像图片",
-                    "NSLocationWhenInUseUsageDescription" : "获取手机的当前位置，可以在地图上更直观的显示手机和宠物的位置关系",
-                    "NSLocationAlwaysUsageDescription" : "获取手机的当前位置，可以在地图上更直观的显示手机和宠物的位置关系",
-                    "NSLocationAlwaysAndWhenInUseUsageDescription" : "获取手机的当前位置，可以在地图上更直观的显示手机和宠物的位置关系",
-                    "NSBluetoothPeripheralUsageDescription" : "扫描附近的智能项圈设备，估计手机和智能项圈的距离",
-                    "NSBluetoothAlwaysUsageDescription" : "扫描附近的智能项圈设备，估计手机和智能项圈的距离"
-                },
-                "UIBackgroundModes" : "location"
-            },
-            /*ios 高德地图配置*/
-            "apple" : {
-                "urlschemewhitelist" : [ "iosamap", "baidumap" ]
-            },
-            /* SDK配置 */
-            "sdkConfigs" : {
-                "ad" : {},
-                "maps" : {
-                    "amap" : {
-                        "name" : "amap_13735377855yLRyVnPY",
-                        "appkey_ios" : "9f8eb22902ff76102e32ba52c7dee1e6",
-                        "appkey_android" : "9f8eb22902ff76102e32ba52c7dee1e6"
-                    }
-                },
-                "geolocation" : {
-                    "system" : {
-                        "__platform__" : [ "ios", "android" ]
-                    },
-                    "amap" : {
-                        "name" : "amap_13735377855yLRyVnPY",
-                        "__platform__" : [ "ios", "android" ],
-                        "appkey_ios" : "9f8eb22902ff76102e32ba52c7dee1e6",
-                        "appkey_android" : "9f8eb22902ff76102e32ba52c7dee1e6"
-                    }
-                },
-                "push" : {
-                    "unipush" : {
-                        "version" : "2",
-                        "offline" : true,
-                        "oppo" : {},
-                        "vivo" : {},
-                        "mi" : {},
-                        "honor" : {},
-                        "icons" : {
-                            "push" : {
-                                //可选，JSON对象，Push图标配置
-                                "ldpi" : "", //可选，字符串类型，普通屏设备推送图标路径，分辨率要求48x48
-                                "mdpi" : "", //可选，字符串类型，大屏设备设备推送图标路径，分辨率要求64x64
-                                "hdpi" : "", //可选，字符串类型，高分屏设备推送图标路径，分辨率要求96x96
-                                "xhdpi" : "", //可选，字符串类型，720P高分屏设备推送图标路径，分辨率要求128x128
-                                "xxhdpi" : "" //可选，字符串类型，1080P高密度屏幕推送图标路径，分辨率要求192x192
-                            },
-                            "small" : {
-                                //可选，JSON对象，Push小图标配置
-                                "ldpi" : "", //可选，字符串类型，普通屏设备推送小图标路径，分辨率要求18x18
-                                "mdpi" : "", //可选，字符串类型，大屏设备设备推送小图标路径，分辨率要求24x24
-                                "hdpi" : "", //可选，字符串类型，高分屏设备推送小图标路径，分辨率要求36x36
-                                "xhdpi" : "", //可选，字符串类型，720P高分屏设备推送小图标路径，分辨率要求48x48
-                                "xxhdpi" : "", //可选，字符串类型，1080P高密度屏幕推送小图标路径，分辨率要求72x72
-                                "xxxhdpi" : "" //可选，字符串类型，4K屏设备推送小图标路径，分辨率要求96x96
-                            }
-                        },
-                        "hms" : {}
-                    }
-                },
-                "payment" : {
-                    "alipay" : {
-                        "__platform__" : [ "ios", "android" ]
-                    },
-                    "weixin" : {
-                        "__platform__" : [ "ios", "android" ],
-                        "appid" : "wxb69cf287445e7de8",
-                        "UniversalLinks" : "https://app.bestwin-int.com/ios/"
-                    }
-                },
-                "oauth" : {
-                    "univerify" : {}
-                }
-            },
-            "splashscreen" : {
-                "androidStyle" : "default",
-                "android" : {
-                    "hdpi" : "static/nine/hdpi_splash.9.png",
-                    "xhdpi" : "static/nine/xhdpi_splash.9.png",
-                    "xxhdpi" : "static/nine/xxhdpi_splash.9.png"
-                },
-                "useOriginalMsgbox" : true,
-                "iosStyle" : "common"
-            },
-            "icons" : {
-                "android" : {
-                    "hdpi" : "unpackage/res/icons/72x72.png",
-                    "xhdpi" : "unpackage/res/icons/96x96.png",
-                    "xxhdpi" : "unpackage/res/icons/144x144.png",
-                    "xxxhdpi" : "unpackage/res/icons/192x192.png"
-                },
-                "ios" : {
-                    "appstore" : "unpackage/res/icons/1024x1024.png",
-                    "ipad" : {
-                        "app" : "unpackage/res/icons/76x76.png",
-                        "app@2x" : "unpackage/res/icons/152x152.png",
-                        "notification" : "unpackage/res/icons/20x20.png",
-                        "notification@2x" : "unpackage/res/icons/40x40.png",
-                        "proapp@2x" : "unpackage/res/icons/167x167.png",
-                        "settings" : "unpackage/res/icons/29x29.png",
-                        "settings@2x" : "unpackage/res/icons/58x58.png",
-                        "spotlight" : "unpackage/res/icons/40x40.png",
-                        "spotlight@2x" : "unpackage/res/icons/80x80.png"
-                    },
-                    "iphone" : {
-                        "app@2x" : "unpackage/res/icons/120x120.png",
-                        "app@3x" : "unpackage/res/icons/180x180.png",
-                        "notification@2x" : "unpackage/res/icons/40x40.png",
-                        "notification@3x" : "unpackage/res/icons/60x60.png",
-                        "settings@2x" : "unpackage/res/icons/58x58.png",
-                        "settings@3x" : "unpackage/res/icons/87x87.png",
-                        "spotlight@2x" : "unpackage/res/icons/80x80.png",
-                        "spotlight@3x" : "unpackage/res/icons/120x120.png"
-                    }
-                }
-            }
-        },
-        "nativePlugins" : {}
-    },
-    /* 快应用特有相关 */
-    "quickapp" : {},
-    /* 小程序特有相关 */
-    "mp-weixin" : {
-        "appid" : "wx9d8b721a4456f865",
-        "setting" : {
-            "urlCheck" : false
-        },
-        "usingComponents" : true
-    },
-    "mp-alipay" : {
-        "usingComponents" : true
-    },
-    "mp-baidu" : {
-        "usingComponents" : true
-    },
-    "mp-toutiao" : {
-        "usingComponents" : true
-    },
-    "uniStatistics" : {
-        "enable" : false
-    },
-    "vueVersion" : "3",
-    "h5" : {
-        "unipush" : {
-            "enable" : true
-        },
-        "sdkConfigs" : {
-            "maps" : {}
-        }
-    }
+	"name": "宠悦悦",
+	"appid": "__UNI__D34B03B",
+	"description": "",
+	"versionName": "2.2.0",
+	"versionCode": 226,
+	"transformPx": false,
+	"app-harmony": {
+		"darkmode": true,
+		"safearea": {
+			"bottom": {
+				"offset": "none"
+			}
+		},
+		"projectPath": "C:\\hongmen_sdk\\package",
+		"distribute": {
+			"bundleName": "com.chongyueyue.client",
+			"modules": {
+				"uni-push": {},
+				"uni-verify": {}
+			},
+			"signingConfigs": {
+				"default": {
+					"certpath": "/Users/jiannor/Library/Application Support/HBuilder X/extensions/launcher/agc-certs/1772514958175.cer",
+					"keyAlias": "debugKey",
+					"keyPassword": "0000001A246A1944703CB12D81821EDB286381F06E9388FEBC1E574D4677EFB1F5ADFBC7A635637ACCA5",
+					"profile": "/Users/jiannor/Library/Application Support/HBuilder X/extensions/launcher/agc-certs/1772514958175.p7b",
+					"signAlg": "SHA256withECDSA",
+					"storeFile": "/Users/jiannor/Library/Application Support/HBuilder X/extensions/launcher/agc-certs/1772514958175.p12",
+					"storePassword": "0000001A246A1944703CB12D81821EDB286381F06E9388FEBC1E574D4677EFB1F5ADFBC7A635637ACCA5"
+				},
+				"release": {
+					"certpath": "/Users/jiannor/harmonykey/chongyueyue/chongyueyue_release.cer",
+					"keyAlias": "chongyueyue",
+					"keyPassword": "0000001BD00FFD12D499C2CFD9DF073914611997E80538320C59D28A872B7726F0E242720D20FC9FA58101",
+					"profile": "/Users/jiannor/harmonykey/chongyueyue/chongyueyue_releaseRelease.p7b",
+					"signAlg": "SHA256withECDSA",
+					"storeFile": "/Users/jiannor/harmonykey/chongyueyue/chongyueyue_release.p12",
+					"storePassword": "0000001BB2602D2052AACD863916BD5035D8368002B66398F28DE56D64F7A6CA93DCD5D9A0AD88EF977B37"
+				}
+			},
+			"icons": {
+				"foreground": "static/oh/foreground.png",
+				"background": "static/oh/background.png"
+			},
+			"splashScreens": {
+				"startWindowBackground": "#ff5733",
+				"startWindowIcon": "static/oh/middle_icon.png"
+			},
+			"compatibleSdkVersion": "6.0.0(20)",
+			"targetSdkVersion": "6.0.1(21)"
+		}
+	},
+	/* 5+App特有相关 */
+	"app-plus": {
+		"darkmode": false,
+		"networkTimeout": {
+			"request": 30000
+		},
+		"safearea": {
+			"bottom": {
+				"offset": "none"
+			}
+		},
+		"ssl": {
+			"protocols": {
+				"tlsv1": false,
+				"tlsv1.1": true,
+				"tlsv1.2": true
+			}
+		},
+		"compatible": {
+			"ignoreVersion": true //忽略弹窗
+		},
+		"permissions": {
+			"filesystem": {}
+		},
+		"usingComponents": true,
+		"nvueStyleCompiler": "cyy",
+		"compilerVersion": 3,
+		"splashscreen": {
+			"alwaysShowBeforeRender": true,
+			"waiting": true,
+			"autoclose": true,
+			"delay": 200,
+			"image": "/static/imgs/splash/splash.png"
+		},
+		/* 模块配置 */
+		"modules": {
+			"Bluetooth": {},
+			"Maps": {},
+			"Camera": {},
+			"Barcode": {},
+			"Geolocation": {},
+			"Orientation": {
+				"description": "传感器"
+			},
+			"Push": {},
+			"OAuth": {},
+			"Payment": {}
+		},
+		/* 应用发布信息 */
+		"distribute": {
+			/* android打包配置 */
+			"android": {
+				"permissions": [
+					"<uses-feature android:name=\"android.hardware.camera\"/>",
+					"<uses-feature android:name=\"android.hardware.camera.autofocus\"/>",
+					"<uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\"/>",
+					"<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\"/>",
+					"<uses-permission android:name=\"android.permission.ACCESS_BACKGROUND_LOCATION\"/>",
+					"<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>",
+					"<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>",
+					"<uses-permission android:name=\"android.permission.BLUETOOTH_SCAN\"/>",
+					"<uses-permission android:name=\"android.permission.BLUETOOTH_CONNECT\"/>",
+					"<uses-permission android:name=\"android.permission.BLUETOOTH_ADMIN\"/>",
+					"<uses-permission android:name=\"android.permission.CAMERA\"/>",
+					"<uses-permission android:name=\"android.permission.CHANGE_NETWORK_STATE\"/>",
+					"<uses-permission android:name=\"android.permission.CHANGE_WIFI_STATE\"/>",
+					"<uses-permission android:name=\"android.permission.FLASHLIGHT\"/>",
+					"<uses-permission android:name=\"android.permission.GET_TASKS\"/>",
+					"<uses-permission android:name=\"android.permission.INTERNET\"/>",
+					"<uses-permission android:name=\"android.permission.MOUNT_UNMOUNT_FILESYSTEMS\"/>",
+					"<uses-permission android:name=\"android.permission.READ_LOGS\"/>",
+					"<uses-permission android:name=\"android.permission.READ_PHONE_STATE\"/>",
+					"<uses-permission android:name=\"android.permission.RECEIVE_BOOT_COMPLETED\"/>",
+					"<uses-permission android:name=\"android.permission.VIBRATE\"/>",
+					"<uses-permission android:name=\"android.permission.WAKE_LOCK\"/>",
+					"<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"/>",
+					"<uses-permission android:name=\"android.permission.WRITE_SETTINGS\"/>",
+					"<uses-permission android:name=\"android.permission.READ_MEDIA_IMAGES\"/>"
+				],
+				"abiFilters": ["armeabi-v7a", "arm64-v8a", "x86"],
+				"targetSdkVersion": 35
+			},
+			/* ios打包配置 */
+			"ios": {
+				"dSYMs": false,
+				"idfa": false,
+				"privacyDescription": {
+					"NSPhotoLibraryUsageDescription": "从手机相册中选取一张照片作为头像图片",
+					"NSCameraUsageDescription": "拍摄一张照片作为头像图片",
+					"NSLocationWhenInUseUsageDescription": "获取手机的当前位置，可以在地图上更直观的显示手机和宠物的位置关系",
+					"NSLocationAlwaysUsageDescription": "获取手机的当前位置，可以在地图上更直观的显示手机和宠物的位置关系",
+					"NSLocationAlwaysAndWhenInUseUsageDescription": "获取手机的当前位置，可以在地图上更直观的显示手机和宠物的位置关系",
+					"NSBluetoothPeripheralUsageDescription": "扫描附近的智能项圈设备，估计手机和智能项圈的距离",
+					"NSBluetoothAlwaysUsageDescription": "扫描附近的智能项圈设备，估计手机和智能项圈的距离"
+				},
+				"UIBackgroundModes": "location"
+			},
+			/*ios 高德地图配置*/
+			"apple": {
+				"urlschemewhitelist": ["iosamap", "baidumap"]
+			},
+			/* SDK配置 */
+			"sdkConfigs": {
+				"ad": {},
+				"maps": {
+					"amap": {
+						"name": "amap_13735377855yLRyVnPY",
+						"appkey_ios": "9f8eb22902ff76102e32ba52c7dee1e6",
+						"appkey_android": "9f8eb22902ff76102e32ba52c7dee1e6"
+					}
+				},
+				"geolocation": {
+					"system": {
+						"__platform__": ["ios", "android"]
+					},
+					"amap": {
+						"name": "amap_13735377855yLRyVnPY",
+						"__platform__": ["ios", "android"],
+						"appkey_ios": "9f8eb22902ff76102e32ba52c7dee1e6",
+						"appkey_android": "9f8eb22902ff76102e32ba52c7dee1e6"
+					}
+				},
+				"push": {
+					"unipush": {
+						"version": "2",
+						"offline": true,
+						"oppo": {},
+						"vivo": {},
+						"mi": {},
+						"honor": {},
+						"icons": {
+							"push": {
+								//可选，JSON对象，Push图标配置
+								"ldpi": "", //可选，字符串类型，普通屏设备推送图标路径，分辨率要求48x48
+								"mdpi": "", //可选，字符串类型，大屏设备设备推送图标路径，分辨率要求64x64
+								"hdpi": "", //可选，字符串类型，高分屏设备推送图标路径，分辨率要求96x96
+								"xhdpi": "", //可选，字符串类型，720P高分屏设备推送图标路径，分辨率要求128x128
+								"xxhdpi": "" //可选，字符串类型，1080P高密度屏幕推送图标路径，分辨率要求192x192
+							},
+							"small": {
+								//可选，JSON对象，Push小图标配置
+								"ldpi": "", //可选，字符串类型，普通屏设备推送小图标路径，分辨率要求18x18
+								"mdpi": "", //可选，字符串类型，大屏设备设备推送小图标路径，分辨率要求24x24
+								"hdpi": "", //可选，字符串类型，高分屏设备推送小图标路径，分辨率要求36x36
+								"xhdpi": "", //可选，字符串类型，720P高分屏设备推送小图标路径，分辨率要求48x48
+								"xxhdpi": "", //可选，字符串类型，1080P高密度屏幕推送小图标路径，分辨率要求72x72
+								"xxxhdpi": "" //可选，字符串类型，4K屏设备推送小图标路径，分辨率要求96x96
+							}
+						},
+						"hms": {}
+					}
+				},
+				"payment": {
+					"alipay": {
+						"__platform__": ["ios", "android"]
+					},
+					"weixin": {
+						"__platform__": ["ios", "android"],
+						"appid": "wxb69cf287445e7de8",
+						"UniversalLinks": "https://app.bestwin-int.com/ios/"
+					}
+				},
+				"oauth": {
+					"univerify": {}
+				}
+			},
+			"splashscreen": {
+				"androidStyle": "default",
+				"android": {
+					"hdpi": "static/nine/hdpi_splash.9.png",
+					"xhdpi": "static/nine/xhdpi_splash.9.png",
+					"xxhdpi": "static/nine/xxhdpi_splash.9.png"
+				},
+				"useOriginalMsgbox": true,
+				"iosStyle": "common"
+			},
+			"icons": {
+				"android": {
+					"hdpi": "unpackage/res/icons/72x72.png",
+					"xhdpi": "unpackage/res/icons/96x96.png",
+					"xxhdpi": "unpackage/res/icons/144x144.png",
+					"xxxhdpi": "unpackage/res/icons/192x192.png"
+				},
+				"ios": {
+					"appstore": "unpackage/res/icons/1024x1024.png",
+					"ipad": {
+						"app": "unpackage/res/icons/76x76.png",
+						"app@2x": "unpackage/res/icons/152x152.png",
+						"notification": "unpackage/res/icons/20x20.png",
+						"notification@2x": "unpackage/res/icons/40x40.png",
+						"proapp@2x": "unpackage/res/icons/167x167.png",
+						"settings": "unpackage/res/icons/29x29.png",
+						"settings@2x": "unpackage/res/icons/58x58.png",
+						"spotlight": "unpackage/res/icons/40x40.png",
+						"spotlight@2x": "unpackage/res/icons/80x80.png"
+					},
+					"iphone": {
+						"app@2x": "unpackage/res/icons/120x120.png",
+						"app@3x": "unpackage/res/icons/180x180.png",
+						"notification@2x": "unpackage/res/icons/40x40.png",
+						"notification@3x": "unpackage/res/icons/60x60.png",
+						"settings@2x": "unpackage/res/icons/58x58.png",
+						"settings@3x": "unpackage/res/icons/87x87.png",
+						"spotlight@2x": "unpackage/res/icons/80x80.png",
+						"spotlight@3x": "unpackage/res/icons/120x120.png"
+					}
+				}
+			}
+		},
+		"nativePlugins": {}
+	},
+	/* 快应用特有相关 */
+	"quickapp": {},
+	/* 小程序特有相关 */
+	"mp-weixin": {
+		"appid": "wx9d8b721a4456f865",
+		"setting": {
+			"urlCheck": false
+		},
+		"usingComponents": true
+	},
+	"mp-alipay": {
+		"usingComponents": true
+	},
+	"mp-baidu": {
+		"usingComponents": true
+	},
+	"mp-toutiao": {
+		"usingComponents": true
+	},
+	"uniStatistics": {
+		"enable": false
+	},
+	"vueVersion": "3",
+	"h5": {
+		"unipush": {
+			"enable": true
+		},
+		"sdkConfigs": {
+			"maps": {}
+		}
+	}
 }

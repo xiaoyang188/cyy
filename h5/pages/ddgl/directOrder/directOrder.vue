@@ -14,99 +14,6 @@
         </view>
       </view>
       <view :style="{ height: 88 + StatusBarRpx + 'rpx' }"></view>
-      <benben-popup v-model="popupShow1679651031396" :mask="true" :mask-close-able="true" mode="bottom">
-        <!---优惠券flex布局开始-->
-        <view class="flex flex-direction flex-wrap align-stretch benben-flex-layout">
-          <view class="flex flex-direction flex-wrap align-stretch directOrder_fd1_0_babdd">
-            <view class="flex flex-wrap align-center justify-between directOrder_fd1_0_c0_babdd">
-              <view class="flex flex-wrap align-center directOrder_fd1_0_c0_c0_babdd"></view>
-              <view class="flex flex-wrap align-center">
-                <image class="directOrder_fd1_0_c0_c1_c0_babdd" mode="aspectFit" :src="STATIC_URL + '61.png'"></image>
-                <text class="directOrder_fd1_0_c0_c1_c1_babdd">{{ $t('优惠') }}</text>
-                <image class="directOrder_fd1_0_c0_c1_c0_babdd" mode="aspectFit" :src="STATIC_URL + '62.png'"></image>
-              </view>
-              <image
-                class="directOrder_fd1_0_c0_c2_babdd"
-                mode="aspectFit"
-                :src="STATIC_URL + '85.png'"
-                @tap.stop="popupShow1679651031396 = false"
-              ></image>
-            </view>
-
-            <scroll-view class="directOrder_fd1_0_c1_babdd" :scroll-x="false" :scroll-y="true" :show-scrollbar="false" :enhanced="true">
-              <view class="flex flex-direction align-stretch benben-scroll flex">
-                <template v-for="(item, key0) in couponType">
-                  <view class="flex flex-direction flex-wrap align-stretch directOrder_fd1_0_c1_c0_babdd" :key="key0">
-                    <view class="flex flex-wrap align-center directOrder_fd1_0_c1_c0_c0_babdd">
-                      <image class="directOrder_fd1_0_c1_c0_c0_c0_babdd" mode="aspectFit" :src="STATIC_URL + '88.png'"></image>
-                      <view class="flex flex-direction flex-wrap align-stretch flex-sub directOrder_fd1_0_c1_c0_c0_c1_babdd">
-                        <view class="flex flex-wrap align-center">
-                          <text class="directOrder_fd1_0_c1_c0_c0_c1_c0_c0_babdd">{{ item.name }}</text>
-                        </view>
-                        <view class="flex flex-wrap align-center directOrder_fd1_0_c1_c0_c0_c1_c1_babdd">
-                          <text class="directOrder_fd1_0_c1_c0_c0_c1_c1_c0_babdd">{{ $t('有效期至：') }}</text>
-                          <text class="directOrder_fd1_0_c1_c0_c0_c1_c1_c0_babdd">{{ item.end_time }}</text>
-                        </view>
-                      </view>
-                      <view class="flex flex-wrap align-center">
-                        <text class="directOrder_fd1_0_c1_c0_c0_c2_c0_babdd">￥</text>
-                        <text class="directOrder_fd1_0_c1_c0_c0_c2_c1_babdd">
-                          <text class="directOrder_price1_fd1_0_c1_c0_c0_c2_c1_babdd">{{ item.money | frontPrice }}</text>
-                          <text class="directOrder_price2_fd1_0_c1_c0_c0_c2_c1_babdd">{{ item.money | laterPrice }}</text>
-                        </text>
-                      </view>
-                    </view>
-                    <view class="flex flex-wrap align-center justify-between directOrder_fd1_0_c1_c0_c1_babdd" v-if="youhuijuanId == 0">
-                      <text class="directOrder_fd1_0_c1_c0_c1_c0_babdd">{{ item.content }}</text>
-                      <image
-                        class="directOrder_fd1_0_c0_c2_babdd"
-                        mode="aspectFit"
-                        :src="STATIC_URL + '12.png'"
-                        @tap.stop="isokduoshopidFunc(item, 'remove')"
-                        v-if="coupon_id == item.aid"
-                      ></image>
-                      <image
-                        class="directOrder_fd1_0_c0_c2_babdd"
-                        mode="aspectFit"
-                        :src="STATIC_URL + '277.png'"
-                        @tap.stop="isokduoshopidFunc(item, '')"
-                        v-if="coupon_id != item.aid"
-                      ></image>
-                    </view>
-                    <view class="flex flex-wrap align-center justify-between directOrder_fd1_0_c1_c0_c1_babdd" v-if="youhuijuanId != 0">
-                      <text class="directOrder_fd1_0_c1_c0_c1_c0_babdd">{{ item.content }}</text>
-                      <image
-                        class="directOrder_fd1_0_c0_c2_babdd"
-                        mode="aspectFit"
-                        :src="STATIC_URL + '12.png'"
-                        @tap.stop="isokduoshopidFunc(item, 'remove')"
-                        v-if="shop_coupon_list[youhuijuanId].coupon_id == item.aid"
-                      ></image>
-                      <image
-                        class="directOrder_fd1_0_c0_c2_babdd"
-                        mode="aspectFit"
-                        :src="STATIC_URL + '277.png'"
-                        @tap.stop="isokduoshopidFunc(item, '')"
-                        v-if="shop_coupon_list[youhuijuanId].coupon_id != item.aid"
-                      ></image>
-                    </view>
-                  </view>
-                </template>
-
-                <benben-empty :list-data="couponType">
-                  <view>
-                    <view class="flex flex-direction flex-wrap align-center directOrder_fd1_0_c1_c1_babdd">
-                      <image class="directOrder_fd1_0_c1_c1_c0_babdd" mode="widthFix" :src="STATIC_URL + '423.png'"></image>
-                    </view>
-                  </view>
-                </benben-empty>
-              </view>
-            </scroll-view>
-          </view>
-        </view>
-
-        <!---优惠券flex布局结束-->
-      </benben-popup>
       <!---无地址flex布局开始-->
       <view
         class="flex flex-direction flex-wrap align-stretch benben-flex-layout directOrder_flex_2_babdd"
@@ -281,38 +188,45 @@
       </benben-popup>
       <!---flex布局flex布局开始-->
       <view class="flex flex-direction align-stretch benben-flex-layout directOrder_flex_6_babdd">
-        <view class="flex flex-wrap align-center" @tap.stop="openGoodsCouponFunc(0, dataEssayMessage.coupon_money)">
-          <text class="flex-sub directOrder_fd6_0_c0_babdd">{{ $t('优惠券') }}</text>
-          <text class="directOrder_fd6_0_c1_babdd" v-if="dataEssayMessage.coupon_usable_num == 0 && dataEssayMessage.coupon_money == 0">
-            {{ $t('暂无可用优惠劵') }}
-          </text>
-          <benben-input
-            class="directOrder_fd6_0_c2_babdd"
-            type="text"
-            :placeholder="$t('选择优惠券')"
-            confirm-type="done"
-            :maxlength="-1"
-            :disabled="true"
-            placeholder-style="color:var(--benbenFontColor1);font-size:28rpx"
-            v-if="dataEssayMessage.coupon_usable_num > 0 && dataEssayMessage.coupon_money == 0"
-          />
-          <!--     <view   class='flex flex-wrap align-center directOrder_fd6_0_c3_babdd'    v-if= "coupon_id!=''"  >
-        <text class='directOrder_fd6_0_c3_c0_babdd'  >{{$t('优惠')}}</text>
-<text class='directOrder_fd6_0_c3_c0_babdd'  >{{dataEssayMessage.coupon_money}}</text>
-<text class='directOrder_fd6_0_c3_c0_babdd'  >{{$t('元')}}</text>
-</view>
- -->
-          <view class="flex align-stretch directOrder_fd6_0_c4_babdd" v-if="coupon_id != ''">
-            <view class="flex flex-wrap align-center">
-              <image class="directOrder_fd6_0_c4_c0_c0_babdd" mode="aspectFit" :src="STATIC_URL + '825.png'"></image>
-            </view>
-            <view class="flex flex-wrap align-center directOrder_fd6_0_c4_c1_babdd">
-              <text class="directOrder_fd6_0_c4_c1_c0_babdd">{{ $t('优惠') }}</text>
-              <text class="directOrder_fd6_0_c4_c1_c0_babdd">{{ dataEssayMessage.coupon_money }}</text>
-              <text class="directOrder_fd6_0_c4_c1_c0_babdd">{{ $t('元') }}</text>
+        <view class="directOrder_coupon-section_babdd">
+          <view class="flex flex-wrap align-center justify-between directOrder_coupon-head_babdd">
+            <text class="directOrder_fd6_0_c0_babdd">{{ $t('优惠券') }}</text>
+            <view class="flex align-stretch directOrder_fd6_0_c4_babdd" v-if="coupon_id != '' && Number(dataEssayMessage.coupon_money) > 0">
+              <view class="flex flex-wrap align-center">
+                <image class="directOrder_fd6_0_c4_c0_c0_babdd" mode="aspectFit" :src="STATIC_URL + '825.png'"></image>
+              </view>
+              <view class="flex flex-wrap align-center directOrder_fd6_0_c4_c1_babdd">
+                <text class="directOrder_fd6_0_c4_c1_c0_babdd">{{ $t('已减') }}</text>
+                <text class="directOrder_fd6_0_c4_c1_c0_babdd">{{ dataEssayMessage.coupon_money }}</text>
+                <text class="directOrder_fd6_0_c4_c1_c0_babdd">{{ $t('元') }}</text>
+              </view>
             </view>
           </view>
-          <image class="directOrder_fd6_0_c5_babdd" mode="aspectFit" :src="STATIC_URL + '273.png'"></image>
+          <text class="directOrder_coupon-empty_babdd" v-if="couponType.length == 0">{{ $t('暂无可用优惠劵') }}</text>
+          <view class="directOrder_coupon-grid_babdd" v-else>
+            <view class="directOrder_coupon-grid-col_babdd" @tap.stop="isokduoshopidFunc({}, 'remove')">
+              <view class="directOrder_coupon-card_babdd" :class="{ 'directOrder_coupon-card--active': coupon_id == '' }">
+                <view class="directOrder_coupon-card-price_babdd">
+                  <text class="directOrder_coupon-card-price-placeholder_babdd">—</text>
+                </view>
+                <text class="directOrder_coupon-card-name_babdd">{{ $t('不用券') }}</text>
+                <text class="directOrder_coupon-card-desc_babdd">{{ $t('暂不使用') }}</text>
+              </view>
+            </view>
+            <view class="directOrder_coupon-grid-col_babdd" v-for="(item, key0) in couponType" :key="key0" @tap.stop="selectCouponFunc(item)">
+              <view class="directOrder_coupon-card_babdd" :class="{ 'directOrder_coupon-card--active': coupon_id == item.aid }">
+                <view class="directOrder_coupon-card-price_babdd">
+                  <text class="directOrder_coupon-card-yen_babdd">￥</text>
+                  <text class="directOrder_coupon-card-money_babdd">
+                    <text class="directOrder_coupon-card-money-int_babdd">{{ item.money | frontPrice }}</text>
+                    <text class="directOrder_coupon-card-money-dec_babdd">{{ item.money | laterPrice }}</text>
+                  </text>
+                </view>
+                <text class="directOrder_coupon-card-name_babdd">{{ item.name }}</text>
+                <text class="directOrder_coupon-card-desc_babdd">{{ item.content }}</text>
+              </view>
+            </view>
+          </view>
         </view>
         <view
           class="flex flex-wrap align-center justify-between directOrder_fd6_1_babdd"
@@ -575,7 +489,6 @@ export default {
       popupShow1679650134928: false,
       popupShow1685773487026: false,
       popupShow1663558318653: false,
-      popupShow1679651031396: false,
       coupon_id: '',
       couponType: [],
       dataHead: [],
@@ -947,6 +860,7 @@ export default {
             }
           }
         })
+        await this.loadCouponListFunc(0)
       }
     },
     //获取购物车直接下单信息
@@ -1011,6 +925,7 @@ export default {
             }
           }
         })
+        await this.loadCouponListFunc(0)
       }
     },
     //判断是否购物车
@@ -1184,65 +1099,43 @@ export default {
             }
           }
         })
+        await this.loadCouponListFunc(0)
       }
     },
-    //打开优惠卷弹框
-    async openGoodsCouponFunc(shopid, couponmoney, shopmoney) {
-      //this.youhuijuanId = shopid;
-      //请求方法
-      //数据验证
-      //      var goods_ids = []
-      //    this.dataEssayMessage.list.forEach(e=>{
-      //    e.goods.forEach(v=>{
-      //    goods_ids.push({
-      //    money:v.member_price,
-      //  goods_id:v.goods_id
-      //  })
-      //  })
-      //  })
-
-      let money = Number(this.dataEssayMessage.payable_money) + Number(couponmoney)
-      if (shopid != 0) {
-        money = Number(shopmoney) + Number(couponmoney)
-      }
-
-      let goods_ids = []
-      if (this.dataEssayMessage && this.dataEssayMessage.list) {
-        this.dataEssayMessage.list.forEach((e) => {
-          if (e.goods) {
-            e.goods.forEach((v) => {
-              goods_ids.push({
-                money: v.member_price,
-                goods_id: v.goods_id,
-              })
-            })
-          }
-        })
-      }
-
-      //请求方法
-      //数据验证
-
-      let datacouponType = await this.$api.post(global.apiUrls.post5d916c0c775ff, {
-        partner_id: shopid,
-        goods_ids: goods_ids,
-        category_ids: this.dataEssayMessage.coupon_search.category,
-        money: this.dataEssayMessage.payable_money,
-      })
-
-      if (datacouponType.data.code != 1) {
-        this.$message.info(datacouponType.data.msg)
+    //加载可用优惠券列表（页面内展示）
+    async loadCouponListFunc(shopid = 0) {
+      if (!this.dataEssayMessage || this.package_id != '' || !this.dataEssayMessage.list) {
+        this.couponType = []
         return
       }
-      let infocouponType = datacouponType.data
-      this.couponType = infocouponType.data
-
-      if (this.couponType.length == 0) {
-        let s = this.$t('暂无可用优惠券')
-        this.$message.info(s)
-      } else {
-        this.popupShow1679651031396 = true
+      this.youhuijuanId = shopid
+      const goods_ids = []
+      this.dataEssayMessage.list.forEach((e) => {
+        if (e.goods) {
+          e.goods.forEach((v) => {
+            goods_ids.push({
+              money: v.member_price,
+              goods_id: v.goods_id,
+            })
+          })
+        }
+      })
+      const categoryIds = this.dataEssayMessage.coupon_search ? this.dataEssayMessage.coupon_search.category : ''
+      const datacouponType = await this.$api.post(global.apiUrls.post5d916c0c775ff, {
+        partner_id: shopid,
+        goods_ids: goods_ids,
+        category_ids: categoryIds,
+        money: this.dataEssayMessage.payable_money,
+      })
+      if (datacouponType.data.code != 1) {
+        this.couponType = []
+        return
       }
+      this.couponType = datacouponType.data.data || []
+    },
+    selectCouponFunc(item) {
+      const isSelected = this.youhuijuanId == 0 ? this.coupon_id == item.aid : this.shop_coupon_list[this.youhuijuanId].coupon_id == item.aid
+      this.isokduoshopidFunc(item, isSelected ? 'remove' : '')
     },
     //打开发票选择
     openPopupShowFunc(item) {
@@ -1265,7 +1158,6 @@ export default {
           this.shop_coupon_list[this.youhuijuanId].coupon_id = item.aid
         }
       }
-      this.popupShow1679651031396 = false
       if (this.cartid != '') {
         this.getBuyCarFunc()
       } else {
@@ -1670,6 +1562,121 @@ export default {
     background: #ffffff;
     margin: 0rpx 0rpx 124rpx 0rpx;
     padding: 32rpx 28rpx 32rpx 28rpx;
+
+    .directOrder_coupon-section_babdd {
+      width: 100%;
+    }
+
+    .directOrder_coupon-head_babdd {
+      margin-bottom: 20rpx;
+    }
+
+    .directOrder_coupon-empty_babdd {
+      display: block;
+      font-size: 26rpx;
+      color: var(--benbenFontColor1);
+      line-height: 40rpx;
+      padding: 8rpx 0 4rpx 0;
+    }
+
+    .directOrder_coupon-grid_babdd {
+      display: flex;
+      flex-wrap: wrap;
+      margin: 0 -6rpx;
+    }
+
+    .directOrder_coupon-grid-col_babdd {
+      box-sizing: border-box;
+      width: 33.3333%;
+      padding: 6rpx;
+    }
+
+    .directOrder_coupon-card_babdd {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 156rpx;
+      padding: 16rpx 8rpx 12rpx;
+      border-radius: 12rpx;
+      background: #ffffff;
+      border: 2rpx solid #f0f0f0;
+      box-sizing: border-box;
+    }
+
+    .directOrder_coupon-card--active {
+      border-color: #ff4d4f;
+      background: #fffafa;
+      box-shadow: 0 2rpx 8rpx rgba(255, 77, 79, 0.12);
+    }
+
+    .directOrder_coupon-card-price_babdd {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: center;
+      width: 100%;
+      height: 48rpx;
+      line-height: 48rpx;
+    }
+
+    .directOrder_coupon-card-price-placeholder_babdd {
+      font-size: 32rpx;
+      font-weight: 600;
+      color: #d9d9d9;
+      line-height: 48rpx;
+    }
+
+    .directOrder_coupon-card-yen_babdd {
+      font-size: 20rpx;
+      font-weight: 600;
+      color: #ff4d4f;
+      line-height: 48rpx;
+    }
+
+    .directOrder_coupon-card-money_babdd {
+      color: #ff4d4f;
+      font-weight: 700;
+      line-height: 48rpx;
+    }
+
+    .directOrder_coupon-card-money-int_babdd {
+      font-size: 32rpx;
+      letter-spacing: -1rpx;
+    }
+
+    .directOrder_coupon-card-money-dec_babdd {
+      font-size: 20rpx;
+    }
+
+    .directOrder_coupon-card-name_babdd {
+      width: 100%;
+      height: 32rpx;
+      line-height: 32rpx;
+      font-size: 22rpx;
+      font-weight: 500;
+      color: #333333;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .directOrder_coupon-card-desc_babdd {
+      width: 100%;
+      height: 28rpx;
+      line-height: 28rpx;
+      font-size: 20rpx;
+      color: #999999;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .directOrder_coupon-card--active .directOrder_coupon-card-name_babdd {
+      color: #ff4d4f;
+    }
 
     .directOrder_fd6_0_c0_babdd {
       line-height: 40rpx;
@@ -2150,100 +2157,61 @@ export default {
     }
   }
 
-  .directOrder_fd1_0_babdd {
-    border-radius: 20rpx 20rpx 0rpx 0rpx;
-    background: #ffffff;
-    padding: 40rpx 32rpx 40rpx 32rpx;
+  .directOrder_fd1_0_c1_c0_babdd {
+    background:
+      url(#{image-path('87.png')
+    }) no-repeat,
+      transparent;
+    background-size: 100% 100% !important;
+    padding: 30rpx 31rpx 30rpx 34rpx;
+    border-radius: 16rpx;
 
-    .directOrder_fd1_0_c0_babdd {
-      margin: 0rpx 0rpx 8rpx 0rpx;
+    .directOrder_fd1_0_c1_c0_c0_babdd {
+      padding: 0rpx 0rpx 14rpx 0rpx;
 
-      .directOrder_fd1_0_c0_c0_babdd {
-        width: 40rpx;
-        height: 40rpx;
+      .directOrder_fd1_0_c1_c0_c0_c0_babdd {
+        width: 122rpx;
+        height: 100rpx;
+        border-radius: 0rpx 0rpx 0rpx 0rpx;
       }
 
-      .directOrder_fd1_0_c0_c1_c1_babdd {
-        color: var(--benbenFontColor0);
-        font-size: 40rpx;
-        font-weight: 500;
-        line-height: 56rpx;
-        margin: 0rpx 32rpx 0rpx 32rpx;
-      }
-    }
+      .directOrder_fd1_0_c1_c0_c0_c1_babdd {
+        margin: 0rpx 0rpx 0rpx 16rpx;
 
-    .directOrder_fd1_0_c1_babdd {
-      touch-action: none;
-      width: 686rpx;
-      height: 40vh;
+        .directOrder_fd1_0_c1_c0_c0_c1_c0_c0_babdd {
+          color: var(--benbenFontColor0);
+          font-size: 32rpx;
+          font-weight: 500;
+          line-height: 45rpx;
+          -webkit-line-clamp: 1;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+        }
 
-      .directOrder_fd1_0_c1_c0_babdd {
-        background:
-          url(#{image-path('87.png')
-      }) no-repeat,
-          transparent;
-        background-size: 100% 100% !important;
-        padding: 30rpx 31rpx 30rpx 34rpx;
-        margin: 24rpx 0rpx 0rpx 0rpx;
-
-        .directOrder_fd1_0_c1_c0_c0_babdd {
-          padding: 0rpx 0rpx 14rpx 0rpx;
-
-          .directOrder_fd1_0_c1_c0_c0_c0_babdd {
-            width: 122rpx;
-            height: 100rpx;
-            border-radius: 0rpx 0rpx 0rpx 0rpx;
-          }
-
-          .directOrder_fd1_0_c1_c0_c0_c1_babdd {
-            margin: 0rpx 0rpx 0rpx 16rpx;
-
-            .directOrder_fd1_0_c1_c0_c0_c1_c0_c0_babdd {
-              color: var(--benbenFontColor0);
-              font-size: 32rpx;
-              font-weight: 500;
-              line-height: 45rpx;
-              -webkit-line-clamp: 1;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              display: -webkit-box;
-              -webkit-box-orient: vertical;
-            }
-
-            .directOrder_fd1_0_c1_c0_c0_c1_c1_babdd {
-              margin: 8rpx 0rpx 0rpx 0rpx;
-            }
-          }
-
-          .directOrder_fd1_0_c1_c0_c0_c2_c0_babdd {
-            color: var(--benbenFontColor0);
-            font-size: 33rpx;
-            font-weight: 700;
-            line-height: 40rpx;
-          }
-
-          .directOrder_fd1_0_c1_c0_c0_c2_c1_babdd {
-            color: var(--benbenFontColor0);
-            font-weight: 600;
-
-            .directOrder_price1_fd1_0_c1_c0_c0_c2_c1_babdd {
-              font-size: 49rpx;
-            }
-
-            .directOrder_price2_fd1_0_c1_c0_c0_c2_c1_babdd {
-              font-size: 33rpx;
-            }
-          }
+        .directOrder_fd1_0_c1_c0_c0_c1_c1_babdd {
+          margin: 8rpx 0rpx 0rpx 0rpx;
         }
       }
 
-      .directOrder_fd1_0_c1_c1_babdd {
-        width: 100%;
-        padding: 50rpx 0rpx 50rpx 0rpx;
+      .directOrder_fd1_0_c1_c0_c0_c2_c0_babdd {
+        color: var(--benbenFontColor0);
+        font-size: 33rpx;
+        font-weight: 700;
+        line-height: 40rpx;
+      }
 
-        .directOrder_fd1_0_c1_c1_c0_babdd {
-          width: 400rpx;
-          border-radius: 0rpx 0rpx 0rpx 0rpx;
+      .directOrder_fd1_0_c1_c0_c0_c2_c1_babdd {
+        color: var(--benbenFontColor0);
+        font-weight: 600;
+
+        .directOrder_price1_fd1_0_c1_c0_c0_c2_c1_babdd {
+          font-size: 49rpx;
+        }
+
+        .directOrder_price2_fd1_0_c1_c0_c0_c2_c1_babdd {
+          font-size: 33rpx;
         }
       }
     }

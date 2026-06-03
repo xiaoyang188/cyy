@@ -620,6 +620,52 @@
 
       <!---flex布局flex布局结束-->
       <!---flex布局flex布局开始-->
+      <view class="flex flex-direction align-stretch benben-flex-layout">
+        <view class="flex flex-direction flex-wrap align-stretch shopDetail_fd11_0_dija">
+          <view
+            class="flex flex-wrap align-center shopDetail_fd11_0_c0_dija"
+            @tap.stop="handleJumpDiy"
+            data-type="navigateTo"
+            :data-url="`/pages/fl/answerQuestion/answerQuestion?goods_id=${id}&img=${dataDetails.thumb}&name=${dataDetails.name}`"
+          >
+            <view class="flex flex-wrap align-center shopDetail_fd9_0_c0_c0_babdd"></view>
+            <text class="shopDetail_fd11_0_c0_c1_dija">{{ $t('问答') }}</text>
+            <text class="shopDetail_fd11_0_c0_c1_dija">(</text>
+            <text class="shopDetail_fd11_0_c0_c1_dija">{{ dataDetails.question_total }}</text>
+            <text class="shopDetail_fd11_0_c0_c1_dija">)</text>
+            <view class="flex flex-wrap align-center shopDetail_fd11_0_c0_c5_dija">
+              <text class="shopDetail_fd11_0_c0_c5_c0_dija">{{ $t('查看全部') }}</text>
+              <image
+                class="shopDetail_fd11_0_c0_c5_c1_dija"
+                mode="aspectFit"
+                src="https://zhongtai.zhongbenruanjian.com/imgTheme/1/2/3890/51734"
+              ></image>
+            </view>
+          </view>
+          <template v-for="(item, key0) in dataDetails.question_list">
+            <view
+              class="flex flex-wrap align-center shopDetail_fd11_0_c1_dija"
+              @tap.stop="handleJumpDiy"
+              data-type="navigateTo"
+              :data-url="`/pages/fl/detailsQuestion/detailsQuestion?question_id=${item.aid}`"
+              :key="key0"
+            >
+              <image
+                class="shopDetail_fd11_0_c1_c0_dija"
+                mode="aspectFit"
+                src="https://zhongtai.zhongbenruanjian.com/imgTheme/1/2/3890/51735"
+              ></image>
+              <text class="flex-sub shopDetail_fd11_0_c1_c1_dija">{{ item.question_content }}</text>
+              <view class="flex flex-wrap align-center shopDetail_fd11_0_c0_c5_dija">
+                <text class="shopDetail_fd11_0_c1_c2_c0_dija">{{ item.answer_number }}</text>
+                <text class="shopDetail_fd11_0_c1_c2_c0_dija">{{ $t('个回答') }}</text>
+              </view>
+            </view>
+          </template>
+        </view>
+      </view>
+      <!---flex布局flex布局结束-->
+      <!---flex布局flex布局开始-->
       <view class="flex flex-direction align-stretch benben-flex-layout shopDetail_flex_10_babdd" v-if="dataDetails.body">
         <view class="flex flex-wrap align-center shopDetail_fd10_0_babdd">
           <view class="flex flex-wrap align-center shopDetail_fd10_0_c0_babdd"></view>
@@ -2145,6 +2191,20 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+.shopDetail_fd9_0_c0_c0_babdd {
+  width: 7rpx;
+  height: 30rpx;
+  background: var(--benbenbtnColor0);
+  margin: 0rpx 16rpx 0rpx 0rpx;
+  border-radius: 3rpx;
+}
+.shopDetail_fd11_0_c0_c1_dija {
+  color: var(--benbenFontColor0);
+  font-size: 32rpx;
+  font-weight: 600;
+  line-height: 45rpx;
+}
+
 .page {
   width: 100vw;
   overflow-x: hidden;
@@ -3732,5 +3792,109 @@ export default {
   margin: 0rpx 6rpx 0rpx 0rpx;
   font-size: 24rpx;
   color: #fff;
+}
+
+.shopDetail_fd11_0_dija {
+  border-top: 10px solid rgba(246, 246, 246, 1);
+  border-bottom: 10px solid rgba(246, 246, 246, 1);
+  margin: 0rpx 0rpx 0rpx 0rpx;
+
+  .shopDetail_fd11_0_c0_dija {
+    margin: 0rpx 24rpx 0rpx 24rpx;
+    padding: 32rpx 0rpx 32rpx 0rpx;
+
+    .shopDetail_fd11_0_c0_c0_dija {
+      width: 7rpx;
+      height: 30rpx;
+      background: var(--benbenbgColor0);
+      margin: 0rpx 16rpx 0rpx 0rpx;
+      border-radius: 3rpx;
+    }
+  }
+
+  .shopDetail_fd11_0_c1_dija {
+    margin: 0rpx 24rpx 24rpx 24rpx;
+
+    .shopDetail_fd11_0_c1_c0_dija {
+      width: 40rpx;
+      height: 40rpx;
+      border-radius: 0rpx 0rpx 0rpx 0rpx;
+    }
+
+    .shopDetail_fd11_0_c1_c1_dija {
+      color: var(--benbenFontColor0);
+      font-size: 28rpx;
+      font-weight: 600;
+      line-height: 40rpx;
+      margin: 0rpx 12rpx 0rpx 8rpx;
+      -webkit-line-clamp: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      word-break: break-word;
+    }
+  }
+}
+
+.shopDetail_fd11_0_c0_c5_dija {
+  margin: 0rpx 0rpx 0rpx auto;
+
+  .shopDetail_fd11_0_c0_c5_c0_dija {
+    color: var(--benbenFontColor0);
+    font-size: 24rpx;
+    font-weight: 600;
+    line-height: 33rpx;
+  }
+
+  .shopDetail_fd11_0_c0_c5_c1_dija {
+    width: 12rpx;
+    height: 22rpx;
+    border-radius: 0rpx 0rpx 0rpx 0rpx;
+    margin: 0rpx 0rpx 0rpx 12rpx;
+  }
+}
+.shopDetail_fd11_0_c0_c5_c0_dija {
+  color: var(--benbenFontColor0);
+  font-size: 24rpx;
+  font-weight: 600;
+  line-height: 33rpx;
+}
+
+.shopDetail_fd11_0_c0_c5_c1_dija {
+  width: 12rpx;
+  height: 22rpx;
+  border-radius: 0rpx 0rpx 0rpx 0rpx;
+  margin: 0rpx 0rpx 0rpx 12rpx;
+}
+.shopDetail_fd11_0_c1_dija {
+  margin: 0rpx 24rpx 24rpx 24rpx;
+
+  .shopDetail_fd11_0_c1_c0_dija {
+    width: 40rpx;
+    height: 40rpx;
+    border-radius: 0rpx 0rpx 0rpx 0rpx;
+  }
+
+  .shopDetail_fd11_0_c1_c1_dija {
+    color: var(--benbenFontColor0);
+    font-size: 28rpx;
+    font-weight: 600;
+    line-height: 40rpx;
+    margin: 0rpx 12rpx 0rpx 8rpx;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    word-break: break-word;
+  }
+}
+
+.shopDetail_fd11_0_c1_c2_c0_dija {
+  color: var(--benbenFontColor0);
+  font-size: 24rpx;
+  font-weight: 400;
+  line-height: 33rpx;
 }
 </style>
