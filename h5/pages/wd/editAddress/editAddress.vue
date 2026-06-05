@@ -22,16 +22,20 @@
       <!---添加地址flex布局开始-->
       <view class="flex flex-direction align-stretch benben-flex-layout">
         <view class="editAddress_smart_card" v-if="id == ''">
-          <text class="editAddress_smart_title">{{ $t('智能识别地址') }}</text>
+          <view class="flex align-center justify-between editAddress_smart_header">
+            <text class="editAddress_smart_title">{{ $t('智能识别地址') }}</text>
+            <view class="editAddress_smart_btn" :class="{ editAddress_smart_btn_disabled: addressRecognizing }" @tap.stop="recognizeAddressFunc()">
+              <text>{{ $t('识别') }}</text>
+            </view>
+          </view>
           <view class="editAddress_field_box">
             <textarea
               class="editAddress_smart_textarea"
               v-model="smartAddressText"
-              :placeholder="$t('粘贴整段文字如：张三，18337283440，河南省郑州市二七区华城国际中心1918')"
+              :placeholder="$t('粘贴整段文字如：张三1xxxxxxxxxXX省XX市XX区xxxx')"
               placeholder-style="color:var(--benbenFontColor2);font-size:28rpx;line-height:44rpx"
               maxlength="500"
-              @blur="recognizeAddressFunc()"
-              @paste="handleSmartAddressPaste()"
+              :disabled="addressRecognizing"
             />
           </view>
         </view>
@@ -510,42 +514,70 @@ export default {
         }, 100)
       })
     },
+    // 将智能识别接口数据写入表单（兼容 name/address/area 与 real_name/detail 等字段）
+    applyRecognizedAddress(data = {}) {
+      const pick = (...vals) => {
+        for (const v of vals) {
+          if (v !== undefined && v !== null && String(v).trim() !== '') return String(v).trim()
+        }
+        return ''
+      }
+
+      const realName = pick(data.name, data.real_name)
+      if (realName) this.dataMessage.real_name = realName
+
+      const mobile = pick(data.mobile)
+      if (mobile) this.dataMessage.mobile = mobile
+
+      const province = pick(data.province, data.address_code_province)
+      const city = pick(data.city, data.address_code_city)
+      const district = pick(data.district, data.address_code_district)
+      if (province) this.dataMessage.address_code_province = province
+      if (city) this.dataMessage.address_code_city = city
+      if (district) this.dataMessage.address_code_district = district
+
+      const detail = pick(data.address, data.detail)
+      if (detail) this.dataMessage.detail = detail
+
+      let areaStr = pick(data.area, data.address_code_area_str)
+      if (!areaStr && (data.province_name || data.city_name || data.district_name)) {
+        areaStr = `${data.province_name || ''}${data.city_name || ''}${data.district_name || ''}`
+      }
+      if (areaStr) this.dataMessage.address_code_area_str = areaStr
+
+      const sex = pick(data.sex)
+      if (sex) this.dataMessage.sex = sex
+      const lng = pick(data.lng)
+      if (lng) this.dataMessage.lng = lng
+      const lat = pick(data.lat)
+      if (lat) this.dataMessage.lat = lat
+    },
     // 智能识别地址
     async recognizeAddressFunc() {
       const text = (this.smartAddressText || '').trim()
-      if (!text || this.addressRecognizing) return
-      this.$message.info('等待三方对接')
-      return
+      if (!text) {
+        this.$message.info(this.$t('请粘贴或输入地址信息'))
+        return
+      }
+      if (this.addressRecognizing) return
 
       this.addressRecognizing = true
+      uni.showLoading({ title: this.$t('识别中'), mask: true })
       try {
-        let res = await this.$api.dbPost(global.apiUrls.post67a1b2c3d4e5f, {
-          address_text: text,
+        let res = await this.$api.post(global.apiUrls.post672daa999d5c3, {
+          address: text,
         })
         if (!res) return
         if (res.data.code != 1) {
           this.$message.info(res.data.msg)
           return
         }
-        const data = res.data.data || {}
-        if (data.real_name) this.dataMessage.real_name = data.real_name
-        if (data.mobile) this.dataMessage.mobile = data.mobile
-        if (data.province) this.dataMessage.address_code_province = data.province
-        if (data.city) this.dataMessage.address_code_city = data.city
-        if (data.district) this.dataMessage.address_code_district = data.district
-        if (data.detail) this.dataMessage.detail = data.detail
-        if (data.address_code_area_str) {
-          this.dataMessage.address_code_area_str = data.address_code_area_str
-        } else if (data.province && data.city && data.district) {
-          this.dataMessage.address_code_area_str = `${data.province}${data.city}${data.district}`
-        }
-        if (data.sex) this.dataMessage.sex = String(data.sex)
-        if (data.lng) this.dataMessage.lng = data.lng
-        if (data.lat) this.dataMessage.lat = data.lat
+        this.applyRecognizedAddress(res.data.data || {})
       } catch (e) {
         console.error('智能识别地址失败', e)
       } finally {
         this.addressRecognizing = false
+        uni.hideLoading()
       }
     },
     //输入监听事件
@@ -644,12 +676,32 @@ export default {
     background: var(--benbenbgColor1);
     border-radius: 16rpx;
 
+    .editAddress_smart_header {
+      margin-bottom: 24rpx;
+    }
+
     .editAddress_smart_title {
       line-height: 45rpx;
       font-size: 32rpx;
       font-weight: 400;
       color: var(--benbenFontColor0);
-      margin-bottom: 32rpx;
+    }
+
+    .editAddress_smart_btn {
+      flex-shrink: 0;
+      min-width: 120rpx;
+      padding: 0 28rpx;
+      height: 56rpx;
+      line-height: 56rpx;
+      text-align: center;
+      border-radius: 28rpx;
+      background: var(--benbenbtnColor0);
+      font-size: 28rpx;
+      color: var(--benbenFontColor3);
+
+      &.editAddress_smart_btn_disabled {
+        opacity: 0.6;
+      }
     }
 
     .editAddress_smart_textarea {

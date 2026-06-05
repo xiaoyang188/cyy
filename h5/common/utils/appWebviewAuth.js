@@ -4,65 +4,14 @@
  */
 
 import { http } from '@/common/api/index.js'
+export {
+  parseAppWebviewLaunchQuery,
+  isAppWebviewLaunch,
+  getUrlUserToken,
+  getUrlLayoutInsets,
+} from '@/common/utils/appWebviewQuery.js'
 
-function parseQueryString(qs) {
-  const out = {}
-  let s = (qs || '').trim()
-  if (!s) return out
-  if (s.startsWith('?')) s = s.slice(1)
-  if (s.startsWith('/?')) s = s.slice(2)
-  else if (s.startsWith('/')) s = s.slice(1)
-
-  s.split('&').forEach((pair) => {
-    if (!pair) return
-    const idx = pair.indexOf('=')
-    const key = idx >= 0 ? pair.slice(0, idx) : pair
-    const val = idx >= 0 ? pair.slice(idx + 1) : ''
-    if (key) {
-      try {
-        out[decodeURIComponent(key)] = decodeURIComponent(val || '')
-      } catch (e) {
-        out[key] = val
-      }
-    }
-  })
-  return out
-}
-
-/** 解析 search + hash 中的 query（兼容 hash 路由） */
-export function parseAppWebviewLaunchQuery() {
-  if (typeof window === 'undefined') return {}
-
-  const merged = {}
-
-  if (window.location.search) {
-    Object.assign(merged, parseQueryString(window.location.search))
-  }
-
-  const hash = window.location.hash || ''
-  if (!hash) return merged
-
-  const qIndex = hash.indexOf('?')
-  if (qIndex >= 0) {
-    Object.assign(merged, parseQueryString(hash.slice(qIndex)))
-  } else if (hash.startsWith('#/?')) {
-    Object.assign(merged, parseQueryString(hash.slice(2)))
-  } else if (hash.startsWith('#?')) {
-    Object.assign(merged, parseQueryString(hash.slice(2)))
-  }
-
-  return merged
-}
-
-export function isAppWebviewLaunch() {
-  const q = parseAppWebviewLaunchQuery()
-  return q.__app_webview === '1' || q.__app_webview === 1 || q.__app_webview === true
-}
-
-export function getUrlUserToken() {
-  const q = parseAppWebviewLaunchQuery()
-  return (q.user_token || q.userToken || '').trim()
-}
+import { isAppWebviewLaunch, getUrlUserToken } from '@/common/utils/appWebviewQuery.js'
 
 /** 标记 App 内嵌场景（可供页面判断隐藏退出登录等） */
 export function markAppWebviewContext() {

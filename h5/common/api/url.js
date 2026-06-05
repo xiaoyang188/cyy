@@ -25,7 +25,7 @@ const publicApi = {
   post64241ca6cf066: `/${API_VERSION}/64241ca6cf066`, //系统消息-获取未读消息角标
   post64219a95b6200: `/${API_VERSION}/64219a95b6200`, //文章列表-获取帮助中心列表
   post641e88b843d57: `/${API_VERSION}/641e88b843d57`, //商品搜索-获取店铺列表
-  post641af9cb8b32f: `/${API_VERSION}/641af9cb8b32f`, //商品搜索-搜索发现	
+  post641af9cb8b32f: `/${API_VERSION}/641af9cb8b32f`, //商品搜索-搜索发现
   post6758eb9165329: `/${API_VERSION}/6758eb9165329`, //商城模式--获取指定页面的配置情况
   post6881861da4834: `/${API_VERSION}/6881861da4834`, //商城配置-获取商城模块配置
   post62bebd70c4bad: `/${API_VERSION}/62bebd70c4bad`, //购物车-购物车列表
@@ -182,6 +182,7 @@ const publicApi = {
   post6a03c9d95f601: `/${API_VERSION}/6a03c9d95f601`, // 礼包权益--生成礼包购买订单
   post6a154ced919fe: `/${API_VERSION}/6a154ced919fe`, //获取礼包列表
   post67e67234a704a: `/${API_VERSION}/67e67234a704a`, // 礼包权益--生成礼包购买订单
+  post672daa999d5c3: `/${API_VERSION}/672daa999d5c3`, // 礼包权益--生成礼包购买订单
 }
 const pageFiles = require.context('../../pages/', true, /\api.js$/);
 const pageApis = pageFiles.keys().reduce((modules, modulePath) => {

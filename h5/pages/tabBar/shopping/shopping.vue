@@ -503,7 +503,6 @@ export default {
     },
     //修改购物车数量
     async editCartNumFunc() {
-    
       //请求方法
       //数据验证
 
@@ -571,6 +570,17 @@ export default {
     },
     //跳转确认订单
     ConfirmOrderFunc() {
+      if (!this.cart_ids) {
+        this.$message.info(this.$t('请选择商品'))
+        return
+      }
+      const selected = (this.dataList || []).flatMap((shop) =>
+        (shop.cart_list || []).filter((item) => String(this.cart_ids).split(',').includes(String(item.aid))),
+      )
+      if (!selected.length || selected.some((item) => Number(item.num) < 1 || Number(item.stock) < 1)) {
+        this.$message.info(this.$t('请先将商品数量调整为至少1件'))
+        return
+      }
       this.$urouter.navigateTo(`/pages/ddgl/directOrder/directOrder?cartid=${this.cart_ids}`)
     },
     //获取购物车数量

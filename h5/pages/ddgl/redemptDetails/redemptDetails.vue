@@ -346,9 +346,9 @@
           </view>
         </view>
         <view class="flex flex-direction align-stretch justify-end redemptDetails_fd3_4_babdd">
-          <view class="flex flex-wrap align-center redemptDetails_fd3_4_bar_babdd">
+          <view class="flex align-center redemptDetails_fd3_4_bar_babdd">
             <button class="redemptDetails_fd3_4_contact_babdd" @tap.stop="callMobile(systemsInfo)">{{ $t('联系商家') }}</button>
-            <view class="flex flex-wrap align-center justify-end flex-sub redemptDetails_fd3_4_actions_babdd">
+            <view class="flex align-center justify-end flex-sub redemptDetails_fd3_4_actions_babdd">
               <button
                 class="redemptDetails_fd3_4_c0_c0_babdd"
                 @tap.stop="popupShow1657247297312 = true"
@@ -1927,6 +1927,7 @@ export default {
   .redemptDetails_fd3_4_bar_babdd {
     width: 100%;
     align-items: center;
+    flex-wrap: nowrap;
   }
 
   .redemptDetails_fd3_4_contact_babdd {
@@ -1936,57 +1937,68 @@ export default {
     background: #ffffff;
     color: var(--benbenbtnColor0);
     border: 2rpx solid var(--benbenbtnColor0);
-    min-width: 160rpx;
+    min-width: 144rpx;
     height: 60rpx;
     line-height: 56rpx;
     font-weight: 500;
-    margin: 0;
-    padding: 0 24rpx;
+    margin: 0 12rpx 0 0;
+    padding: 0 20rpx;
   }
 
   .redemptDetails_fd3_4_actions_babdd {
     min-width: 0;
-    flex-wrap: wrap;
+    flex: 1;
+    flex-wrap: nowrap;
     justify-content: flex-end;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   .redemptDetails_fd3_4_c0_c0_babdd {
+    flex-shrink: 0;
     border-radius: 50rpx 50rpx 50rpx 50rpx;
     font-size: 24rpx;
     background: var(--benbenbtnColor3);
     color: var(--benbenFontColor0);
-    width: 170rpx;
+    width: 144rpx;
     height: 60rpx;
     line-height: 60rpx;
     font-weight: 400;
-    margin: 0rpx 0rpx 0rpx 16rpx;
+    margin: 0 0 0 12rpx;
   }
 
   .redemptDetails_fd3_4_c0_c1_babdd {
+    flex-shrink: 0;
     border-radius: 30rpx 30rpx 30rpx 30rpx;
     font-size: 24rpx;
     background: var(--benbenbtnColor3);
     color: var(--benbenFontColor0);
-    width: 170rpx;
+    width: 144rpx;
     height: 60rpx;
     line-height: 60rpx;
     font-weight: 400;
-    margin: 0rpx 0rpx 0rpx 24rpx;
+    margin: 0 0 0 12rpx;
   }
 
   .redemptDetails_fd3_4_c0_c2_babdd {
+    flex-shrink: 0;
     border-radius: 40rpx 40rpx 40rpx 40rpx;
     font-size: 24rpx;
     background: var(--benbenbtnColor0);
     color: var(--benbenFontColor3);
-    width: 170rpx;
+    width: 144rpx;
     height: 60rpx;
     line-height: 60rpx;
     font-weight: 400;
-    margin: 0rpx 0rpx 0rpx 24rpx;
+    margin: 0 0 0 12rpx;
   }
 
   .redemptDetails_fd3_4_c0_c3_babdd {
+    flex-shrink: 0;
     border-radius: 40rpx 40rpx 40rpx 40rpx;
     font-size: 24rpx;
     background: var(--benbenbtnColor0);
@@ -1994,8 +2006,9 @@ export default {
     height: 60rpx;
     line-height: 60rpx;
     font-weight: 400;
-    margin: 0rpx 0rpx 0rpx 24rpx;
-    padding: 0rpx 35rpx 0rpx 35rpx;
+    margin: 0 0 0 12rpx;
+    min-width: 144rpx;
+    padding: 0 20rpx;
   }
 
   .redemptDetails_fd2_0_babdd {

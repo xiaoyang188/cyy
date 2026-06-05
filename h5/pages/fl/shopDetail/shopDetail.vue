@@ -996,7 +996,7 @@
                           <image class="shopDetail_fd17_1_c0_c0_c0_c0_c0_babdd" mode="aspectFit" :src="STATIC_URL + '91.png'"></image>
                           <view class="flex flex-direction flex-wrap align-stretch flex-sub">
                             <view class="flex align-center shopDetail_fd17_1_c0_c0_c0_c0_c1_c0_babdd">
-                              <view class="flex flex-wrap align-center shopDetail_fd17_1_c0_c0_c0_c0_c1_c0_c0_babdd">
+                              <view class="flex flex-wrap align-center shopDetail_fd17_1_c0_c0_c0_c0_c1_c0_c0_babdd" v-if="item.label_name">
                                 <text class="shopDetail_fd17_1_c0_c0_c0_c0_c1_c0_c0_c0_babdd">{{ item.label_name }}</text>
                               </view>
                               <text class="shopDetail_fd17_1_c0_c0_c0_c0_c1_c0_c1_babdd">{{ item.real_name }}</text>
@@ -1031,7 +1031,7 @@
                           <image class="shopDetail_fd17_1_c0_c0_c0_c0_c0_babdd" mode="aspectFit" :src="STATIC_URL + '92.png'"></image>
                           <view class="flex flex-direction flex-wrap align-stretch flex-sub">
                             <view class="flex align-center shopDetail_fd17_1_c0_c0_c0_c0_c1_c0_babdd">
-                              <view class="flex flex-wrap align-center shopDetail_fd17_1_c0_c0_c0_c0_c1_c0_c0_babdd">
+                              <view class="flex flex-wrap align-center shopDetail_fd17_1_c0_c0_c0_c0_c1_c0_c0_babdd" v-if="item.label_name">
                                 <text class="shopDetail_fd17_1_c0_c0_c0_c0_c1_c0_c0_c0_babdd">{{ item.label_name }}</text>
                               </view>
                               <text class="shopDetail_fd17_1_c0_c0_c0_c0_c1_c0_c1_babdd">{{ item.real_name }}</text>

@@ -256,7 +256,7 @@
         .answer_fd1_0_c2_dija {
           border-radius: 44rpx 44rpx 44rpx 44rpx;
           font-size: 32rpx;
-          background: var(--benbenbgColor7);
+          background: var(--benbenbgColor3);
           color: #fff;
           width: 308rpx;
           height: 80rpx;

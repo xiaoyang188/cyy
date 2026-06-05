@@ -7,7 +7,7 @@
 			</view>
 		</view>
 		<view class="shop" style="width: 100%; margin-top: 30rpx">
-			<web-view :src="webPath" @message="onMessage"></web-view>
+			<web-view v-if="webPath" :src="webPath" @message="onMessage"></web-view>
 		</view>
 		<!-- <scroll-view
       class="scroll-shop"
@@ -74,12 +74,24 @@
 	const pageSize = ref(10);
 	const totalPage = ref(0);
 	const TOKEN = ref("d3bb4681-552f-d05b-4179-b593e430e9af"); //接口传参
-	const webPath = ref(
-		"http://10.10.8.100:8080/#/?__app_webview=1&user_token=" + TOKEN.value,
-	); //本地
-	// const webPath = ref(
-	//   "https://shop.chongyueyue.cn/web/#/?__app_webview=1&user_token=" + TOKEN,
-	// );
+	const webPath = ref(""); //本地
+	// const SHOP_H5_BASE = "https://shop.chongyueyue.cn/web/#/?";
+	const SHOP_H5_BASE = "http://10.10.8.100:8080/#/?";
+
+	function buildShopWebPath(token, info) {
+		const base =
+			`${SHOP_H5_BASE}__app_webview=1&user_token=${encodeURIComponent(token)}`;
+		// 仅 Android WebView 内 H5 常拿不到状态栏高度；iOS 传 URL 参数会导致顶栏过高
+		if ((info?.platform || '').toLowerCase() !== 'android') {
+			return base;
+		}
+		const safeTop = info?.safeAreaInsets?.top || info?.statusBarHeight || 0;
+		const statusBar = info?.statusBarHeight || safeTop;
+		const safeBottom = info?.safeAreaInsets?.bottom || 0;
+		return (
+			`${base}&safe_area_top=${safeTop}&status_bar_height=${statusBar}&safe_area_bottom=${safeBottom}`
+		);
+	}
 
 	// #ifndef H5
 	let keyboardHandler = null;
@@ -87,7 +99,8 @@
 
 	onLoad(() => {
 		let info = uni.getSystemInfoSync();
-		statusBarHeight.value = info.safeAreaInsets.top;
+		statusBarHeight.value = info.safeAreaInsets?.top || info.statusBarHeight || 0;
+		webPath.value = buildShopWebPath(TOKEN.value, info);
 
 		getProduct();
 

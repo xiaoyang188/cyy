@@ -1,3 +1,5 @@
+import { getUrlLayoutInsets } from '@/common/utils/appWebviewQuery.js'
+
 /** 写入 themeColor CSS 变量的 px 字段（不含 rpx / unitRatio） */
 export const SYSTEM_INFO_CSS_KEYS = ['StatusBar', 'CustomBar', 'bottomSafeArea']
 
@@ -19,6 +21,64 @@ function readCssSafeAreaInsets() {
   } catch (e) {
     return { top: 0, bottom: 0 }
   }
+}
+
+function isAndroidPlatform(e) {
+  const platform = (e.platform || e.osName || '').toLowerCase()
+  return platform === 'android' || /android/i.test(e.system || '')
+}
+
+function isIOSPlatform(e) {
+  const platform = (e.platform || e.osName || '').toLowerCase()
+  return platform === 'ios' || /ios/i.test(e.system || '')
+}
+
+/** 三星/OPPO/一加等 Android WebView 无法上报状态栏高度时的兜底估算 */
+function getAndroidStatusBarFallback(e) {
+  const windowWidth = e.windowWidth || (typeof window !== 'undefined' ? window.innerWidth : 375)
+  const estimated = Math.round(windowWidth * 0.102)
+  return Math.max(28, Math.min(estimated, 52))
+}
+
+/**
+ * H5 状态栏高度
+ * - iOS：仅 uni + CSS env（与改前一致，避免顶栏过高）
+ * - Android：uni/CSS 为 0 时再用 URL 参数 / 屏幕差值 / 估算（针对 S25、Find X8、OnePlus 15 等）
+ */
+function resolveH5StatusBarTop(e, currentTop = 0) {
+  let statusBar = currentTop || 0
+
+  const fromUni = e.statusBarHeight || 0
+  const safeTopPx =
+    (e.safeAreaInsets && e.safeAreaInsets.top) ||
+    (e.safeArea && typeof e.safeArea.top === 'number' ? e.safeArea.top : 0) ||
+    0
+  if (fromUni > statusBar) statusBar = fromUni
+  if (safeTopPx > statusBar) statusBar = safeTopPx
+
+  const cssInsets = readCssSafeAreaInsets()
+  if (cssInsets.top > statusBar) statusBar = cssInsets.top
+
+  if (isIOSPlatform(e)) {
+    return statusBar
+  }
+
+  if (!isAndroidPlatform(e) || statusBar > 0) {
+    return statusBar
+  }
+
+  const urlTop = getUrlLayoutInsets().top || 0
+  if (urlTop > 0) return urlTop
+
+  const screenH = e.screenHeight || 0
+  const windowH = e.windowHeight || (typeof window !== 'undefined' ? window.innerHeight : 0)
+  const bottomInset = (e.safeAreaInsets && e.safeAreaInsets.bottom) || cssInsets.bottom || 0
+  if (screenH > windowH) {
+    const diff = screenH - windowH - bottomInset
+    if (diff > 0 && diff < 120) return diff
+  }
+
+  return getAndroidStatusBarFallback(e)
 }
 
 /** 根据 uni.getSystemInfoSync 结果计算布局尺寸 */
@@ -51,15 +111,18 @@ export function buildSystemInfo(rawInfo) {
   let bottomSafeArea = (e.safeAreaInsets && e.safeAreaInsets.bottom) || 0
 
   // #ifdef H5
-  const safeTopPx =
-    (e.safeAreaInsets && e.safeAreaInsets.top) || (e.safeArea && typeof e.safeArea.top === 'number' ? e.safeArea.top : 0) || 0
-  if (safeTopPx > statusBar) statusBar = safeTopPx
+  statusBar = resolveH5StatusBarTop(e, statusBar)
 
   const cssInsets = readCssSafeAreaInsets()
-  if (cssInsets.top > statusBar) statusBar = cssInsets.top
   if (cssInsets.bottom > bottomSafeArea) bottomSafeArea = cssInsets.bottom
 
+  if (isAndroidPlatform(e)) {
+    const urlBottom = getUrlLayoutInsets().bottom || 0
+    if (urlBottom > bottomSafeArea) bottomSafeArea = urlBottom
+  }
+
   if (e.platform === 'ios' && bottomSafeArea === 0) bottomSafeArea = 34
+  if (statusBar > 0) customBar = statusBar + (e.platform === 'android' ? 50 : 45)
   // #endif
 
   const unitRatio = 750 / windowWidth

@@ -17,10 +17,6 @@ Vue.prototype.$backParents = function() {
  * @return {Object} promise对象
  */
 
-/*
-new ui
-*/
-
 Vue.prototype.$getImageCache = function(filePath, fileMd5) {
 	console.log('into main js')
 	// 图片缓存key值

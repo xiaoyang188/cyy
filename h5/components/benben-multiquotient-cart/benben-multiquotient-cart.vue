@@ -55,7 +55,7 @@
             v-for="(item, index) in dataItem.cart_list"
             :key="index"
             :class="{
-              'not-but-class': item.stock == 0 || item.is_sale == 0 || item.is_check == 0,
+              'not-but-class': item.stock == 0 || item.is_sale == 0 || item.is_check == 0 || Number(item.num) < 1,
             }"
           >
             <view class="check-box" @tap="icheck(item, i, index)">
@@ -67,7 +67,7 @@
               </text>
             </view>
             <!-- 商品图片 -->
-            <view class="img-box">
+            <view class="img-box" @tap="toDetail(item, 1)">
               <view class="no-stok" v-if="item.is_check == 0">
                 <image class="no-stock-img" :src="benbenImageSrcResolution('no.png', 'global')" mode=""></image>
               </view>
@@ -77,7 +77,7 @@
               <view class="no-stok" v-if="item.is_sale == 0">
                 <image class="no-stock-img" :src="benbenImageSrcResolution('shelf.png', 'global')" mode=""></image>
               </view>
-              <image class="img" @tap="toDetail(item, 1)" :src="item.goods_thumb" mode="aspectFill"></image>
+              <image class="img" :src="item.goods_thumb" mode="aspectFill"></image>
             </view>
             <!-- 商品详细信息 -->
             <view class="info-box">
@@ -102,7 +102,7 @@
                   class="number"
                   @openInput="openInput($event, i, index, Number(item.stock))"
                   :inhibit-input="inhibitInput"
-                  :min="1"
+                  :min="Number(item.num) < 1 ? 0 : 1"
                   :jzDisabled="true"
                   :disabled="item.is_valid == 2 || disabled_add_num"
                   @tapIcon="addingNumChange"
@@ -151,10 +151,11 @@
   </view>
 </template>
 <script>
-// 商品是否禁止选中
+// 商品是否禁止选中（库存为 0、数量为 0、下架等不可勾选结算）
 function isDisabled(ele) {
   return (
     (ele.hasOwnProperty('stock') && ele.stock == 0) ||
+    (ele.hasOwnProperty('num') && Number(ele.num) < 1) ||
     (ele.hasOwnProperty('is_valid') && ele.is_valid != 0) ||
     (ele.hasOwnProperty('is_check') && ele.is_check == 0) ||
     (ele.hasOwnProperty('is_sale') && ele.is_sale == 0)
@@ -373,11 +374,14 @@ export default {
     },
     // 商品选中处理状态
     icheck(item) {
-      if (!this.isEditor && !isDisabled(item)) {
+      if (!this.isEditor) {
         if (item?.is_check == 0) return this.$message.info(t('该商品已下架'))
         if (item?.stock == 0) return this.$message.info(t('该商品已售完,正在采购中'))
         if (item?.is_sale == 0) return this.$message.info(t('该商品已下架'))
-        this.$set(item, 'checked', !item.checked)
+        if (Number(item?.num) < 1) return this.$message.info(t('请先将商品数量调整为至少1件'))
+        if (!isDisabled(item)) {
+          this.$set(item, 'checked', !item.checked)
+        }
       }
       if (this.isEditor) {
         this.$set(item, 'delChecked', !item.delChecked)
@@ -457,10 +461,13 @@ export default {
       let cartXia = false
       let is_sale = false
       let is_check = false
+      let invalidNum = false
       list.forEach((item) => {
         item.cart_list.forEach((j) => {
-          if (j.checked && j.stock != 0 && j.is_sale != 0 && j.is_check != 0) {
+          if (j.checked && j.stock != 0 && j.is_sale != 0 && j.is_check != 0 && Number(j.num) > 0) {
             ids.push(j.aid)
+          } else if (j.checked && Number(j.num) < 1) {
+            invalidNum = true
           } else if (j.checked && j.stock == 0) {
             cartXia = true
           } else if (j.checked && j.is_sale == 0) {
@@ -470,12 +477,12 @@ export default {
           }
         })
       })
-      console.log(ids, 'ids')
       if (cartXia) return this.$message.info(t('该商品已售完,正在采购中'))
       if (is_sale) return this.$message.info(t('该商品已下架'))
       if (is_check) return this.$message.info(t('该商品已下架'))
+      if (invalidNum) return this.$message.info(t('请先将商品数量调整为至少1件'))
       const cart_ids = ids.join(',')
-      if (cart_ids == '') return this.$message.info(t('请选择商品'))
+      if (cart_ids == '' || this.totalNumber < 1) return this.$message.info(t('请选择商品'))
       this.$emit('update:cart-ids', cart_ids)
       this.$emit('createOrder')
     },
