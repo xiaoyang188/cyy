@@ -1,10 +1,11 @@
 <template>
   <page-body>
     <view class="page" :style="{ background: `url(${bgcImg}) no-repeat, #FFF` }">
-      <view class="flex flex-wrap align-center justify-between benben-position-layout flex centreCoupon_flex_0_babdd"
-        :style="{ height: 88 + StatusBarRpx + 'rpx', paddingTop: StatusBarRpx + 'rpx', background: `url(${bgcImg}) no-repeat, transparent` }">
-        <view class="flex flex-wrap align-center centreCoupon_fd0_0_babdd" @tap.stop="handleJumpDiy" data-type="back"
-          data-url="1">
+      <view
+        class="flex flex-wrap align-center justify-between benben-position-layout flex centreCoupon_flex_0_babdd"
+        :style="{ height: 88 + StatusBarRpx + 'rpx', paddingTop: StatusBarRpx + 'rpx', background: `url(${bgcImg}) no-repeat, transparent` }"
+      >
+        <view class="flex flex-wrap align-center centreCoupon_fd0_0_babdd" @tap.stop="handleJumpDiy" data-type="back" data-url="1">
           <image class="centreCoupon_fd0_0_c0_babdd" mode="aspectFit" :src="STATIC_URL + '166.png'"></image>
         </view>
         <view class="flex flex-wrap align-center centreCoupon_fd0_0_babdd"></view>
@@ -34,9 +35,27 @@
               </view>
             </view>
             <view class="flex flex-wrap align-center justify-between centreCoupon_fd1_0_c1_babdd">
-              <text class="flex-sub centreCoupon_fd1_0_c1_c0_babdd">{{ item.content }}</text>
-              <button class="centreCoupon_fd1_0_c1_c1_babdd"
-                @tap.stop="ClaimcouponsFunc(item.id)">{{ $t('立即领取') }}</button>
+              <view class="flex flex-direction">
+                <text class="flex-sub centreCoupon_fd1_0_c1_c0_babdd">{{ item.content }}</text>
+                <text v-if="item.receive_toplimit !== undefined && item.receive_toplimit !== null" class="centreCoupon_fd1_0_c1_limit_babdd">
+                  {{ $t('已领取') }} {{ Number(item.receive_num || 0) }} / {{ Number(item.receive_toplimit) }}
+                </text>
+              </view>
+              <template v-if="isCouponClaimed(item)">
+                <view
+                  class="centreCoupon_fd1_0_c1_c1_babdd centreCoupon_fd1_0_c1_c1_claimed_babdd"
+                  @tap.stop="handleJumpDiy"
+                  data-type="navigateTo"
+                  :data-url="`/pages/fl/commodityList/commodityList`"
+                >
+                  {{ $t('去使用') }}
+                </view>
+              </template>
+              <template v-else>
+                <button class="centreCoupon_fd1_0_c1_c1_babdd" :disabled="item._claiming" @tap.stop="ClaimcouponsFunc(item)">
+                  {{ item._claiming ? $t('领取中') : $t('立即领取') }}
+                </button>
+              </template>
             </view>
           </view>
         </template>
@@ -55,76 +74,99 @@
   </page-body>
 </template>
 <script>
-  import {
-    validate
-  } from '@/common/utils/validate.js'
+import { validate } from '@/common/utils/validate.js'
 
-  export default {
-    components: {},
+export default {
+  components: {},
 
-    data() {
-      return {
-        moneyList: [],
-        bgcImg: [],
-      }
-    },
-    computed: {
-      userInfo: {
-        get() {
-          return this.$store.state.userInfo
-        },
-        set(value) {
-          this.$store.commit('updateUserInfo', value)
-        },
+  data() {
+    return {
+      moneyList: [],
+      bgcImg: '',
+    }
+  },
+  computed: {
+    userInfo: {
+      get() {
+        return this.$store.state.userInfo
+      },
+      set(value) {
+        this.$store.commit('updateUserInfo', value)
       },
     },
-    watch: {},
-    onLoad(options) {
-      this.couponListFunc()
-      this.getBgcImgFunc()
+  },
+  watch: {},
+  onLoad(options) {
+    this.couponListFunc()
+    this.getBgcImgFunc()
+  },
+  onUnload() {},
+  onReady() {},
+  onShow() {},
+  onHide() {},
+  onResize() {},
+  onPullDownRefresh() {
+    this.couponListFunc()
+  },
+  onReachBottom(e) {},
+  onPageScroll(e) {},
+  methods: {
+    // 是否已达领取上限
+    isCouponClaimed(item) {
+      const topLimit = Number(item.receive_toplimit)
+      const receiveNum = Number(item.receive_num)
+      if (!topLimit) return false
+      return receiveNum >= topLimit
     },
-    onUnload() {},
-    onReady() {},
-    onShow() {},
-    onHide() {},
-    onResize() {},
-    onPullDownRefresh() {
-      this.couponListFunc()
-    },
-    onReachBottom(e) {},
-    onPageScroll(e) {},
-    methods: {
-      //领券列表
-      async couponListFunc() {
-        //请求方法
-        //数据验证
-
+    //领券列表
+    async couponListFunc() {
+      try {
         let datamoneyList = await this.$api.post(global.apiUrls.post641960f31d0f4, {
           method: '2',
           user_id: this.userInfo.id,
         })
 
+        if (!datamoneyList || !datamoneyList.data) {
+          this.$message.info(this.$t('网络异常，请重试'))
+          return
+        }
+
         if (datamoneyList.data.code != 1) {
           this.$message.info(datamoneyList.data.msg)
           return
         }
-        let infomoneyList = datamoneyList.data
-        this.moneyList = infomoneyList.data
-      },
-      //领取优惠券
-      async ClaimcouponsFunc(id) {
-        //请求方法
-        //数据验证
 
+        let infomoneyList = datamoneyList.data
+        this.moneyList = infomoneyList.data || []
+      } catch (err) {
+        console.error('couponListFunc error', err)
+        this.$message.info(this.$t('获取优惠券列表失败'))
+      }
+    },
+    //领取优惠券
+    async ClaimcouponsFunc(item) {
+      if (this.isCouponClaimed(item)) return
+
+      // 防止重复点击
+      this.$set(item, '_claiming', true)
+      try {
         let data64196d6a86d0d = await this.$api.dbPost(global.apiUrls.post64196d6a86d0d, {
-          id: id,
+          id: item.id,
         })
-        if (!data64196d6a86d0d) return
-        if (data64196d6a86d0d.data.code != 1) {
-          this.$message.info(data64196d6a86d0d.data.msg)
+        if (!data64196d6a86d0d || !data64196d6a86d0d.data) {
+          this.$message.info(this.$t('网络异常，请重试'))
+          this.$set(item, '_claiming', false)
           return
         }
-        let info64196d6a86d0d = data64196d6a86d0d.data
+        if (data64196d6a86d0d.data.code != 1) {
+          this.$message.info(data64196d6a86d0d.data.msg)
+          this.$set(item, '_claiming', false)
+          return
+        }
+
+        // 乐观更新已领取数量
+        const prev = Number(item.receive_num || 0)
+        this.$set(item, 'receive_num', prev + 1)
 
         uni.showToast({
           title: this.$t('领取成功'),
@@ -132,38 +174,47 @@
           icon: 'none',
           duration: 1500,
         })
-        this.couponListFunc()
-      },
-      //获取背景图
-      async getBgcImgFunc() {
-        let databgcImg = await this.$api.get(global.apiUrls.post641e624160dd0, {
-          type: '22',
-        })
 
-        if (databgcImg.data.code != 1) {
-          this.$message.info(databgcImg.data.msg)
-          return
-        }
-        let infobgcImg = databgcImg.data
-        this.bgcImg = infobgcImg.data[0].thumb
-      },
+        // 刷新列表以保证数据一致性（可选）
+        this.couponListFunc()
+      } catch (err) {
+        console.error('ClaimcouponsFunc error', err)
+        this.$message.info(this.$t('领取失败，请重试'))
+      } finally {
+        this.$set(item, '_claiming', false)
+      }
     },
-  }
+    //获取背景图
+    async getBgcImgFunc() {
+      let databgcImg = await this.$api.get(global.apiUrls.post641e624160dd0, {
+        type: '22',
+      })
+
+      if (databgcImg.data.code != 1) {
+        this.$message.info(databgcImg.data.msg)
+        return
+      }
+      let infobgcImg = databgcImg.data
+      this.bgcImg = infobgcImg.data[0].thumb
+    },
+  },
+}
 </script>
 <style lang="scss" scoped>
-  .page {
-    width: 100vw;
-    overflow-x: hidden;
-    min-height: calc(100vh - var(--benben-window-bottom, 0px));
-    background-size: 100% auto !important;
+.page {
+  width: 100vw;
+  overflow-x: hidden;
+  min-height: calc(100vh - var(--benben-window-bottom, 0px));
+  background-size: 100% auto !important;
 
-    .centreCoupon_flex_1_babdd {
-      padding: 360rpx 32rpx 42rpx 32rpx;
+  .centreCoupon_flex_1_babdd {
+    padding: 360rpx 32rpx 42rpx 32rpx;
 
-      .centreCoupon_fd1_0_babdd {
-        background: url(#{image-path('420.png')
+    .centreCoupon_fd1_0_babdd {
+      background:
+        url(#{image-path('420.png')
       }) no-repeat,
-      transparent;
+        transparent;
       background-size: 100% 100% !important;
       padding: 30rpx 31rpx 30rpx 34rpx;
       margin: 24rpx 0rpx 0rpx 0rpx;
@@ -265,6 +316,19 @@
           height: 48rpx;
           line-height: 48rpx;
         }
+
+        .centreCoupon_fd1_0_c1_limit_babdd {
+          color: var(--benbenFontColor2);
+          font-size: 22rpx;
+          margin-top: 8rpx;
+        }
+
+        .centreCoupon_fd1_0_c1_c1_claimed_babdd {
+          background: var(--benbenbgColor3);
+          // color: var(--benbenColor1);
+          color: #fff;
+          text-align: center;
+        }
       }
     }
 
@@ -299,5 +363,5 @@
       margin: 0rpx 0rpx 0rpx 32rpx;
     }
   }
-  }
+}
 </style>

@@ -103,7 +103,7 @@
                   @openInput="openInput($event, i, index, Number(item.stock))"
                   :inhibit-input="inhibitInput"
                   :min="Number(item.num) < 1 ? 0 : 1"
-                  :jzDisabled="true"
+                  :jzDisabled="false"
                   :disabled="item.is_valid == 2 || disabled_add_num"
                   @tapIcon="addingNumChange"
                   :max="Number(item.stock)"
@@ -407,20 +407,20 @@ export default {
      * @param {string} index
      */
     numberChange(e, i, index) {
-      this.setTimeoutFn && clearTimeout(this.setTimeoutFn)
-      this.setTimeoutFn = setTimeout(() => {
-        let list = this.cartListArr[i].cart_list
-        if (e != list[index].num) {
-          if (list[index].stock < e) {
-            e = list[index].stock
-          }
-          this.$set(list[index], 'num', e)
-          this.$emit('update:cart-id', list[index].aid)
-          this.$emit('update:sku-id', list[index].sku_id)
-          this.$emit('update:cart-num', e)
-          this.$emit('numberChange')
+      // this.setTimeoutFn && clearTimeout(this.setTimeoutFn)
+      // this.setTimeoutFn = setTimeout(() => {
+      let list = this.cartListArr[i].cart_list
+      if (e != list[index].num) {
+        if (list[index].stock < e) {
+          e = list[index].stock
         }
-      }, 500)
+        this.$set(list[index], 'num', e)
+        this.$emit('update:cart-id', list[index].aid)
+        this.$emit('update:sku-id', list[index].sku_id)
+        this.$emit('update:cart-num', e)
+        this.$emit('numberChange')
+      }
+      // }, 500)
     },
 
     /**

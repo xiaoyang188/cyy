@@ -69,12 +69,12 @@ export default {
     },
     inputValue(newVal, oldVal) {
       this.timer && clearTimeout(this.timer)
-      this.timer = setTimeout(() => {
-        if (oldVal === 0) return
-        if (!newVal) return
-        this.$emit('input', newVal)
-        this.$emit('change', newVal)
-      }, 400)
+      // this.timer = setTimeout(() => {
+      if (oldVal === 0) return
+      if (!newVal) return
+      this.$emit('input', newVal)
+      this.$emit('change', newVal)
+      // }, 400)
       // }
     },
   },

@@ -83,7 +83,7 @@
         <button class='suitInfo_fd3_0_c1_c0_babdd'  @tap="handleJumpDiy" data-type="navigateTo" :data-url="`/pages/sy/offerPay/offerPay`"  >{{$t('立即购买')}}</button>
 </view>
 </view>
-
+        <benben-safe-area></benben-safe-area>
         </view>
     
     
@@ -687,7 +687,7 @@ if (this.items.group_config.length > 0) {
             min-height: calc(100vh - var(--benben-window-bottom,0px));
             background:#F8F8F8;background-size: 100% auto;
             .suitInfo_flex_3_babdd{
-        width:750rpx;overflow:hidden;z-index:10;bottom:calc(0rpx + var(--benben-window-bottom,0px));background:var(--benbenbgColor1);background-size:100% auto;
+        width:750rpx;z-index:10;bottom:calc(0rpx + var(--benben-window-bottom,0px));background:var(--benbenbgColor1);background-size:100% auto;
         .suitInfo_fd3_0_babdd{
         background:var(--benbenbgColor1);background-size:100% auto;padding:20rpx 24rpx 50rpx 24rpx;
         .suitInfo_fd3_0_c0_c0_babdd{

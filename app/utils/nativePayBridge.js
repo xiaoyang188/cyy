@@ -57,10 +57,7 @@ export function navigateToNativePay({ orderSn, orderType = '3', amount = '', tok
   return true
 }
 
-/**
- * 从页面栈向上查找带 web-view 子页的页面，执行 onNativePaySuccess
- */
-export function notifyH5PaySuccess() {
+function notifyH5PayEvent(callbackName) {
   // #ifdef APP-PLUS
   const pages = getCurrentPages()
   for (let i = pages.length - 2; i >= 0; i--) {
@@ -77,14 +74,28 @@ export function notifyH5PaySuccess() {
     if (!wv || typeof wv.evalJS !== 'function') continue
 
     wv.evalJS(`
-      if (typeof window.onNativePaySuccess === 'function') {
-        window.onNativePaySuccess();
+      if (typeof window.${callbackName} === 'function') {
+        window.${callbackName}();
       }
     `)
     return true
   }
   // #endif
   return false
+}
+
+/**
+ * 从页面栈向上查找带 web-view 子页的页面，执行 onNativePaySuccess
+ */
+export function notifyH5PaySuccess() {
+  return notifyH5PayEvent('onNativePaySuccess')
+}
+
+/**
+ * 用户离开收银台时通知 H5，执行 onNativePayCancel
+ */
+export function notifyH5PayCancel() {
+  return notifyH5PayEvent('onNativePayCancel')
 }
 
 export function normalizeWebviewMessage(event) {

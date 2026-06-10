@@ -125,6 +125,7 @@
 import { computed, ref } from "vue";
 import { onBackPress, onLoad, onShow, onUnload } from "@dcloudio/uni-app";
 import {
+  notifyH5PayCancel,
   notifyH5PaySuccess,
   readShopPayTokenFromOptions,
 } from "@/utils/nativePayBridge.js";
@@ -321,9 +322,18 @@ function goBack() {
   uni.navigateBack();
 }
 
+function leaveCashier() {
+  notifyH5PayCancel();
+  goBack();
+}
+
 function showBackConfirm() {
-  if (isLeaving.value || orderType.value == "1") {
+  if (isLeaving.value) {
     goBack();
+    return;
+  }
+  if (orderType.value == "1") {
+    leaveCashier();
     return;
   }
   getOrderDetail();
@@ -337,7 +347,7 @@ function closeBackPopup() {
 function confirmLeave() {
   showBackPopup.value = false;
   blockBack.value = false;
-  goBack();
+  leaveCashier();
 }
 
 function startCountdown() {
@@ -616,6 +626,7 @@ function requestPayment(provider, orderInfo) {
     success: (res) => {
       console.log("支付成功", res);
       loading.value = false;
+      isLeaving.value = true;
       uni.showToast({
         title: "支付成功",
         icon: "success",

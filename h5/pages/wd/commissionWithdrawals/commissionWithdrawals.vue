@@ -521,6 +521,7 @@ export default {
     //跳转设置支付密码
     gopswdFunc() {
       this.popupShow1701842399214 = false
+      this.$urouter.navigateTo(`/pages/xtsz/payment/payment`)
     },
     // 积分仅允许输入正整数
     onInputFunc(event) {

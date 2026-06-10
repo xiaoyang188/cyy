@@ -3,7 +3,7 @@ export const mock_host = 'http://mock.zhongbenruanjian.com' // MOCK环境域名
 export const product_host = 'https://shop.chongyueyue.cn' // 生产环境域名
 export const WEBSOCKET = 'wss://zbphp.zhongbenzx.com/socket/'
 export const PAAS_URL = 'https://shop.chongyueyue.cn' // paas域名
-export const IS_DEV = 3 // 0:生产环境 1:开发环境 2:mock环境 3:paas环境
+export const IS_DEV = 0 // 0:生产环境 1:开发环境 2:mock环境 3:paas环境
 export const PAGE_SIZE = 15 // 分页配置 每页条数
 export const SERVER_TYPE = 0 // 服务端类型 0:赛诸葛  1  mock  2:其他
 export const API_VERSION = 'm20336' //APP接口版本号 正常是V1 使用paas  m加企业ID
@@ -31,7 +31,7 @@ if (!_host) {
 export const host = _host // 项目中接口地址host
 export const SHAREURL = host + '/h5/#/' // 分享的H5地址
 export const SERIAL = '' // 项目序列号(千万千万千万不要修改!!!!)
-export const DIY_TABBAR = true // 是否开启自定义tabbar
+export const DIY_TABBAR = false // 是否开启自定义tabbar
 export const cartNumIndex = 2
 export const cartNumEdit = ""
 export const BASE_URL = `${host}` // 基础路径

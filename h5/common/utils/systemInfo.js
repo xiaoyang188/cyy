@@ -121,7 +121,7 @@ export function buildSystemInfo(rawInfo) {
     if (urlBottom > bottomSafeArea) bottomSafeArea = urlBottom
   }
 
-  if (e.platform === 'ios' && bottomSafeArea === 0) bottomSafeArea = 34
+  if (isIOSPlatform(e) && bottomSafeArea === 0) bottomSafeArea = 34
   if (statusBar > 0) customBar = statusBar + (e.platform === 'android' ? 50 : 45)
   // #endif
 
@@ -141,11 +141,23 @@ export function buildSystemInfo(rawInfo) {
   }
 }
 
+/** 将 SystemInfo 同步到 document 根节点 CSS 变量，供全局组件使用 */
+export function syncSystemInfoCssVars(info) {
+  // #ifdef H5
+  if (typeof document === 'undefined' || !info) return
+  const root = document.documentElement
+  SYSTEM_INFO_CSS_KEYS.forEach((key) => {
+    root.style.setProperty(`--benben${key}`, `${info[key] || 0}px`)
+  })
+  // #endif
+}
+
 export function refreshSystemInfo(store) {
   if (!store) return null
   try {
     const info = buildSystemInfo(uni.getSystemInfoSync())
     store.commit('setSystemInfo', info)
+    syncSystemInfoCssVars(info)
     return info
   } catch (err) {
     console.warn('[systemInfo] refresh failed', err)

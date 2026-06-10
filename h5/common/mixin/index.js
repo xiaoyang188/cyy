@@ -18,7 +18,7 @@ Vue.mixin({
     //修改uniapi为promise类型
     syncUniApi,
     // #ifdef APP-PLUS
-    toJSON() {},
+    toJSON() { },
     // #endif
     // 动态跳转
     dynamicJump(url) {
@@ -29,6 +29,21 @@ Vue.mixin({
       } else {
         router.navigateTo(url)
       }
+    },
+    //客服
+    async getKefuFunc() {
+      let datadatakefu = await this.$api.get(global.apiUrls.post64897f6fd5486, {
+        store_id: 0,
+      })
+
+      if (datadatakefu.data.code != 1) {
+        this.$message.info(datadatakefu.data.msg)
+        return
+      }
+      let infodatakefu = datadatakefu.data
+      this.datakefu = infodatakefu.data
+
+      this.dynamicJump(this.datakefu.chat_url)
     },
     // 获取三方授权信息
     getThreePartyInfo(type) {
@@ -173,7 +188,7 @@ Vue.mixin({
             }
             reject(e)
           },
-          complete: () => {},
+          complete: () => { },
         })
       })
     },
@@ -196,7 +211,7 @@ Vue.mixin({
             }
             reject(e)
           },
-          complete: () => {},
+          complete: () => { },
         })
       })
     },

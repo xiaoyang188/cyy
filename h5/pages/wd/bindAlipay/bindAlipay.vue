@@ -27,7 +27,7 @@
 </view>
     <view   class='flex align-baseline bindAlipay_fd1_0_c2_babdd'      >
         <text class='bindAlipay_fd1_0_c2_c0_babdd'  >{{$t('验证码')}}</text>
-<benben-input class='flex-sub bindAlipay_fd1_0_c2_c1_babdd'   type="number" :placeholder="$t('请输入验证码')" confirm-type="done" :maxlength="4" placeholder-style="color:#BFBFBF;font-size:28rpx"  v-model="code" />
+<benben-input class='flex-sub bindAlipay_fd1_0_c2_c1_babdd'   type="number" :placeholder="$t('请输入验证码')" confirm-type="done" :maxlength="6" placeholder-style="color:#BFBFBF;font-size:28rpx"  v-model="code" />
 <benben-send-verification-code key='1689818850301' ref="vCode1689818850301" class=' bindAlipay_fd1_0_c2_c2_babdd'  :after-text="$t('后重新获取')" :before-text="$t('获取验证码')" type='3' :is-environment-verification='true'  :phone="dataMessage._mobile" ></benben-send-verification-code>
 </view>
     <view   class='flex flex-wrap align-center bindAlipay_fd1_0_c3_babdd'      >

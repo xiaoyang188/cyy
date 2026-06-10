@@ -1,23 +1,27 @@
 <template>
   <view>
     <view class="flex flex-direction align-stretch benben-flex-layout footprint_flex_1">
-      <view class="flex flex-direction align-stretch" v-for="(item, i) in goodsList" :key="i">
+      <view class="flex flex-direction align-stretch footprint_date_group" v-for="(item, i) in goodsList" :key="i">
         <view class="footprint_fd1_0_c0" @click="handleItemAllSelect(item)">
           <text v-if="isEditor" :class="{ checked_icon: true, checked_active: isItemAllSelect(item) }" class="fu-iconfont2">
             {{ isItemAllSelect(item) ? '&#59463;' : '&#59221;' }}
           </text>
-          <text style="padding-left: 15rpx">{{ item.datetime | formatDate(timeFormat) }}</text>
+          <text class="footprint_fd1_0_c0_date">{{ item.datetime | formatDate(timeFormat) }}</text>
         </view>
-        <view class="flex flex-wrap align-center">
-          <view @click="handleItem(val)" class="flex flex-direction align-stretch footprint_fd1_0_c1_c0" v-for="(val, j) in item.goods" :key="j">
+        <view class="flex flex-wrap footprint_goods_grid">
+          <view @click="handleItem(val)" class="footprint_fd1_0_c1_c0" v-for="(val, j) in item.goods" :key="j">
             <text v-if="isEditor" :class="{ checked_icon: true, checked_active: val.isSelected }" class="fu-iconfont2 myCollection_fd2_0_c0_c0">
               {{ val.isSelected ? '&#59463;' : '&#59221;' }}
             </text>
-            <image class="footprint_fd1_0_c1_c0_c0" mode="aspectFit" :src="val.goods_thumb"></image>
-            <view style="padding-left: 12rpx" class="footprint_fd1_0_c1_c0_c1_c0">{{ val.goods_name }}</view>
-            <view style="padding-left: 12rpx" class="footprint_fd1_0_c1_c0_c1_c1_c1">
-              <text class="footprint_price1_fd1_0_c1_c0_c1_c1_c1">{{ priceBefore }}{{ val.goods_shop_price | frontPrice }}</text>
-              <text class="footprint_price2_fd1_0_c1_c0_c1_c1_c1">{{ val.goods_shop_price | laterPrice }}{{ priceAfter }}</text>
+            <view class="footprint_fd1_0_c1_c0_img_wrap">
+              <image class="footprint_fd1_0_c1_c0_c0" mode="aspectFill" :src="val.goods_thumb"></image>
+            </view>
+            <view class="footprint_fd1_0_c1_c0_body">
+              <view class="footprint_fd1_0_c1_c0_c1_c0">{{ val.goods_name }}</view>
+              <view class="footprint_fd1_0_c1_c0_c1_c1_c1">
+                <text class="footprint_price1_fd1_0_c1_c0_c1_c1_c1">{{ priceBefore }}{{ val.goods_shop_price | frontPrice }}</text>
+                <text class="footprint_price2_fd1_0_c1_c0_c1_c1_c1">{{ val.goods_shop_price | laterPrice }}{{ priceAfter }}</text>
+              </view>
             </view>
           </view>
         </view>
@@ -195,49 +199,100 @@ export default {
 .footprint_fd1_0_c0 {
   display: flex;
   align-items: center;
-  padding-left: 8rpx;
-  margin-bottom: 10rpx;
+  margin-bottom: 16rpx;
   height: 50rpx;
   font-size: 28rpx;
   font-weight: 700;
   color: #666666;
+
+  .footprint_fd1_0_c0_date {
+    padding-left: 8rpx;
+  }
 }
+
+.footprint_goods_grid {
+  align-content: flex-start;
+}
+
 .footprint_fd1_0_c1_c0 {
   position: relative;
-  width: 246rpx;
-  margin: 0rpx 6rpx 28rpx 0rpx;
+  display: flex;
+  flex-direction: column;
+  width: calc((100% - 32rpx) / 3);
+  margin: 0 16rpx 24rpx 0;
+  border-radius: 12rpx;
+  background: #f8f8f8;
+  overflow: hidden;
+
   &:nth-child(3n) {
     margin-right: 0;
   }
 }
-.footprint_fd1_0_c1_c0_c0 {
-  width: 246rpx;
-  height: 246rpx;
-  border-radius: 0rpx 0rpx 0rpx 0rpx;
+
+.footprint_fd1_0_c1_c0_img_wrap {
+  width: 100%;
+  height: 0;
+  padding-bottom: 100%;
+  position: relative;
+  overflow: hidden;
+  background: #f0f0f0;
 }
+
+.footprint_fd1_0_c1_c0_c0 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.footprint_fd1_0_c1_c0_body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 12rpx;
+  min-height: 0;
+}
+
 .footprint_fd1_0_c1_c0_c1_c0 {
   width: 100%;
+  height: 64rpx;
   font-size: 24rpx;
   font-weight: 400;
   color: #333333;
-  -webkit-line-clamp: 1;
+  line-height: 32rpx;
+  -webkit-line-clamp: 2;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  margin: 20rpx 0rpx 14rpx 0rpx;
+  word-break: break-all;
 }
+
 .footprint_fd1_0_c1_c0_c1_c1_c1 {
+  margin-top: auto;
+  padding-top: 8rpx;
   color: var(--price-color, #ff5536);
   font-weight: 600;
+  line-height: 1;
 }
+
 .footprint_price1_fd1_0_c1_c0_c1_c1_c1 {
   font-size: 32rpx;
 }
+
 .footprint_price2_fd1_0_c1_c0_c1_c1_c1 {
   font-size: 22rpx;
 }
+
 .footprint_flex_1 {
-  padding: 24rpx 0rpx 0rpx 0rpx;
+  padding: 8rpx 24rpx 24rpx;
+}
+
+.footprint_date_group {
+  &:not(:first-child) {
+    margin-top: 16rpx;
+    padding-top: 8rpx;
+  }
 }
 </style>

@@ -73,6 +73,7 @@
     </benben-images-upload>
     <view   class='flex align-stretch justify-center returnInformation_fd2_6_babdd'      >
         <button class='returnInformation_fd2_6_c0_babdd'  @tap.stop="submitMessageFunc()"  >{{$t('提交')}}</button>
+        <benben-safe-area></benben-safe-area>
 </view>
 </view>
         
@@ -214,7 +215,7 @@ this.diyPageListen()
     }}    .returnInformation_fd2_51_babdd{
         width:160rpx;height:160rpx;margin:0rpx 24rpx 24rpx 0rpx;border-radius:20rpx 20rpx 20rpx 20rpx;
     }}    .returnInformation_fd2_6_babdd{
-        position:fixed;bottom:calc(0rpx + var(--benben-window-bottom,0px));left:0rpx;width:750rpx;height:150rpx;z-index:10;background:var(--benbenbgColor1);background-size:100% auto;
+        position:fixed;bottom:calc(0rpx + var(--benben-window-bottom,0px));left:0rpx;width:750rpx;min-height:150rpx;z-index:10;background:var(--benbenbgColor1);background-size:100% auto;
         .returnInformation_fd2_6_c0_babdd{
         border-radius:44rpx 44rpx 44rpx 44rpx;font-size:32rpx;background:var(--benbenbtnColor0);color:var(--benbenFontColor3);width:686rpx;height:88rpx;line-height:88rpx;font-weight:500;margin:12rpx 0rpx 0rpx 0rpx;
     }}}

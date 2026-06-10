@@ -55,7 +55,9 @@
             <text class="redemptDetails_fd3_0_c0_c0_1_babdd" v-if="dataDetails.status == '2'">{{ $t('订单待收货') }}</text>
             <text class="redemptDetails_fd3_0_c0_c0_1_babdd" v-if="dataDetails.status == '3'">{{ $t('订单待评价') }}</text>
             <text class="redemptDetails_fd3_0_c0_c0_1_babdd" v-if="dataDetails.status == '4'">{{ $t('订单已完成') }}</text>
-            <text class="redemptDetails_fd3_0_c0_c0_1_babdd" v-if="dataDetails.status == '-1'">{{ $t('订单已关闭') }}</text>
+            <text class="redemptDetails_fd3_0_c0_c0_1_babdd" v-if="dataDetails.status == '-1' || dataDetails.status == '-2'">
+              {{ $t('订单已关闭') }}
+            </text>
             <text class="redemptDetails_fd3_0_c0_c0_1_babdd" v-if="dataDetails.status == '7'">{{ $t('预售待付尾款') }}</text>
             <view
               class="flex flex-wrap align-stretch redemptDetails_fd3_0_c0_c1_babdd"
@@ -347,7 +349,7 @@
         </view>
         <view class="flex flex-direction align-stretch justify-end redemptDetails_fd3_4_babdd">
           <view class="flex align-center redemptDetails_fd3_4_bar_babdd">
-            <button class="redemptDetails_fd3_4_contact_babdd" @tap.stop="callMobile(systemsInfo)">{{ $t('联系商家') }}</button>
+            <button class="redemptDetails_fd3_4_contact_babdd" @tap.stop="getKefuFunc()">{{ $t('联系商家') }}</button>
             <view class="flex align-center justify-end flex-sub redemptDetails_fd3_4_actions_babdd">
               <button
                 class="redemptDetails_fd3_4_c0_c0_babdd"
@@ -424,7 +426,7 @@
               </button>
             </view>
           </view>
-          <!-- <benben-safe-area></benben-safe-area> -->
+          <benben-safe-area></benben-safe-area>
         </view>
       </view>
 
@@ -640,13 +642,17 @@ export default {
       popupShow1737680677873: false,
       popupShow1763608410324: false,
       popupShow1698806556276: false,
-      /** cancelId【取消订单】 **/ cancelId: '',
-      /** return_id【取消id】 **/ return_id: '',
+      /** cancelId【取消订单】 **/
+      cancelId: '',
+      /** return_id【取消id】 **/
+      return_id: '',
       dataList: [],
       dltOrderId: '',
-      /** invoice_order_id【发票订单id】 **/ invoice_order_id: '',
+      /** invoice_order_id【发票订单id】 **/
+      invoice_order_id: '',
       dataAfterList: [],
-      /** refundId【售后删除id】 **/ refundId: '',
+      /** refundId【售后删除id】 **/
+      refundId: '',
       kdlb: '',
       kdid: '1',
       /** sender_list【仓库列表】
@@ -834,7 +840,8 @@ export default {
       },
       dataMessage: [],
       invoiceData: [],
-      /** invoice_id【发票id】 **/ invoice_id: '',
+      /** invoice_id【发票id】 **/
+      invoice_id: '',
       text: '1',
       money: 0,
       daojishi: 86400,

@@ -34,6 +34,7 @@ function getWebviewSdkCandidates() {
 export const SHOP_PAY_TOKEN_PLUS_KEY = 'SHOP_USER_TOKEN'
 
 let nativePaySuccessHandler = null
+let nativePayCancelHandler = null
 
 /**
  * 解析 H5 商城登录 token（与接口 header user-token 一致）
@@ -221,6 +222,23 @@ export function unbindNativePaySuccess() {
   nativePaySuccessHandler = null
   if (typeof window !== 'undefined') {
     window.onNativePaySuccess = null
+  }
+}
+
+export function bindNativePayCancel(handler) {
+  unbindNativePayCancel()
+  nativePayCancelHandler = handler
+  window.onNativePayCancel = () => {
+    if (typeof nativePayCancelHandler === 'function') {
+      nativePayCancelHandler()
+    }
+  }
+}
+
+export function unbindNativePayCancel() {
+  nativePayCancelHandler = null
+  if (typeof window !== 'undefined') {
+    window.onNativePayCancel = null
   }
 }
 

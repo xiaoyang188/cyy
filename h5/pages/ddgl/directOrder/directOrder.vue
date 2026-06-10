@@ -263,8 +263,9 @@
           </button>
           <button class="directOrder_fd7_0_c4_babdd" v-if="dataDetails.list_fail && dataDetails.list_fail.length > 0">{{ $t('提交订单') }}</button>
         </view>
+        <benben-safe-area></benben-safe-area>
       </view>
-      <view :style="{ height: '100rpx' }"></view>
+      <view :style="{ height: `calc(100rpx + ${bottomSafeArea}px)` }"></view>
       <benben-popup v-model="popupShow1685773487026" :mask="true" :mask-close-able="false" mode="center">
         <!---flex布局flex布局开始-->
         <view class="flex flex-direction align-stretch benben-flex-layout directOrder_flex_8_babdd">
@@ -1500,12 +1501,11 @@ export default {
 
   .directOrder_flex_7_babdd {
     width: 750rpx;
-    overflow: hidden;
     z-index: 10;
     bottom: calc(0rpx + var(--benben-window-bottom, 0px));
     background: #fff;
     background-size: 100% auto !important;
-    height: 100rpx;
+    min-height: 100rpx;
 
     .directOrder_fd7_0_c0_babdd {
       color: var(--benbenFontColor0);

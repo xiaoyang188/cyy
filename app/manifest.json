@@ -130,7 +130,11 @@
 					"<uses-permission android:name=\"android.permission.WRITE_SETTINGS\"/>",
 					"<uses-permission android:name=\"android.permission.READ_MEDIA_IMAGES\"/>"
 				],
-				"abiFilters": ["armeabi-v7a", "arm64-v8a", "x86"],
+				"abiFilters": [
+					"armeabi-v7a",
+					"arm64-v8a",
+					"x86"
+				],
 				"targetSdkVersion": 35
 			},
 			/* ios打包配置 */
@@ -150,7 +154,10 @@
 			},
 			/*ios 高德地图配置*/
 			"apple": {
-				"urlschemewhitelist": ["iosamap", "baidumap"]
+				"urlschemewhitelist": [
+					"iosamap",
+					"baidumap"
+				]
 			},
 			/* SDK配置 */
 			"sdkConfigs": {
@@ -164,11 +171,17 @@
 				},
 				"geolocation": {
 					"system": {
-						"__platform__": ["ios", "android"]
+						"__platform__": [
+							"ios",
+							"android"
+						]
 					},
 					"amap": {
 						"name": "amap_13735377855yLRyVnPY",
-						"__platform__": ["ios", "android"],
+						"__platform__": [
+							"ios",
+							"android"
+						],
 						"appkey_ios": "9f8eb22902ff76102e32ba52c7dee1e6",
 						"appkey_android": "9f8eb22902ff76102e32ba52c7dee1e6"
 					}
@@ -205,10 +218,16 @@
 				},
 				"payment": {
 					"alipay": {
-						"__platform__": ["ios", "android"]
+						"__platform__": [
+							"ios",
+							"android"
+						]
 					},
 					"weixin": {
-						"__platform__": ["ios", "android"],
+						"__platform__": [
+							"ios",
+							"android"
+						],
 						"appid": "wxb69cf287445e7de8",
 						"UniversalLinks": "https://app.bestwin-int.com/ios/"
 					}

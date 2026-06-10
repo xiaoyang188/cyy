@@ -4,7 +4,7 @@ import {
 } from '@/common/config.js';
 const publicApi = {
   postRecommentGoods: `/${API_VERSION}/5fd9a32379116`, //智能推荐
-  numberOfShoppingCart: `/${API_VERSION}/62c6909e6ce4f`,//获取购物车数量
+  numberOfShoppingCart: `/${API_VERSION}/62c6909e6ce4f`, //获取购物车数量
   publicUpdateAPP: `/${API_VERSION}/6423fb49bc82c`, // 静默更新
   queryAutograph: `/v1/6454d9663e508`, // 获取oss配置接口
   getAreaData: `/v1/6789c02f24420`, // 获取地址信息列表

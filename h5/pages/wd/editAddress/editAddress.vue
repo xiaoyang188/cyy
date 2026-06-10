@@ -110,7 +110,10 @@
                 placeholder-style="color:var(--benbenFontColor2);font-size:32rpx"
                 v-model="dataMessage.address_code_area_str"
               />
-              <text class="fu-iconfont2 editAddress_fd1_0_c3_c0_c2_babdd" @tap.stop="mapSelectFunc()">&#xe65a;</text>
+              <button class="editAddress_fd1_0_c3_c0_c2_babdd" @tap.stop="automaticLocationFunc()">
+                {{ $t('定位') }}
+                <text class="fu-iconfont2" style="font-size: 24rpx; margin-left: 10rpx" @tap.stop="automaticLocationFunc()">&#xe65a;</text>
+              </button>
             </view>
             <view class="editAddress_field_box editAddress_field_box_detail">
               <benben-textarea
@@ -316,7 +319,24 @@ export default {
   onReachBottom(e) {},
   onPageScroll(e) {},
   methods: {
-    //添加地址
+    // /**
+    //  * @description 自动获取当前位置
+    //  * @author xiaoyang
+    //  */
+    automaticLocationFunc() {
+      uni.getLocation({
+        type: 'wgs84',
+        success: (res) => {
+          this.mapMessage.latitude = res.latitude
+          this.mapMessage.longitude = res.longitude
+          this.mapSelectFunc(1)
+        },
+      })
+    },
+    /**
+     * @description 添加地址
+     * @author xiaoyang
+     */
     async addAddressFunc() {
       // if (!validate(this.dataMessage.label_name, 'require')) {
       //   this.$message.info(this.$t('请选择地址标签'))
@@ -376,7 +396,10 @@ export default {
         this.$urouter.navigateBack(1)
       }, 500)
     },
-    //获取单个地址
+    /**
+     * @description 获取单个地址详情
+     * @author xiaoyang
+     */
     async getaddressMessageFunc() {
       this.dataMessage.sex = '1'
       if (this.id != '') {
@@ -400,7 +423,10 @@ export default {
         this.is_default = false
       }
     },
-    //编辑地址
+    /**
+     * @description 编辑地址
+     * @author xiaoyang
+     */
     async editAddressFunc() {
       // if (!validate(this.dataMessage.label_name, 'require')) {
       //   this.$message.info(this.$t('请选择地址标签'))
@@ -461,12 +487,20 @@ export default {
         this.$urouter.navigateBack(1)
       }, 500)
     },
-    //地图选点
-    async mapSelectFunc() {
-      this.mapMessage = await this.syncUniApi('chooseLocation')
-      //请求方法
-      //数据验证
-
+    /**
+     * @param {number} type 1:自动获取位置 2:手动选择位置
+     * @description 选择位置
+     * @author xiaoyang
+     */
+    async mapSelectFunc(type = 0) {
+      this.dataMessage.detail = ''
+      this.dataMessage.address_code_area_str = ''
+      this.dataMessage.address_code_province = ''
+      this.dataMessage.address_code_city = ''
+      this.dataMessage.address_code_district = ''
+      if (type != 1) {
+        this.mapMessage = await this.syncUniApi('chooseLocation')
+      }
       let datadatamap = await this.$api.dbGet(global.apiUrls.post649e954010762, {
         lng: this.mapMessage.longitude,
         lat: this.mapMessage.latitude,
@@ -486,7 +520,10 @@ export default {
       this.dataMessage.address_code_city = this.datamap.city
       this.dataMessage.address_code_district = this.datamap.district
     },
-    //删除地址
+    /**
+     * @description 删除地址
+     * @author xiaoyang
+     */
     async deleteAddressFunc() {
       //请求方法
       //数据验证
@@ -506,7 +543,10 @@ export default {
         this.$urouter.navigateBack(1)
       }, 500)
     },
-    // 粘贴后触发智能识别
+    /**
+     * @description 粘贴后触发智能识别
+     * @author xiaoyang
+     */
     handleSmartAddressPaste() {
       this.$nextTick(() => {
         setTimeout(() => {
@@ -514,7 +554,11 @@ export default {
         }, 100)
       })
     },
-    // 将智能识别接口数据写入表单（兼容 name/address/area 与 real_name/detail 等字段）
+    /**
+     * @param {Object} data 智能识别接口返回数据
+     * @description 将智能识别接口数据写入表单
+     * @author xiaoyang
+     */
     applyRecognizedAddress(data = {}) {
       const pick = (...vals) => {
         for (const v of vals) {
@@ -552,7 +596,10 @@ export default {
       const lat = pick(data.lat)
       if (lat) this.dataMessage.lat = lat
     },
-    // 智能识别地址
+    /**
+     * @description 智能识别地址
+     * @author xiaoyang
+     */
     async recognizeAddressFunc() {
       const text = (this.smartAddressText || '').trim()
       if (!text) {
@@ -580,7 +627,11 @@ export default {
         uni.hideLoading()
       }
     },
-    //输入监听事件
+    /**
+     * @param {string} e 收货人输入内容
+     * @description 收货人输入校验，过滤特殊字符
+     * @author xiaoyang
+     */
     valueInspectFunc(e) {
       var str = e
       var newZz = /[`~!@#$%^&*()_\-+=<>?:"{}|,.\/;'\\[\]·~！@#￥%……&*（）——\-+={}|《》？：“”【】、；‘'，。、]/gi
@@ -761,8 +812,15 @@ export default {
       }
 
       .editAddress_fd1_0_c3_c0_c2_babdd {
-        color: var(--benbeniconColor3);
-        font-size: 34rpx;
+        flex-shrink: 0;
+        padding: 0 20rpx;
+        height: 56rpx;
+        line-height: 56rpx;
+        border-radius: 28rpx;
+        font-size: 24rpx;
+        background: var(--benbenbtnColor0);
+        color: var(--benbenFontColor3);
+        font-weight: 400;
       }
     }
 

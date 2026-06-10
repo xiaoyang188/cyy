@@ -34,13 +34,13 @@
           <image class="friendsLnvite_fd1_1_c0_babdd" mode="aspectFill" :src="wxShareImg.base64" v-if="appSystemIdentification == 'Wechat'"></image>
         </view>
         <view class="flex flex-wrap align-center justify-between friendsLnvite_fd1_2_babdd">
-          <button class="friendsLnvite_fd1_2_c0_babdd" @tap.stop="SavePictureFunc()">{{ $t('保存图片到相册') }}</button>
-          <button class="friendsLnvite_fd1_2_c1_babdd" @tap.stop="popupShow1679975430753 = true" v-if="appSystemIdentification != 'Wechat'">
+          <button class="friendsLnvite_fd1_2_c0_babdd" @tap.stop="copyText(dataDetails.url)">{{ $t('复制分享链接') }}</button>
+          <!-- <button class="friendsLnvite_fd1_2_c1_babdd" @tap.stop="popupShow1679975430753 = true" v-if="appSystemIdentification != 'Wechat'">
             {{ $t('一键分享') }}
           </button>
           <button class="friendsLnvite_fd1_2_c1_babdd" @tap.stop="MysharedFunc()" v-if="appSystemIdentification == 'Wechat'">
             {{ $t('一键分享') }}
-          </button>
+          </button> -->
         </view>
       </view>
 
@@ -86,6 +86,7 @@
 </template>
 <script>
 import { validate } from '@/common/utils/validate.js'
+import { downloadImageByAnchor } from '@/common/utils/utils.js'
 
 export default {
   components: {},
@@ -202,32 +203,56 @@ export default {
   methods: {
     //保存图片
     async SavePictureFunc() {
-      if (this.appSystemIdentification != 'Wechat') {
-        this.downloadImg = await this.syncUniApi('downloadFile', {
-          url: this.dataDetails.qrcode_url,
-        })
-        await this.syncUniApi('saveImageToPhotosAlbum', {
-          filePath: this.downloadImg.tempFilePath,
-        })
+      try {
+        const filename = `invite_${this.dataMessage.invite_code || Date.now()}.png`
+        console.log(`this.appSystemIdentification`, this.appSystemIdentification)
+        return
+
+        if (this.appSystemIdentification == 'Web') {
+          const url = this.dataDetails.qrcode_url
+          if (!url) {
+            this.$message.info(this.$t('暂无可保存图片'))
+            return
+          }
+          await downloadImageByAnchor(url, filename)
+        } else if (this.appSystemIdentification === 'Wechat') {
+          const url = this.wxShareImg.base64
+          if (!url) {
+            this.$message.info(this.$t('暂无可保存图片'))
+            return
+          }
+          // #ifdef H5
+          await downloadImageByAnchor(url, filename)
+          // #endif
+          // #ifndef H5
+          this.wxDoImg = await this.syncUniApi('downloadFile', { url })
+          await this.syncUniApi('saveImageToPhotosAlbum', {
+            filePath: this.wxDoImg.tempFilePath,
+          })
+          // #endif
+        } else {
+          if (!this.dataDetails.qrcode_url) {
+            this.$message.info(this.$t('暂无可保存图片'))
+            return
+          }
+          this.downloadImg = await this.syncUniApi('downloadFile', {
+            url: this.dataDetails.qrcode_url,
+          })
+          await this.syncUniApi('saveImageToPhotosAlbum', {
+            filePath: this.downloadImg.tempFilePath,
+            filename,
+          })
+        }
+
         uni.showToast({
           title: this.$t('保存成功'),
           mask: true,
           icon: 'none',
           duration: 1500,
         })
-      } else {
-        this.wxDoImg = await this.syncUniApi('downloadFile', {
-          url: this.wxShareImg.base64,
-        })
-        await this.syncUniApi('saveImageToPhotosAlbum', {
-          filePath: this.wxDoImg.tempFilePath,
-        })
-        uni.showToast({
-          title: this.$t('保存成功'),
-          mask: true,
-          icon: 'none',
-          duration: 1500,
-        })
+      } catch (e) {
+        console.error('SavePictureFunc', e)
+        this.$message.info(this.$t('保存失败'))
       }
     },
     //获取会员详细信息
@@ -418,7 +443,7 @@ export default {
     padding: 0rpx 103rpx 0rpx 103rpx;
 
     .friendsLnvite_fd1_0_babdd {
-      margin: 346rpx auto 0rpx auto;
+      margin: 22.5vh auto 0rpx auto;
 
       .friendsLnvite_fd1_0_c0_babdd {
         width: 96rpx;
@@ -457,11 +482,12 @@ export default {
       .friendsLnvite_fd1_2_c0_babdd {
         border-radius: 50rpx 50rpx 50rpx 50rpx;
         font-size: 32rpx;
-        background: var(--benbenbgColor1);
-        color: var(--benbenFontColor7);
-        width: 260rpx;
+        background: var(--benbenbgColor3);
+        color: #fff;
+        width: 520rpx;
         height: 88rpx;
         line-height: 88rpx;
+        margin: 0 auto;
       }
     }
   }

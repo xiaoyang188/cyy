@@ -311,7 +311,13 @@ export default {
 </script>
 <style scoped lang="scss">
 .benben-safe-area-bottom {
-  height: var(--benbenbottomSafeArea);
+  width: 100%;
+  flex-shrink: 0;
+  height: var(--benbenbottomSafeArea, 0px);
+  /* #ifdef H5 */
+  height: constant(safe-area-inset-bottom);
+  height: env(safe-area-inset-bottom, 0px);
+  /* #endif */
 }
 .benben {
   &-drawer {

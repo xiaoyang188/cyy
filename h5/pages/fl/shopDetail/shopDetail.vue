@@ -89,51 +89,142 @@
 
       <!---flex布局flex布局结束-->
       <l-painter
-        :css="{ width: `700rpx`, height: `750rpx`, background: `#FFF` }"
+        useCORS
+        :css="{ width: `580rpx`, height: `920rpx`, background: `#F5F5F5` }"
         ref="painter1730449491555"
         :hidden="true"
         file-type="png"
         path-type="url"
       >
         <template v-if="painterParam1730449491555">
-          <l-painter-image
-            :css="{ width: `500rpx`, height: `500rpx`, position: `absolute`, top: `160rpx`, left: `114rpx` }"
-            :src="dataDetails.thumb"
-          ></l-painter-image>
-          <!-- <l-painter-view :css='{"width":`140rpx`,"height":`140rpx`,"position":`absolute`,"top":`420rpx`,"left":`364rpx`,"background":`#FFF`,"backgroundSize":`100% auto`,"zIndex":`6`}'   ></l-painter-view>
- -->
-          <!-- <l-painter-view :css='{"height":`76rpx`,"position":`absolute`,"top":`618rpx`,"left":`112rpx`,"width":`562rpx`,"background":`#f8f8f8`,"backgroundSize":`100% auto`,"borderRadius":`16rpx`}'   ></l-painter-view>
- -->
-          <!-- <l-painter-text :css='{"position":`absolute`,"top":`640rpx`,"left":`254rpx`,"fontSize":`24rpx`,"lineClamp":`1`}'  :text="OneComment"></l-painter-text>
- -->
-          <!-- <l-painter-text :css='{"position":`absolute`,"top":`640rpx`,"left":`128rpx`,"fontSize":`24rpx`,"color":`rgba(1, 96, 173, 1)`}'  :text="$t('新犇腾家：')"></l-painter-text>
- -->
-          <!-- <l-painter-text :css='{"position":`absolute`,"top":`570rpx`,"left":`114rpx`,"fontSize":`24rpx`,"color":`rgba(129, 132, 143, 1)`}'  :text="$t('1小时前')"></l-painter-text>
- -->
-          <l-painter-image
-            :css="{ width: `130rpx`, height: `130rpx`, position: `absolute`, top: `521rpx`, left: `487rpx`, zIndex: `6` }"
-            :src="wxShareImg.base64"
-          ></l-painter-image>
-          <l-painter-text
+          <l-painter-view
             :css="{
               position: `absolute`,
-              top: `74rpx`,
-              left: `122rpx`,
-              fontSize: `24rpx`,
-              color: `var(--benbenFontColor0)`,
-              width: `500rpx`,
-              lineClamp: `2`,
+              top: `0rpx`,
+              left: `0rpx`,
+              width: `580rpx`,
+              height: `920rpx`,
+              background: `#FFFFFF`,
+              borderRadius: `24rpx`,
             }"
-            :text="dataDetails.name"
-          ></l-painter-text>
-          <l-painter-text
-            :css="{ position: `absolute`, top: `28rpx`, left: `122rpx`, fontSize: `28rpx`, color: `rgba(1, 96, 173, 1)` }"
-            :text="$t('推荐一个好物给你，请查收')"
-          ></l-painter-text>
-          <l-painter-image
-            :css="{ width: `80rpx`, height: `80rpx`, position: `absolute`, top: `30rpx`, left: `28rpx`, borderRadius: `40rpx` }"
-            :src="userInfo.avatar"
-          ></l-painter-image>
+          >
+            <l-painter-view
+              :css="{
+                position: `absolute`,
+                top: `0rpx`,
+                left: `0rpx`,
+                width: `580rpx`,
+                height: `120rpx`,
+                background: `linear-gradient(135deg, #FF6B6B 0%, #E4393C 100%)`,
+                borderRadius: `24rpx 24rpx 0rpx 0rpx`,
+              }"
+            ></l-painter-view>
+            <l-painter-text
+              :css="{
+                position: `absolute`,
+                top: `42rpx`,
+                left: `0rpx`,
+                width: `580rpx`,
+                textAlign: `center`,
+                fontSize: `28rpx`,
+                color: `#FFFFFF`,
+                fontWeight: `bold`,
+              }"
+              :text="$t('推荐一个好物给你，请查收')"
+            ></l-painter-text>
+            <l-painter-image
+              :css="{
+                position: `absolute`,
+                top: `144rpx`,
+                left: `32rpx`,
+                width: `516rpx`,
+                height: `516rpx`,
+                borderRadius: `16rpx`,
+                objectFit: `cover`,
+              }"
+              :src="dataDetails.thumb"
+            ></l-painter-image>
+            <l-painter-view
+              :css="{
+                position: `absolute`,
+                top: `684rpx`,
+                left: `0rpx`,
+                width: `580rpx`,
+                height: `236rpx`,
+                background: `#FAFAFA`,
+                borderRadius: `0rpx 0rpx 24rpx 24rpx`,
+              }"
+            ></l-painter-view>
+            <l-painter-text
+              :css="{
+                position: `absolute`,
+                top: `712rpx`,
+                left: `32rpx`,
+                fontSize: `28rpx`,
+                color: `#E4393C`,
+                fontWeight: `bold`,
+              }"
+              :text="$t('￥')"
+            ></l-painter-text>
+            <l-painter-text
+              :css="{
+                position: `absolute`,
+                top: `704rpx`,
+                left: `58rpx`,
+                fontSize: `44rpx`,
+                color: `#E4393C`,
+                fontWeight: `bold`,
+              }"
+              :text="`${dataDetails.shop_price || ''}`"
+            ></l-painter-text>
+            <l-painter-text
+              :css="{
+                position: `absolute`,
+                top: `776rpx`,
+                left: `32rpx`,
+                width: `340rpx`,
+                fontSize: `26rpx`,
+                color: `#333333`,
+                lineHeight: `1.5em`,
+                lineClamp: `2`,
+              }"
+              :text="dataDetails.name"
+            ></l-painter-text>
+            <l-painter-view
+              :css="{
+                position: `absolute`,
+                top: `700rpx`,
+                left: `404rpx`,
+                width: `148rpx`,
+                height: `148rpx`,
+                background: `#FFFFFF`,
+                borderRadius: `12rpx`,
+              }"
+            ></l-painter-view>
+            <l-painter-image
+              :css="{
+                position: `absolute`,
+                top: `712rpx`,
+                left: `416rpx`,
+                width: `124rpx`,
+                height: `124rpx`,
+                objectFit: `cover`,
+              }"
+              :src="sharePosterQrcode"
+            ></l-painter-image>
+            <l-painter-text
+              :css="{
+                position: `absolute`,
+                top: `856rpx`,
+                left: `396rpx`,
+                width: `164rpx`,
+                textAlign: `center`,
+                fontSize: `20rpx`,
+                color: `#999999`,
+              }"
+              :text="$t('长按识别')"
+            ></l-painter-text>
+          </l-painter-view>
         </template>
       </l-painter>
       <l-painter
@@ -694,7 +785,7 @@
             </view>
             <view class="flex flex-wrap align-center justify-center">
               <view class="flex flex-direction flex-wrap align-stretch justify-around shopDetail_fd11_0_c1_c0_babdd">
-                <image class="shopDetail_fd11_0_c1_c0_c0_babdd" mode="aspectFit" :src="fxImg"></image>
+                <image class="shopDetail_fd11_0_c1_c0_c0_babdd" mode="widthFix" :src="fxImg"></image>
               </view>
             </view>
             <view class="flex flex-wrap align-center justify-center shopDetail_fd11_0_c2_babdd">
@@ -951,8 +1042,9 @@
           </view>
           <button class="shopDetail_fd16_2_c3_babdd" v-if="dataDetails.is_sale == 0 || dataDetails.is_check == 0">{{ $t('商品已下架') }}</button>
         </view>
+        <benben-safe-area></benben-safe-area>
       </view>
-      <view :style="{ height: '120rpx' }" v-if="dibu === true"></view>
+      <view :style="{ height: `calc(120rpx + ${bottomSafeArea}px)` }" v-if="dibu === true"></view>
       <benben-popup v-model="popupShow1686125027669" :mask="true" :mask-close-able="true" mode="bottom">
         <!---配送至flex布局开始-->
         <view class="flex flex-direction flex-wrap align-stretch benben-flex-layout shopDetail_flex_17_babdd">
@@ -1504,6 +1596,9 @@ export default {
     isLogin() {
       return this.$store.state.token == '' ? false : true
     },
+    sharePosterQrcode() {
+      return this.wxShareImg.base64 || this.sharedInfo.qrcode_url || ''
+    },
     userInfo: {
       get() {
         return this.$store.state.userInfo
@@ -1554,6 +1649,7 @@ export default {
     this.getAddressListFunc()
     this.getDetailFunc()
     this.getCatNumFunc()
+    this.getSharedInfoFunc()
   },
   onHide() {
     this.onHidecloseFunc()
@@ -1835,25 +1931,27 @@ export default {
         }
       })
     },
+    async getSharedInfoFunc() {
+      if (!this.isLogin) return
+      //请求方法
+      //数据验证
+
+      let datasharedInfo = await this.$api.get(global.apiUrls.post642402f366fd4, {
+        goods_id: this.id,
+        sku_id: this.sku_id,
+      })
+
+      if (datasharedInfo.data.code != 1) {
+        this.$message.info(datasharedInfo.data.msg)
+        return
+      }
+      let infosharedInfo = datasharedInfo.data
+      this.sharedInfo = infosharedInfo.data
+    },
     //分享
     async MysharedFunc(type) {
       this.popupShow1689239427011 = false
       if (type == '1' && this.isLogin === true) {
-        //请求方法
-        //数据验证
-
-        let datasharedInfo = await this.$api.get(global.apiUrls.post642402f366fd4, {
-          goods_id: this.dataDetails.id,
-          sku_id: this.sku_id,
-        })
-
-        if (datasharedInfo.data.code != 1) {
-          this.$message.info(datasharedInfo.data.msg)
-          return
-        }
-        let infosharedInfo = datasharedInfo.data
-        this.sharedInfo = infosharedInfo.data
-
         await this.syncUniApi('share', {
           provider: 'weixin',
           scene: 'WXSceneSession',
@@ -1893,21 +1991,20 @@ export default {
         this.popupShow1689239427011 = false
         this.popupShow1679645673274 = true
       } else if (type == '3' && this.isLogin === true) {
-        //请求方法
-        //数据验证
+        // //请求方法
+        // //数据验证
 
-        let datasharedInfo = await this.$api.get(global.apiUrls.post642402f366fd4, {
-          goods_id: this.dataDetails.id,
-          sku_id: this.sku_id,
-        })
+        // let datasharedInfo = await this.$api.get(global.apiUrls.post642402f366fd4, {
+        //   goods_id: this.dataDetails.id,
+        //   sku_id: this.sku_id,
+        // })
 
-        if (datasharedInfo.data.code != 1) {
-          this.$message.info(datasharedInfo.data.msg)
-          return
-        }
-        let infosharedInfo = datasharedInfo.data
-        this.sharedInfo = infosharedInfo.data
-
+        // if (datasharedInfo.data.code != 1) {
+        //   this.$message.info(datasharedInfo.data.msg)
+        //   return
+        // }
+        // let infosharedInfo = datasharedInfo.data
+        // this.sharedInfo = infosharedInfo.data
         this.copyText(this.sharedInfo.url)
       } else if (this.isLogin === false) {
         this.toLoginDiy()
@@ -2198,6 +2295,7 @@ export default {
   margin: 0rpx 16rpx 0rpx 0rpx;
   border-radius: 3rpx;
 }
+
 .shopDetail_fd11_0_c0_c1_dija {
   color: var(--benbenFontColor0);
   font-size: 32rpx;
@@ -2396,12 +2494,11 @@ export default {
 
   .shopDetail_flex_16_babdd {
     width: 750rpx;
-    overflow: hidden;
     z-index: 10;
     background: var(--benbenbgColor1);
     background-size: 100% auto !important;
     bottom: calc(0rpx + var(--benben-window-bottom, 0px));
-    height: 120rpx;
+    min-height: 120rpx;
 
     .shopDetail_fd16_1_babdd {
       border-radius: 44rpx 0rpx 0rpx 44rpx;
@@ -2865,12 +2962,13 @@ export default {
       width: 580rpx;
       margin: 0rpx 0rpx 32rpx 0rpx;
       border-radius: 16rpx 16rpx 16rpx 16rpx;
-      border: 1px solid rgba(238, 238, 238, 1);
+      overflow: hidden;
+      box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.08);
 
       .shopDetail_fd11_0_c1_c0_c0_babdd {
-        width: 750rpx;
-        height: 700rpx;
-        border-radius: 0rpx;
+        width: 580rpx;
+        border-radius: 16rpx 16rpx 16rpx 16rpx;
+        display: block;
       }
     }
 
@@ -3854,6 +3952,7 @@ export default {
     margin: 0rpx 0rpx 0rpx 12rpx;
   }
 }
+
 .shopDetail_fd11_0_c0_c5_c0_dija {
   color: var(--benbenFontColor0);
   font-size: 24rpx;
@@ -3867,6 +3966,7 @@ export default {
   border-radius: 0rpx 0rpx 0rpx 0rpx;
   margin: 0rpx 0rpx 0rpx 12rpx;
 }
+
 .shopDetail_fd11_0_c1_dija {
   margin: 0rpx 24rpx 24rpx 24rpx;
 

@@ -1,6 +1,8 @@
 import {
   bindNativePaySuccess,
   unbindNativePaySuccess,
+  bindNativePayCancel,
+  unbindNativePayCancel,
   openNativePay,
   goHostAppPay,
   resolveShopToken,
@@ -8,13 +10,13 @@ import {
 
 /**
  * App web-view 原生支付 mixin
- * - setupHostAppPaySuccess(onSuccess) 在 onLoad 调用
+ * - setupHostAppPaySuccess(onSuccess, onCancel) 在 onLoad 调用
  * - teardownHostAppPaySuccess() 在 onUnload 调用
  * - proceedHostAppPay(...) 统一去付款流程
  */
 export default {
   methods: {
-    setupHostAppPaySuccess(onSuccess) {
+    setupHostAppPaySuccess(onSuccess, onCancel) {
       bindNativePaySuccess(() => {
         const orderSn = this.currentOrderSn
         if (!orderSn) return
@@ -24,9 +26,17 @@ export default {
         }
         this.$urouter.redirectTo(`/pages/sy/resultPayment/resultPayment?order_sn=${orderSn}`)
       })
+      bindNativePayCancel(() => {
+        if (typeof onCancel === 'function') {
+          onCancel.call(this)
+          return
+        }
+        this.$urouter.switchTab('/pages/ddgl/order/order?type=all')
+      })
     },
     teardownHostAppPaySuccess() {
       unbindNativePaySuccess()
+      unbindNativePayCancel()
     },
     callHostAppPay(orderSn, amount, options = {}) {
       const orderType = options.orderType !== undefined ? options.orderType : 3

@@ -418,14 +418,14 @@
           </view>
         </view>
         <view class="flex flex-direction align-stretch detailsRefund_fd2_11_babdd">
-          <view class="flex flex-wrap align-center detailsRefund_fd2_11_c0_babdd" >
+          <view class="flex flex-wrap align-center detailsRefund_fd2_11_c0_babdd">
             <!-- <image
               class="detailsRefund_fd2_11_c0_c0_babdd"
               mode="aspectFit"
               :src="STATIC_URL + '347.png'"
               @tap.stop="callMobile(systemsInfo)"
             ></image> -->
-            <button class="detailsRefund_fd2_11_c0_c1_babdd" @tap.stop="callMobile(systemsInfo)">{{ $t('联系商家') }}</button>
+            <button class="detailsRefund_fd2_11_c0_c1_babdd" @tap.stop="getKefuFunc()">{{ $t('联系商家') }}</button>
             <button
               class="detailsRefund_fd2_11_c0_c2_babdd"
               @tap.stop="popupShow1707286980394 = true"
@@ -475,7 +475,7 @@
               {{ $t('重新发起') }}
             </button>
           </view>
-          <!-- <benben-safe-area></benben-safe-area> -->
+          <benben-safe-area></benben-safe-area>
         </view>
       </view>
 

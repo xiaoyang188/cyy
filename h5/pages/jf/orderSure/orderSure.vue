@@ -115,8 +115,7 @@
             <text class="orderSure_fd1_3_c0_c2_babdd">{{ dataMessage.payable_money }}</text>
             <button class="orderSure_fd1_3_c0_c3_babdd" @tap.stop="PointsMallOrderFunc()">{{ $t('去支付') }}</button>
           </view>
-          <!-- <benben-safe-area     >
-        </benben-safe-area> -->
+          <benben-safe-area></benben-safe-area>
         </view>
       </view>
 

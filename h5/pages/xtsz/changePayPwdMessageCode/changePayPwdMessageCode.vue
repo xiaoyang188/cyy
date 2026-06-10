@@ -19,7 +19,7 @@
  <view class="flex flex-direction align-center benben-flex-layout changePayPwdMessageCode_flex_1_babdd"    >
         <text class='changePayPwdMessageCode_fd1_0_babdd'  >{{$t('我们要对您绑定的手机号进行验证：')}}</text>
 <text class='changePayPwdMessageCode_fd1_1_babdd'  >{{dataMessage.mobile}}</text>
-<benben-digital-password  :box-num='4' mode='number' class-text='flex flex align-center justify-center changePayPwdMessageCode_fd1_2_babdd'    v-model="code" :init-open.sync="xianshi">
+<benben-digital-password  :box-num='6' mode='number' class-text='flex flex align-center justify-center changePayPwdMessageCode_fd1_2_babdd'    v-model="code" :init-open.sync="xianshi">
 <template #default="{ content, active, index }">
 <view :key="index" v-if="active" class="flex align-center justify-center active-digital-password changePayPwdMessageCode_flex_password_active_fd1_2_babdd" >
   {{ content }}

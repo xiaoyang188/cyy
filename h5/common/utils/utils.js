@@ -216,23 +216,91 @@ export function syncUniApi(apiName, params) {
     // #endif
   })
 }
-//文件到本地
+/** H5 通过 <a> 标签触发图片下载（App WebView 内嵌场景） */
+export function downloadImageByAnchor(url, filename = '') {
+  return new Promise((resolve, reject) => {
+    // #ifdef H5
+    if (!url) {
+      reject(new Error('empty url'))
+      return
+    }
+
+    const name = filename || `image_${Date.now()}.png`
+
+    const triggerAnchorDownload = (href, revokeBlob = false) => {
+      const link = document.createElement('a')
+      link.href = href
+      link.download = name
+      link.style.display = 'none'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      if (revokeBlob && href.startsWith('blob:')) {
+        setTimeout(() => URL.revokeObjectURL(href), 3000)
+      }
+      resolve()
+    }
+
+    if (url.startsWith('data:')) {
+      triggerAnchorDownload(url, false)
+      return
+    }
+
+    const fallbackUniDownload = () => {
+      uni.downloadFile({
+        url,
+        success: (res) => {
+          if (res.statusCode === 200 && res.tempFilePath) {
+            triggerAnchorDownload(res.tempFilePath, res.tempFilePath.startsWith('blob:'))
+          } else {
+            reject(new Error('download failed'))
+          }
+        },
+        fail: (err) => reject(err),
+      })
+    }
+
+    fetch(url)
+      .then((resp) => {
+        if (!resp.ok) throw new Error('fetch failed')
+        return resp.blob()
+      })
+      .then((blob) => {
+        if (!blob || !blob.size) throw new Error('empty blob')
+        triggerAnchorDownload(URL.createObjectURL(blob), true)
+      })
+      .catch(() => fallbackUniDownload())
+    // #endif
+    // #ifndef H5
+    reject(new Error('not h5'))
+    // #endif
+  })
+}
+
+//文件到本地（H5 已有 tempFilePath / blob URL 时直接触发 <a> 下载）
 export function downloadBlob(content) {
   // #ifdef H5
-  // 创建一个<a>标签
-  const link = document.createElement('a')
-  // 设置 href 属性为 Blob 的 URL
-  link.href = content.filePath
-  link.download = new Date().getTime()
-  // 将链接插入到文档中
-  document.body.appendChild(link)
-
-  // 模拟点击事件
-  link.click()
-  // 清除链接并释放 URL 对象
-  document.body.removeChild(link)
-  URL.revokeObjectURL(link.href)
-  content.success && content.success()
+  const filePath = content?.filePath
+  if (!filePath) {
+    content.fail && content.fail({ errMsg: 'filePath empty' })
+    return
+  }
+  const filename = content.filename || `image_${Date.now()}.png`
+  try {
+    const link = document.createElement('a')
+    link.href = filePath
+    link.download = filename
+    link.style.display = 'none'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    if (filePath.startsWith('blob:')) {
+      setTimeout(() => URL.revokeObjectURL(filePath), 3000)
+    }
+    content.success && content.success()
+  } catch (err) {
+    content.fail && content.fail(err)
+  }
   // #endif
 }
 // 导航

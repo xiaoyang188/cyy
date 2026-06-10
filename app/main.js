@@ -22,7 +22,7 @@ Vue.prototype.$getImageCache = function(filePath, fileMd5) {
 	// 图片缓存key值
 	let storageKey = 'IMAGE_CACHE_INFO_' + fileMd5
 	console.log('storageKey', storageKey);
-	// 首先获取本地存储的数据，查询是否有对应文件路径，如果有缓存内容，直接返回
+	// 首先获取本地存储的数据，查询是否有对应文件路径，如果有缓存内容，s直接返回
 	const cacheFileInfo = uni.getStorageSync(storageKey)
 	if (cacheFileInfo) {
 		console.log("已缓存为：" + cacheFileInfo)

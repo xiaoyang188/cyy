@@ -30,7 +30,6 @@
         @confirm="confirmSelectionFunc()"
       ></benben-specs-popup>
 
-      <!---flex布局flex布局开始-->
       <view
         class="flex align-center justify-between benben-flex-layout shopping_flex_3_babdd"
         v-if="appSystemIdentification == 'Wechat' && isLogin === true && dataList && dataList.length > 0"
@@ -80,15 +79,12 @@
           </view>
         </template>
       </benben-multiquotient-cart>
-      <!---订单列表flex布局开始-->
       <view class="flex flex-wrap align-center justify-center benben-flex-layout shopping_flex_5_babdd">
         <image class="shopping_fd5_0_babdd" mode="aspectFit" :src="STATIC_URL + '748.png'"></image>
         <text class="shopping_fd5_1_babdd">{{ $t('猜你喜欢') }}</text>
         <image class="shopping_fd5_0_babdd" mode="aspectFit" :src="STATIC_URL + '749.png'"></image>
       </view>
 
-      <!---订单列表flex布局结束-->
-      <!---flex布局flex布局开始-->
       <view class="flex flex-direction flex-wrap align-stretch benben-flex-layout shopping_flex_6_babdd">
         <view class="flex-sub">
           <benben-waterfalls
@@ -139,39 +135,7 @@
           :listDataLength="listDataLength"
           :isLoadInit="isLoadInit"
         ></fu-empty>
-        <!--     <view   class='flex flex-wrap align-center justify-between'      >
-            <template v-for = '(item,key0) in dataGoodsList'>
-    <view   class='flex flex-direction flex-wrap align-stretch shopping_fd6_1_c0_babdd'   @tap.stop="handleJumpDiy" data-type="navigateTo" :data-url="`/pages/fl/shopDetail/shopDetail?id=${item.aid}`"    :key='key0'>
-        <image class='shopping_fd6_1_c0_c0_babdd'  mode="aspectFill"  :src='item.thumb'></image>
-<text class='shopping_fd6_0_c0_c1_babdd'  >{{item.name}}</text>
-    <view   class='flex flex-wrap align-center shopping_fd6_0_c0_c2_babdd'      >
-        <text class='shopping_fd6_1_c0_c2_c0_babdd'  >{{$t('￥')}}</text>
-<text class=' shopping_fd6_1_c0_c2_c1_babdd'   >
-    <text class=' shopping_price1_fd6_0_c0_c2_c1_babdd' >{{ item.shop_price | frontPrice }}</text><text class=' shopping_price2_fd6_0_c0_c2_c1_babdd' >{{ item.shop_price | laterPrice }}</text>
-</text>
-    <view   class='flex flex-wrap align-center shopping_fd6_1_c0_c2_c2_babdd'    v-if= " item.discounts>money"  >
-            <view   class='flex flex-wrap align-center shopping_fd6_1_c0_c2_c2_c0_babdd'      >
-        </view>
-<text class='shopping_fd6_1_c0_c2_c2_c1_babdd'  >{{item.discounts}}</text>
-</view>
-</view>
-    <view   class='flex flex-wrap align-center shopping_fd6_0_c0_c3_babdd'      >
-        <text class='shopping_fd6_0_c0_c3_c0_babdd'  >{{$t('￥')}}</text>
-<text class='shopping_fd6_0_c0_c3_c0_babdd'  >{{item.market_price}}</text>
-<text class='shopping_fd6_1_c0_c3_c2_babdd'  >{{$t('销量')}}</text>
-<text class='shopping_fd6_0_c0_c3_c3_babdd'  >{{item.sales_sum}}</text>
-</view>
-    <view   class='flex flex-wrap align-center shopping_fd6_1_c0_c4_babdd'    v-if= " item.share_award_money>0"  >
-        <image class='shopping_fd6_1_c0_c4_c0_babdd'  mode="aspectFit"  :src='STATIC_URL+"813.png"'></image>
-<text class='shopping_fd6_1_c0_c4_c1_babdd'  >{{$t('分享赚')}}</text>
-<text class='shopping_fd6_1_c0_c4_c1_babdd'  >{{$t('￥')}}</text>
-<text class='shopping_fd6_1_c0_c4_c3_babdd'  >{{item.share_award_money}}</text>
-</view>
-</view>
-    </template>
-    <fu-empty :pagingListLoadedAll="pagingListLoadedAll" :pagingListNoListData="pagingListNoListData" :listDataLength="listDataLength" :isLoadInit="isLoadInit"></fu-empty>
-</view>
- -->
+
         <view class="flex flex-wrap align-center shopping_fd6_2_babdd"></view>
       </view>
 
@@ -440,7 +404,6 @@ export default {
 
         //更新购物车数量
         this.$store.dispatch('getCartList')
-        this.getShoppingnumFunc()
       }
     },
     //移入收藏夹
@@ -503,9 +466,15 @@ export default {
     },
     //修改购物车数量
     async editCartNumFunc() {
+      // console.log(`this.cart_id`, this.cart_id)
+      // console.log(`this.num`, this.num)
+      // return
       //请求方法
       //数据验证
-
+      if (!this.cart_id || !this.num) return
+      uni.showLoading({
+        title: '正在更新数量...',
+      })
       let data64144ab8dc6c6 = await this.$api.post(global.apiUrls.post64144ab8dc6c6, {
         cart_id: this.cart_id,
         num: this.num,
@@ -516,7 +485,9 @@ export default {
         return
       }
       let info64144ab8dc6c6 = data64144ab8dc6c6.data
-
+      setTimeout(() => {
+        uni.hideLoading()
+      }, 200)
       this.getCarListFunc()
       //this.$store.dispatch('getCartList')
     },

@@ -15,7 +15,7 @@
         </benben-goods-evaluate>
     <view class="flex flex-direction flex-wrap align-center justify-end benben-position-layout flex evaluation_flex_2_babdd"    >
         <button class='evaluation_fd2_0_babdd'  @tap.stop="handleSubmitFunc()"  >{{$t('提交')}}</button>
-
+        <benben-safe-area></benben-safe-area>
         </view>
 <view :style="{height: '150rpx'}"  ></view>
     
@@ -206,7 +206,7 @@ this.queryDetailsFunc()
             min-height: calc(100vh - var(--benben-window-bottom,0px));
             background:#F8F8F8;background-size: 100% auto;
             .evaluation_flex_2_babdd{
-        width:750rpx;height:150rpx;overflow:hidden;z-index:11;bottom:calc(0rpx + var(--benben-window-bottom,0px));background:#F8F8F8;background-size:100% auto;
+        width:750rpx;min-height:150rpx;z-index:11;bottom:calc(0rpx + var(--benben-window-bottom,0px));background:#F8F8F8;background-size:100% auto;
         .evaluation_fd2_0_babdd{
         border-radius:44rpx 44rpx 44rpx 44rpx;font-size:32rpx;background:var(--benbenbtnColor0);color:var(--benbenFontColor3);width:686rpx;height:88rpx;line-height:88rpx;margin:0rpx 0rpx 32rpx 0rpx;
     }}

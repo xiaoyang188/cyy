@@ -392,7 +392,7 @@ this.getRefundReasonFunc()
     }}    .serviceApply_fd3_8_c01_babdd{
         width:160rpx;height:160rpx;margin:0rpx 24rpx 24rpx 0rpx;border-radius:20rpx 20rpx 20rpx 20rpx;
     }    .serviceApply_fd3_9_babdd{
-        position:fixed;bottom:calc(0rpx + var(--benben-window-bottom,0px));left:0rpx;width:750rpx;height:150rpx;background:var(--benbenbgColor1);background-size:100% auto !important;z-index:11;
+        position:fixed;bottom:calc(0rpx + var(--benben-window-bottom,0px));left:0rpx;width:750rpx;min-height:150rpx;background:var(--benbenbgColor1);background-size:100% auto !important;z-index:11;
         .serviceApply_fd3_9_c0_babdd{
         border-radius:44rpx 44rpx 44rpx 44rpx;font-size:32rpx;background:var(--benbenbtnColor0);color:var(--benbenFontColor3);width:686rpx;height:88rpx;line-height:88rpx;
     }}}
