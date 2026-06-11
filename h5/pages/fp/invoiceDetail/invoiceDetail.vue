@@ -151,7 +151,8 @@
       <!-- 底部固定按钮 -->
       <view class="invoice-bottom">
         <!-- <view class="btn-contact" @tap.stop="previewInvoiceFunc()">{{ $t('预览发票') }}</view> -->
-        <view class="btn-delete" @tap.stop="SavePictureFunc()">{{ $t('下载发票') }}</view>
+        <view class="btn-delete" @tap.stop="SavePictureFunc()">{{ $t('复制发票下载链接') }}</view>
+        <text class="invoice-bottom-tip">{{ $t('复制发票链接到浏览器中打开下载发票') }}</text>
       </view>
     </view>
   </page-body>
@@ -328,17 +329,21 @@ export default {
     },
     //下载发票
     async SavePictureFunc() {
-      console.log(`this.dataMessage.invoice_img`, this.dataMessage.invoice_img)
-      if (!validate(this.dataMessage.invoice_img, 'require')) {
+      if (!validate(this.dataMessage.invoice_img[0].path, 'require')) {
         this.$message.info(this.$t('暂无可下载发票'))
         return false
       }
+      this.copyText(this.dataMessage.invoice_img[0]?.path)
+      // this.$message.success(this.$t('发票链接已复制，请在浏览器中打开下载'))
+
+      return
+
       this.dataImage = await this.syncUniApi('downloadFile', {
         url: this.dataMessage.invoice_img[0].path,
       })
-      await this.syncUniApi('saveImageToPhotosAlbum', {
-        filePath: this.dataImage.tempFilePath,
-      })
+      // await this.syncUniApi('saveImageToPhotosAlbum', {
+      //   filePath: this.dataImage.tempFilePath,
+      // })
     },
   },
 }
@@ -349,13 +354,13 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 100rpx;
-  padding: 18rpx 32rpx;
+  padding: 18rpx 32rpx 70rpx;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   background: transparent;
-  z-index: 100;
+  z-index: 1;
 }
 
 .invoice-bottom .btn-contact {
@@ -377,11 +382,15 @@ export default {
   text-align: center;
   line-height: 88rpx;
   border-radius: 60rpx;
-  margin-bottom: 108rpx;
-  /* padding: 18rpx 56rpx;
-  border-radius: 60rpx;
   font-size: 28rpx;
-  line-height: 28rpx; */
+}
+
+.invoice-bottom-tip {
+  margin-top: 16rpx;
+  font-size: 22rpx;
+  line-height: 32rpx;
+  color: #999;
+  text-align: center;
 }
 </style>
 <style lang="scss" scoped>

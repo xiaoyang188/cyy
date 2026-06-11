@@ -3,6 +3,7 @@ import {
   unbindNativePaySuccess,
   bindNativePayCancel,
   unbindNativePayCancel,
+  navigateToResultPayment,
   openNativePay,
   goHostAppPay,
   resolveShopToken,
@@ -17,14 +18,14 @@ import {
 export default {
   methods: {
     setupHostAppPaySuccess(onSuccess, onCancel) {
-      bindNativePaySuccess(() => {
-        const orderSn = this.currentOrderSn
+      bindNativePaySuccess((passedOrderSn) => {
+        const orderSn = passedOrderSn || this.currentOrderSn
         if (!orderSn) return
         if (typeof onSuccess === 'function') {
           onSuccess.call(this, orderSn)
           return
         }
-        this.$urouter.redirectTo(`/pages/sy/resultPayment/resultPayment?order_sn=${orderSn}`)
+        navigateToResultPayment(orderSn)
       })
       bindNativePayCancel(() => {
         if (typeof onCancel === 'function') {

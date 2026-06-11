@@ -833,7 +833,9 @@ export default {
         }
         let infodataKefu = datadataKefu.data
         this.dataKefu = infodataKefu.data
-        this.dynamicJump(this.dataKefu.chat_url)
+        uni.navigateTo({
+          url: `/pages/benben-built-in/web-view/kefu-web-view?webPath=${encodeURIComponent(this.dataKefu.chat_url)}`,
+        })
       } else {
         this.toLoginDiy()
       }

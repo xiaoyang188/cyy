@@ -1,30 +1,25 @@
 <template>
-  <view class="page">
-    <view class="top-area">
-      <view
-        class="status-bar"
-        :style="{ height: `${statusBarHeight}px` }"
-      ></view>
-      <view class="top-bar">
-        <text class="back" @click="showBackConfirm">‹</text>
-        <text class="title">立即支付</text>
-        <text class="placeholder"></text>
-      </view>
-    </view>
+	<view class="page">
+		<view class="top-area">
+			<view class="status-bar" :style="{ height: `${statusBarHeight}px` }"></view>
+			<view class="top-bar">
+				<text class="back" @click="showBackConfirm">‹</text>
+				<text class="title">立即支付</text>
+				<text class="placeholder"></text>
+			</view>
+		</view>
 
-    <view class="amount-card">
-      <text class="amount-label">支付金额</text>
-      <view class="amount-row">
-        <text class="currency">¥</text>
-        <text class="amount">{{ displayAmount || orderMoney }}</text>
-      </view>
-      <text class="countdown" v-if="orderType != '1'"
-        >支付剩余时间：{{ countdownText }}</text
-      >
-      <!-- <text class="order">订单号：{{ displayOrderSn }}</text> -->
-    </view>
+		<view class="amount-card">
+			<text class="amount-label">支付金额</text>
+			<view class="amount-row">
+				<text class="currency">¥</text>
+				<text class="amount">{{ displayAmount || orderMoney }}</text>
+			</view>
+			<text class="countdown" v-if="orderType != '1'">支付剩余时间：{{ countdownText }}</text>
+			<!-- <text class="order">订单号：{{ displayOrderSn }}</text> -->
+		</view>
 
-    <!-- <view class="detail-card">
+		<!-- <view class="detail-card">
       <text class="section-title">订单详情</text>
       <text v-if="detailLoading" class="detail-empty">订单详情加载中...</text>
       <template v-else>
@@ -61,889 +56,879 @@
       </template>
     </view> -->
 
-    <view class="pay-card">
-      <text class="section-title">选择支付方式</text>
-      <text v-if="payTypeLoading" class="pay-empty">支付方式加载中...</text>
-      <text v-else-if="payTypes.length === 0" class="pay-empty"
-        >暂无可用支付方式</text
-      >
-      <view
-        v-for="item in payTypes"
-        :key="item.type"
-        class="pay-item"
-        :class="{ active: payType === item.type }"
-        @click="payType = item.type"
-      >
-        <view class="pay-left">
-          <image
-            v-if="item.image"
-            class="pay-image"
-            :src="item.image"
-            mode="aspectFit"
-          ></image>
-          <view v-else class="pay-icon" :class="item.type">
-            {{ item.shortName }}
-          </view>
-          <text class="pay-name">{{ item.name }}</text>
-        </view>
-        <view class="radio" :class="{ checked: payType === item.type }"></view>
-      </view>
-    </view>
+		<view class="pay-card">
+			<text class="section-title">选择支付方式</text>
+			<text v-if="payTypeLoading" class="pay-empty">支付方式加载中...</text>
+			<text v-else-if="payTypes.length === 0" class="pay-empty">暂无可用支付方式</text>
+			<view v-for="item in payTypes" :key="item.type" class="pay-item" :class="{ active: payType === item.type }"
+				@click="payType = item.type">
+				<view class="pay-left">
+					<image v-if="item.image" class="pay-image" :src="item.image" mode="aspectFit"></image>
+					<view v-else class="pay-icon" :class="item.type">
+						{{ item.shortName }}
+					</view>
+					<text class="pay-name">{{ item.name }}</text>
+				</view>
+				<view class="radio" :class="{ checked: payType === item.type }"></view>
+			</view>
+		</view>
 
-    <button
-      class="pay-button"
-      :disabled="loading || payTypeLoading || detailLoading"
-      @click="handlePay"
-    >
-      {{ loading ? "支付中..." : detailLoading ? "加载中..." : "立即支付" }}
-    </button>
+		<button class="pay-button" :disabled="loading || payTypeLoading || detailLoading" @click="handlePay">
+			{{ loading ? "支付中..." : detailLoading ? "加载中..." : "立即支付" }}
+		</button>
 
-    <view v-if="showBackPopup" class="back-popup-mask" @click="closeBackPopup">
-      <view class="back-popup" @click.stop>
-        <view class="back-popup-body">
-          <text class="back-popup-title">确认要离开收银台？</text>
-          <text v-if="orderType != '1'" class="back-popup-desc">
-            您的订单在
-            <text class="back-popup-countdown">{{ countdownText }}</text>
-            内未支付将被取消，请尽快完成支付
-          </text>
-        </view>
-        <view class="back-popup-actions">
-          <button class="back-popup-btn continue" @click="closeBackPopup">
-            继续支付
-          </button>
-          <button class="back-popup-btn leave" @click="confirmLeave">
-            确认离开
-          </button>
-        </view>
-      </view>
-    </view>
-  </view>
+		<view v-if="showBackPopup" class="back-popup-mask" @click="closeBackPopup">
+			<view class="back-popup" @click.stop>
+				<view class="back-popup-body">
+					<text class="back-popup-title">确认要离开收银台？</text>
+					<text v-if="orderType != '1'" class="back-popup-desc">
+						您的订单在
+						<text class="back-popup-countdown">{{ countdownText }}</text>
+						内未支付将被取消，请尽快完成支付
+					</text>
+				</view>
+				<view class="back-popup-actions">
+					<button class="back-popup-btn continue" @click="closeBackPopup">
+						继续支付
+					</button>
+					<button class="back-popup-btn leave" @click="confirmLeave">
+						确认离开
+					</button>
+				</view>
+			</view>
+		</view>
+	</view>
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
-import { onBackPress, onLoad, onShow, onUnload } from "@dcloudio/uni-app";
-import {
-  notifyH5PayCancel,
-  notifyH5PaySuccess,
-  readShopPayTokenFromOptions,
-} from "@/utils/nativePayBridge.js";
+	import {
+		computed,
+		ref
+	} from "vue";
+	import {
+		onBackPress,
+		onLoad,
+		onShow,
+		onUnload
+	} from "@dcloudio/uni-app";
+	import {
+		notifyH5PayCancel,
+		notifyH5PaySuccess,
+		readShopPayTokenFromOptions,
+	} from "@/utils/nativePayBridge.js";
 
-const API_BASE_URL = "https://shop.chongyueyue.cn/api/m20336";
-const API_HASH = {
-  payTypes: "64424fe115688",
-  wxpay: "645cc07566415",
-  alipay: "645cc048d1f34",
-  orderDetail: "62c92b9d5ada3",
-  integralDetail: "6415509c196eb",
-};
+	const API_BASE_URL = "https://shop.chongyueyue.cn/api/m20336";
+	const API_HASH = {
+		payTypes: "64424fe115688",
+		wxpay: "645cc07566415",
+		alipay: "645cc048d1f34",
+		orderDetail: "62c92b9d5ada3",
+		integralDetail: "6415509c196eb",
+	};
 
-const getApiUrl = (hash) => `${API_BASE_URL}/${hash}`;
+	const getApiUrl = (hash) => `${API_BASE_URL}/${hash}`;
 
-const statusBarHeight = ref(0);
-const orderSn = ref("");
-const orderType = ref("3");
-const orderMoney = ref(0);
-const amount = ref("");
-const payType = ref("wxpay");
-const loading = ref(false);
-const payTypeLoading = ref(false);
-const detailLoading = ref(false);
-const countdownSeconds = ref(0);
-const timer = ref(null);
-const payTypes = ref([]);
-const orderDetail = ref({});
-const integralDetail = ref({});
-const token = ref("");
-const isLeaving = ref(false);
-const showBackPopup = ref(false);
-const blockBack = ref(true);
+	const statusBarHeight = ref(0);
+	const orderSn = ref("");
+	const orderType = ref("3");
+	const orderMoney = ref(0);
+	const amount = ref("");
+	const payType = ref("wxpay");
+	const loading = ref(false);
+	const payTypeLoading = ref(false);
+	const detailLoading = ref(false);
+	const countdownSeconds = ref(0);
+	const timer = ref(null);
+	const payTypes = ref([]);
+	const orderDetail = ref({});
+	const integralDetail = ref({});
+	const token = ref("");
+	const isLeaving = ref(false);
+	const showBackPopup = ref(false);
+	const blockBack = ref(true);
 
-let isFirstShow = true;
+	let isFirstShow = true;
+	let payFinishLock = false;
+	let paySuccessNotified = false;
 
-const displayAmount = computed(() => amount.value || "0.00");
-const currentOrderDetail = computed(() =>
-  orderType.value == "4" ? integralDetail.value : orderDetail.value,
-);
-const displayOrderSn = computed(
-  () => currentOrderDetail.value.order_sn || orderSn.value || "暂无订单号",
-);
-const countdownText = computed(() => {
-  const secondsTotal = Math.max(Number(countdownSeconds.value) || 0, 0);
-  const days = Math.floor(secondsTotal / 86400);
-  const secondsInDay = secondsTotal % 86400;
-  const secondsInHour = secondsTotal % 3600;
-  const hours = String(Math.floor(secondsInDay / 3600)).padStart(2, "0");
-  const minutes = String(Math.floor(secondsInHour / 60)).padStart(2, "0");
-  const seconds = String(secondsTotal % 60).padStart(2, "0");
+	const displayAmount = computed(() => amount.value || "0.00");
+	const currentOrderDetail = computed(() =>
+		orderType.value == "4" ? integralDetail.value : orderDetail.value,
+	);
+	const displayOrderSn = computed(
+		() => currentOrderDetail.value.order_sn || orderSn.value || "暂无订单号",
+	);
+	const countdownText = computed(() => {
+		const secondsTotal = Math.max(Number(countdownSeconds.value) || 0, 0);
+		const days = Math.floor(secondsTotal / 86400);
+		const secondsInDay = secondsTotal % 86400;
+		const secondsInHour = secondsTotal % 3600;
+		const hours = String(Math.floor(secondsInDay / 3600)).padStart(2, "0");
+		const minutes = String(Math.floor(secondsInHour / 60)).padStart(2, "0");
+		const seconds = String(secondsTotal % 60).padStart(2, "0");
 
-  return days > 0
-    ? `${days}天 ${hours}:${minutes}:${seconds}`
-    : `${hours}:${minutes}:${seconds}`;
-});
+		return days > 0 ?
+			`${days}天 ${hours}:${minutes}:${seconds}` :
+			`${hours}:${minutes}:${seconds}`;
+	});
 
-onLoad((options = {}) => {
-  const info = uni.getSystemInfoSync();
-  statusBarHeight.value = info.safeAreaInsets?.top || info.statusBarHeight || 0;
-  orderSn.value = options.order_sn || options.orderSn || "";
-  orderType.value = String(options.order_type ?? "3");
-  orderMoney.value = options.order_money || 0;
-  amount.value = options.amount || "";
-  token.value = readShopPayTokenFromOptions(options);
-  if (!token.value) {
-    console.warn("[native-pay] 未获取到商城 user-token，接口将提示未登录");
-  }
-  getPayTypes();
-  getOrderDetail();
-  startCountdown();
-});
+	onLoad((options = {}) => {
+		const info = uni.getSystemInfoSync();
+		statusBarHeight.value = info.safeAreaInsets?.top || info.statusBarHeight || 0;
+		orderSn.value = options.order_sn || options.orderSn || "";
+		orderType.value = String(options.order_type ?? "3");
+		orderMoney.value = options.order_money || 0;
+		amount.value = options.amount || "";
+		token.value = readShopPayTokenFromOptions(options);
+		if (!token.value) {
+			console.warn("[native-pay] 未获取到商城 user-token，接口将提示未登录");
+		}
+		getPayTypes();
+		getOrderDetail();
+		startCountdown();
+	});
 
-onShow(() => {
-  if (isFirstShow) {
-    isFirstShow = false;
-    return;
-  }
-  if (!orderSn.value || isLeaving.value) return;
-  getOrderDetail();
-});
+	onShow(() => {
+		if (isFirstShow) {
+			isFirstShow = false;
+			return;
+		}
+		if (!orderSn.value || isLeaving.value) return;
+		getOrderDetail();
+	});
 
-onBackPress(() => {
-  if (isLeaving.value) {
-    blockBack.value = false;
-    return false;
-  }
-  showBackConfirm();
-  return blockBack.value;
-});
+	onBackPress(() => {
+		if (isLeaving.value) {
+			return true;
+		}
+		showBackConfirm();
+		return blockBack.value;
+	});
 
-onUnload(() => {
-  clearCountdown();
-});
+	onUnload(() => {
+		clearCountdown();
+	});
 
-function isOrderPaid(detail = {}) {
-  const payStatus = String(detail.pay_status ?? "");
-  const status = String(detail.status ?? "");
-  return payStatus === "1" || (status !== "" && status !== "0");
-}
+	function isOrderPaid(detail = {}) {
+		const payStatus = String(detail.pay_status ?? "");
+		const status = String(detail.status ?? "");
+		return payStatus === "1" || (status !== "" && status !== "0");
+	}
 
-function isOrderCancelled(detail = {}) {
-  const status = String(detail.status ?? "");
-  return status === "-1" || status === "-2";
-}
+	function isOrderCancelled(detail = {}) {
+		const status = String(detail.status ?? "");
+		return status === "-1" || status === "-2";
+	}
 
-function applyOrderDetail(detail = {}) {
-  if (orderType.value == "4") {
-    amount.value = detail.payable_money || detail.goods_money || amount.value;
-  } else {
-    amount.value = detail.payable_money || amount.value;
-  }
+	function applyOrderDetail(detail = {}) {
+		if (orderType.value == "4") {
+			amount.value = detail.payable_money || detail.goods_money || amount.value;
+		} else {
+			amount.value = detail.payable_money || amount.value;
+		}
 
-  const remainSeconds = Number(
-    orderType.value == "4" ? detail.cancel_time : detail.cancel_surplus_second,
-  );
-  if (!Number.isNaN(remainSeconds) && remainSeconds > 0) {
-    countdownSeconds.value = remainSeconds;
-    startCountdown();
-  }
-}
+		const remainSeconds = Number(
+			orderType.value == "4" ? detail.cancel_time : detail.cancel_surplus_second,
+		);
+		if (!Number.isNaN(remainSeconds) && remainSeconds > 0) {
+			countdownSeconds.value = remainSeconds;
+			startCountdown();
+		}
+	}
 
-function resetPageByOrderStatus(detail = {}) {
-  if (isLeaving.value) return true;
+	function resetPageByOrderStatus(detail = {}) {
+		if (isLeaving.value) return true;
 
-  loading.value = false;
+		loading.value = false;
 
-  if (isOrderPaid(detail)) {
-    isLeaving.value = true;
-    clearCountdown();
-    uni.showToast({
-      title: "支付成功",
-      icon: "success",
-    });
-    notifyH5PaySuccess();
-    setTimeout(() => {
-      goBack();
-    }, 1500);
-    return true;
-  }
+		if (isOrderPaid(detail)) {
+			finishPaySuccess();
+			return true;
+		}
 
-  if (isOrderCancelled(detail)) {
-    isLeaving.value = true;
-    clearCountdown();
-    uni.showToast({
-      title: detail.status_txt || "订单已取消",
-      icon: "none",
-    });
-    setTimeout(() => {
-      goBack();
-    }, 1500);
-    return true;
-  }
+		if (isOrderCancelled(detail)) {
+			isLeaving.value = true;
+			clearCountdown();
+			uni.showToast({
+				title: detail.status_txt || "订单已取消",
+				icon: "none",
+			});
+			setTimeout(() => {
+				goBack();
+			}, 1500);
+			return true;
+		}
 
-  const remainSeconds = Number(
-    orderType.value == "4" ? detail.cancel_time : detail.cancel_surplus_second,
-  );
-  if (
-    orderType.value != "1" &&
-    !Number.isNaN(remainSeconds) &&
-    remainSeconds <= 0 &&
-    String(detail.status ?? "") === "0"
-  ) {
-    isLeaving.value = true;
-    clearCountdown();
-    uni.showToast({
-      title: detail.status_txt || "订单已超时取消",
-      icon: "none",
-    });
-    setTimeout(() => {
-      goBack();
-    }, 1500);
-    return true;
-  }
+		const remainSeconds = Number(
+			orderType.value == "4" ? detail.cancel_time : detail.cancel_surplus_second,
+		);
+		if (
+			orderType.value != "1" &&
+			!Number.isNaN(remainSeconds) &&
+			remainSeconds <= 0 &&
+			String(detail.status ?? "") === "0"
+		) {
+			isLeaving.value = true;
+			clearCountdown();
+			uni.showToast({
+				title: detail.status_txt || "订单已超时取消",
+				icon: "none",
+			});
+			setTimeout(() => {
+				goBack();
+			}, 1500);
+			return true;
+		}
 
-  return false;
-}
+		return false;
+	}
 
-function getRequestHeader() {
-  console.log(token.value, "toekn");
-  if (!token.value) {
-    return {
-      "Content-Type": "application/json",
-    };
-  }
-  return {
-    "Content-Type": "application/json",
-    "User-Token": token.value,
-  };
-}
+	function getRequestHeader() {
+		console.log(token.value, "toekn");
+		if (!token.value) {
+			return {
+				"Content-Type": "application/json",
+			};
+		}
+		return {
+			"Content-Type": "application/json",
+			"User-Token": token.value,
+		};
+	}
 
-function goBack() {
-  blockBack.value = false;
-  uni.navigateBack();
-}
+	function goBack() {
+		blockBack.value = false;
+		uni.navigateBack();
+	}
 
-function leaveCashier() {
-  notifyH5PayCancel();
-  goBack();
-}
+	function finishPaySuccess() {
+		if (payFinishLock || isLeaving.value) return;
+		payFinishLock = true;
+		isLeaving.value = true;
+		loading.value = false;
+		clearCountdown();
+		uni.showToast({
+			title: "支付成功",
+			icon: "success",
+		});
+		goBack();
+		setTimeout(() => {
+			if (paySuccessNotified) return;
+			paySuccessNotified = true;
+			notifyH5PaySuccess(orderSn.value);
+		}, 350);
+	}
 
-function showBackConfirm() {
-  if (isLeaving.value) {
-    goBack();
-    return;
-  }
-  if (orderType.value == "1") {
-    leaveCashier();
-    return;
-  }
-  getOrderDetail();
-  showBackPopup.value = true;
-}
+	function leaveCashier() {
+		notifyH5PayCancel();
+		goBack();
+	}
 
-function closeBackPopup() {
-  showBackPopup.value = false;
-}
+	function showBackConfirm() {
+		if (isLeaving.value) {
+			return;
+		}
+		if (orderType.value == "1") {
+			leaveCashier();
+			return;
+		}
+		getOrderDetail();
+		showBackPopup.value = true;
+	}
 
-function confirmLeave() {
-  showBackPopup.value = false;
-  blockBack.value = false;
-  leaveCashier();
-}
+	function closeBackPopup() {
+		showBackPopup.value = false;
+	}
 
-function startCountdown() {
-  clearCountdown();
-  timer.value = setInterval(() => {
-    if (countdownSeconds.value <= 0) {
-      clearCountdown();
-      return;
-    }
-    countdownSeconds.value -= 1;
-  }, 1000);
-}
+	function confirmLeave() {
+		showBackPopup.value = false;
+		blockBack.value = false;
+		leaveCashier();
+	}
 
-function clearCountdown() {
-  if (timer.value) {
-    clearInterval(timer.value);
-    timer.value = null;
-  }
-}
+	function startCountdown() {
+		clearCountdown();
+		timer.value = setInterval(() => {
+			if (countdownSeconds.value <= 0) {
+				clearCountdown();
+				return;
+			}
+			countdownSeconds.value -= 1;
+		}, 1000);
+	}
 
-function handlePay() {
-  if (!orderSn.value) {
-    uni.showToast({
-      title: "订单号不能为空",
-      icon: "none",
-    });
-    return;
-  }
+	function clearCountdown() {
+		if (timer.value) {
+			clearInterval(timer.value);
+			timer.value = null;
+		}
+	}
 
-  if (detailLoading.value) {
-    uni.showToast({
-      title: "订单详情加载中",
-      icon: "none",
-    });
-    return;
-  }
+	function handlePay() {
+		if (!orderSn.value) {
+			uni.showToast({
+				title: "订单号不能为空",
+				icon: "none",
+			});
+			return;
+		}
 
-  if (!payType.value) {
-    uni.showToast({
-      title: "请选择支付方式",
-      icon: "none",
-    });
-    return;
-  }
+		if (detailLoading.value) {
+			uni.showToast({
+				title: "订单详情加载中",
+				icon: "none",
+			});
+			return;
+		}
 
-  if (payType.value === "wxpay") {
-    paymentByWxpay();
-    return;
-  }
+		if (!payType.value) {
+			uni.showToast({
+				title: "请选择支付方式",
+				icon: "none",
+			});
+			return;
+		}
 
-  if (payType.value === "alipay") {
-    paymentByAlipay();
-  }
-}
+		if (payType.value === "wxpay") {
+			paymentByWxpay();
+			return;
+		}
 
-function getPayTypes() {
-  if (!token.value) {
-    uni.showToast({
-      title: "您还没有登录，请先登录！",
-      icon: "none",
-    });
-    return;
-  }
+		if (payType.value === "alipay") {
+			paymentByAlipay();
+		}
+	}
 
-  payTypeLoading.value = true;
+	function getPayTypes() {
+		if (!token.value) {
+			uni.showToast({
+				title: "您还没有登录，请先登录！",
+				icon: "none",
+			});
+			return;
+		}
 
-  uni.request({
-    url: getApiUrl(API_HASH.payTypes),
-    method: "GET",
-    header: getRequestHeader(),
-    success: (res) => {
-      console.log("支付方式回调", res);
-      const result = res.data || {};
+		payTypeLoading.value = true;
 
-      if (result.code != 1) {
-        uni.showToast({
-          title: result.msg || "获取支付方式失败",
-          icon: "none",
-        });
-        return;
-      }
+		uni.request({
+			url: getApiUrl(API_HASH.payTypes),
+			method: "GET",
+			header: getRequestHeader(),
+			success: (res) => {
+				console.log("支付方式回调", res);
+				const result = res.data || {};
 
-      const resultPayTypes = Array.isArray(result.data) ? result.data : [];
-      payTypes.value = resultPayTypes
-        .filter((item) => item.pay_type !== "balance")
-        .map((item) => ({
-          ...item,
-          type: item.pay_type,
-          shortName: getPayShortName(item.pay_type, item.name),
-        }));
-      payType.value = payTypes.value.length > 0 ? payTypes.value[0].type : "";
-    },
-    fail: (err) => {
-      console.error("获取支付方式失败", err);
-      uni.showToast({
-        title: "获取支付方式失败，请稍后重试",
-        icon: "none",
-      });
-    },
-    complete: () => {
-      payTypeLoading.value = false;
-    },
-  });
-}
+				if (result.code != 1) {
+					uni.showToast({
+						title: result.msg || "获取支付方式失败",
+						icon: "none",
+					});
+					return;
+				}
 
-function getPayShortName(type, name = "") {
-  const shortNameMap = {
-    wxpay: "微",
-    alipay: "支",
-  };
+				const resultPayTypes = Array.isArray(result.data) ? result.data : [];
+				payTypes.value = resultPayTypes
+					.filter((item) => item.pay_type !== "balance")
+					.map((item) => ({
+						...item,
+						type: item.pay_type,
+						shortName: getPayShortName(item.pay_type, item.name),
+					}));
+				payType.value = payTypes.value.length > 0 ? payTypes.value[0].type : "";
+			},
+			fail: (err) => {
+				console.error("获取支付方式失败", err);
+				uni.showToast({
+					title: "获取支付方式失败，请稍后重试",
+					icon: "none",
+				});
+			},
+			complete: () => {
+				payTypeLoading.value = false;
+			},
+		});
+	}
 
-  return shortNameMap[type] || name.slice(0, 1) || "付";
-}
+	function getPayShortName(type, name = "") {
+		const shortNameMap = {
+			wxpay: "微",
+			alipay: "支",
+		};
 
-function getOrderDetail() {
-  if (!orderSn.value) return;
-  if (orderType.value == "1") return;
-  if (orderType.value == "4") {
-    getIntegralDetail();
-    return;
-  }
+		return shortNameMap[type] || name.slice(0, 1) || "付";
+	}
 
-  detailLoading.value = true;
-  uni.request({
-    url: getApiUrl(API_HASH.orderDetail),
-    method: "POST",
-    data: {
-      order_sn: orderSn.value,
-      order_type: "3",
-    },
-    header: getRequestHeader(),
-    success: (res) => {
-      console.log("订单详情回调", res);
-      const result = res.data || {};
+	function getOrderDetail() {
+		if (!orderSn.value) return;
+		if (orderType.value == "1") return;
+		if (orderType.value == "4") {
+			getIntegralDetail();
+			return;
+		}
 
-      if (result.code != 1) {
-        uni.showToast({
-          title: result.msg || "获取订单详情失败",
-          icon: "none",
-        });
-        return;
-      }
+		detailLoading.value = true;
+		uni.request({
+			url: getApiUrl(API_HASH.orderDetail),
+			method: "POST",
+			data: {
+				order_sn: orderSn.value,
+				order_type: "3",
+			},
+			header: getRequestHeader(),
+			success: (res) => {
+				console.log("订单详情回调", res);
+				const result = res.data || {};
 
-      orderDetail.value = result.data || {};
-      if (resetPageByOrderStatus(orderDetail.value)) return;
-      applyOrderDetail(orderDetail.value);
-    },
-    fail: (err) => {
-      console.error("获取订单详情失败", err);
-      uni.showToast({
-        title: "获取订单详情失败，请稍后重试",
-        icon: "none",
-      });
-    },
-    complete: () => {
-      detailLoading.value = false;
-    },
-  });
-}
+				if (result.code != 1) {
+					uni.showToast({
+						title: result.msg || "获取订单详情失败",
+						icon: "none",
+					});
+					return;
+				}
 
-function getIntegralDetail() {
-  detailLoading.value = true;
-  uni.request({
-    url: getApiUrl(API_HASH.integralDetail),
-    method: "POST",
-    data: {
-      order_sn: orderSn.value,
-    },
-    header: getRequestHeader(),
-    success: (res) => {
-      console.log("积分订单详情回调", res);
-      const result = res.data || {};
+				orderDetail.value = result.data || {};
+				if (resetPageByOrderStatus(orderDetail.value)) return;
+				applyOrderDetail(orderDetail.value);
+			},
+			fail: (err) => {
+				console.error("获取订单详情失败", err);
+				uni.showToast({
+					title: "获取订单详情失败，请稍后重试",
+					icon: "none",
+				});
+			},
+			complete: () => {
+				detailLoading.value = false;
+			},
+		});
+	}
 
-      if (result.code != 1) {
-        uni.showToast({
-          title: result.msg || "获取订单详情失败",
-          icon: "none",
-        });
-        return;
-      }
+	function getIntegralDetail() {
+		detailLoading.value = true;
+		uni.request({
+			url: getApiUrl(API_HASH.integralDetail),
+			method: "POST",
+			data: {
+				order_sn: orderSn.value,
+			},
+			header: getRequestHeader(),
+			success: (res) => {
+				console.log("积分订单详情回调", res);
+				const result = res.data || {};
 
-      integralDetail.value = result.data || {};
-      if (resetPageByOrderStatus(integralDetail.value)) return;
-      applyOrderDetail(integralDetail.value);
-    },
-    fail: (err) => {
-      console.error("获取积分订单详情失败", err);
-      uni.showToast({
-        title: "获取订单详情失败，请稍后重试",
-        icon: "none",
-      });
-    },
-    complete: () => {
-      detailLoading.value = false;
-    },
-  });
-}
+				if (result.code != 1) {
+					uni.showToast({
+						title: result.msg || "获取订单详情失败",
+						icon: "none",
+					});
+					return;
+				}
 
-function paymentByWxpay() {
-  if (loading.value) return;
-  loading.value = true;
-  uni.request({
-    url: getApiUrl(API_HASH.wxpay),
-    method: "POST",
-    data: {
-      order_sn: orderSn.value,
-      wxpaytype: "apppay",
-    },
-    header: getRequestHeader(),
-    success: (res) => {
-      console.log("微信支付参数回调", res);
-      const result = res.data || {};
+				integralDetail.value = result.data || {};
+				if (resetPageByOrderStatus(integralDetail.value)) return;
+				applyOrderDetail(integralDetail.value);
+			},
+			fail: (err) => {
+				console.error("获取积分订单详情失败", err);
+				uni.showToast({
+					title: "获取订单详情失败，请稍后重试",
+					icon: "none",
+				});
+			},
+			complete: () => {
+				detailLoading.value = false;
+			},
+		});
+	}
 
-      if (result.code == 1) {
-        requestPayment("wxpay", result.data);
-        return;
-      }
+	function paymentByWxpay() {
+		if (loading.value) return;
+		loading.value = true;
+		uni.request({
+			url: getApiUrl(API_HASH.wxpay),
+			method: "POST",
+			data: {
+				order_sn: orderSn.value,
+				wxpaytype: "apppay",
+			},
+			header: getRequestHeader(),
+			success: (res) => {
+				console.log("微信支付参数回调", res);
+				const result = res.data || {};
 
-      loading.value = false;
-      uni.showToast({
-        title: result.msg || "订单无效，支付失败",
-        icon: "none",
-      });
-    },
-    fail: (err) => {
-      console.error("获取微信支付参数失败", err);
-      loading.value = false;
-      uni.showToast({
-        title: "获取支付参数失败，请稍后重试",
-        icon: "none",
-      });
-    },
-  });
-}
+				if (result.code == 1) {
+					requestPayment("wxpay", result.data);
+					return;
+				}
 
-function paymentByAlipay() {
-  if (loading.value) return;
-  loading.value = true;
-  uni.request({
-    url: getApiUrl(API_HASH.alipay),
-    method: "POST",
-    data: {
-      order_sn: orderSn.value,
-    },
-    header: getRequestHeader(),
-    success: (res) => {
-      console.log("支付宝支付参数回调", res);
-      const result = res.data || {};
+				loading.value = false;
+				uni.showToast({
+					title: result.msg || "订单无效，支付失败",
+					icon: "none",
+				});
+			},
+			fail: (err) => {
+				console.error("获取微信支付参数失败", err);
+				loading.value = false;
+				uni.showToast({
+					title: "获取支付参数失败，请稍后重试",
+					icon: "none",
+				});
+			},
+		});
+	}
 
-      if (result.code == 1) {
-        requestPayment("alipay", result.data);
-        return;
-      }
+	function paymentByAlipay() {
+		if (loading.value) return;
+		loading.value = true;
+		uni.request({
+			url: getApiUrl(API_HASH.alipay),
+			method: "POST",
+			data: {
+				order_sn: orderSn.value,
+			},
+			header: getRequestHeader(),
+			success: (res) => {
+				console.log("支付宝支付参数回调", res);
+				const result = res.data || {};
 
-      loading.value = false;
-      uni.showToast({
-        title: result.msg || "订单无效，支付失败",
-        icon: "none",
-      });
-    },
-    fail: (err) => {
-      console.error("获取支付宝支付参数失败", err);
-      loading.value = false;
-      uni.showToast({
-        title: "获取支付参数失败，请稍后重试",
-        icon: "none",
-      });
-    },
-  });
-}
+				if (result.code == 1) {
+					requestPayment("alipay", result.data);
+					return;
+				}
 
-function requestPayment(provider, orderInfo) {
-  uni.requestPayment({
-    provider,
-    orderInfo,
-    success: (res) => {
-      console.log("支付成功", res);
-      loading.value = false;
-      isLeaving.value = true;
-      uni.showToast({
-        title: "支付成功",
-        icon: "success",
-      });
+				loading.value = false;
+				uni.showToast({
+					title: result.msg || "订单无效，支付失败",
+					icon: "none",
+				});
+			},
+			fail: (err) => {
+				console.error("获取支付宝支付参数失败", err);
+				loading.value = false;
+				uni.showToast({
+					title: "获取支付参数失败，请稍后重试",
+					icon: "none",
+				});
+			},
+		});
+	}
 
-      notifyH5PaySuccess();
-
-      setTimeout(() => {
-        goBack();
-      }, 1500);
-    },
-    fail: (err) => {
-      console.log("支付失败", err);
-      const isCancel = err.errMsg && err.errMsg.indexOf("cancel") !== -1;
-      uni.showToast({
-        title: isCancel ? "取消支付" : "支付失败，请稍后重试",
-        icon: "none",
-      });
-      loading.value = false;
-    },
-  });
-}
+	function requestPayment(provider, orderInfo) {
+		uni.requestPayment({
+			provider,
+			orderInfo,
+			success: (res) => {
+				console.log("支付成功", res);
+				finishPaySuccess();
+			},
+			fail: (err) => {
+				console.log("支付失败", err);
+				const isCancel = err.errMsg && err.errMsg.indexOf("cancel") !== -1;
+				uni.showToast({
+					title: isCancel ? "取消支付" : "支付失败，请稍后重试",
+					icon: "none",
+				});
+				loading.value = false;
+			},
+		});
+	}
 </script>
 
 <style scoped>
-page {
-  background-color: #f4f5f7;
-}
+	page {
+		background-color: #f4f5f7;
+	}
 
-.page {
-  min-height: 100vh;
-  background-color: #f4f5f7;
-}
+	.page {
+		min-height: 100vh;
+		background-color: #f4f5f7;
+	}
 
-.top-area {
-  background-color: #ffffff;
-}
+	.top-area {
+		background-color: #ffffff;
+	}
 
-.status-bar {
-  width: 100%;
-}
+	.status-bar {
+		width: 100%;
+	}
 
-.top-bar {
-  height: 96rpx;
-  padding: 0 28rpx;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-}
+	.top-bar {
+		height: 96rpx;
+		padding: 0 28rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+	}
 
-.back,
-.placeholder {
-  width: 80rpx;
-  font-size: 58rpx;
-  color: #222222;
-}
+	.back,
+	.placeholder {
+		width: 80rpx;
+		font-size: 58rpx;
+		color: #222222;
+	}
 
-.title {
-  font-size: 34rpx;
-  font-weight: 600;
-  color: #222222;
-}
+	.title {
+		font-size: 34rpx;
+		font-weight: 600;
+		color: #222222;
+	}
 
-.amount-card {
-  margin: 24rpx;
-  padding: 48rpx 28rpx;
-  border-radius: 24rpx;
-  background-color: #ffffff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+	.amount-card {
+		margin: 24rpx;
+		padding: 48rpx 28rpx;
+		border-radius: 24rpx;
+		background-color: #ffffff;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
 
-.amount-label {
-  font-size: 28rpx;
-  color: #666666;
-}
+	.amount-label {
+		font-size: 28rpx;
+		color: #666666;
+	}
 
-.amount-row {
-  margin-top: 18rpx;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-end;
-}
+	.amount-row {
+		margin-top: 18rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: flex-end;
+	}
 
-.currency {
-  margin-bottom: 10rpx;
-  font-size: 34rpx;
-  color: #ff5000;
-  font-weight: 600;
-}
+	.currency {
+		margin-bottom: 10rpx;
+		font-size: 34rpx;
+		color: #ff5000;
+		font-weight: 600;
+	}
 
-.amount {
-  margin-left: 8rpx;
-  font-size: 76rpx;
-  line-height: 86rpx;
-  color: #ff5000;
-  font-weight: 700;
-}
+	.amount {
+		margin-left: 8rpx;
+		font-size: 76rpx;
+		line-height: 86rpx;
+		color: #ff5000;
+		font-weight: 700;
+	}
 
-.countdown {
-  margin-top: 18rpx;
-  font-size: 26rpx;
-  color: #999999;
-}
+	.countdown {
+		margin-top: 18rpx;
+		font-size: 26rpx;
+		color: #999999;
+	}
 
-.order {
-  margin-top: 14rpx;
-  font-size: 24rpx;
-  color: #999999;
-}
+	.order {
+		margin-top: 14rpx;
+		font-size: 24rpx;
+		color: #999999;
+	}
 
-.detail-card,
-.pay-card {
-  margin: 24rpx;
-  padding: 28rpx;
-  border-radius: 24rpx;
-  background-color: #ffffff;
-}
+	.detail-card,
+	.pay-card {
+		margin: 24rpx;
+		padding: 28rpx;
+		border-radius: 24rpx;
+		background-color: #ffffff;
+	}
 
-.section-title {
-  font-size: 30rpx;
-  color: #222222;
-  font-weight: 600;
-}
+	.section-title {
+		font-size: 30rpx;
+		color: #222222;
+		font-weight: 600;
+	}
 
-.detail-empty {
-  margin-top: 28rpx;
-  font-size: 28rpx;
-  color: #999999;
-}
+	.detail-empty {
+		margin-top: 28rpx;
+		font-size: 28rpx;
+		color: #999999;
+	}
 
-.detail-row {
-  min-height: 64rpx;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1rpx solid #eeeeee;
-}
+	.detail-row {
+		min-height: 64rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		border-bottom: 1rpx solid #eeeeee;
+	}
 
-.detail-row:last-child {
-  border-bottom: none;
-}
+	.detail-row:last-child {
+		border-bottom: none;
+	}
 
-.detail-label {
-  font-size: 28rpx;
-  color: #666666;
-}
+	.detail-label {
+		font-size: 28rpx;
+		color: #666666;
+	}
 
-.detail-value {
-  flex: 1;
-  margin-left: 24rpx;
-  font-size: 28rpx;
-  color: #222222;
-  text-align: right;
-}
+	.detail-value {
+		flex: 1;
+		margin-left: 24rpx;
+		font-size: 28rpx;
+		color: #222222;
+		text-align: right;
+	}
 
-.pay-item {
-  height: 112rpx;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1rpx solid #eeeeee;
-}
+	.pay-item {
+		height: 112rpx;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		border-bottom: 1rpx solid #eeeeee;
+	}
 
-.pay-item:last-child {
-  border-bottom: none;
-}
+	.pay-item:last-child {
+		border-bottom: none;
+	}
 
-.pay-left {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
+	.pay-left {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
 
-.pay-image,
-.pay-icon {
-  width: 54rpx;
-  height: 54rpx;
-}
+	.pay-image,
+	.pay-icon {
+		width: 54rpx;
+		height: 54rpx;
+	}
 
-.pay-image {
-  flex-shrink: 0;
-}
+	.pay-image {
+		flex-shrink: 0;
+	}
 
-.pay-icon {
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 26rpx;
-  color: #ffffff;
-}
+	.pay-icon {
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 26rpx;
+		color: #ffffff;
+	}
 
-.pay-icon.wxpay {
-  background-color: #1aad19;
-}
+	.pay-icon.wxpay {
+		background-color: #1aad19;
+	}
 
-.pay-icon.alipay {
-  background-color: #1677ff;
-}
+	.pay-icon.alipay {
+		background-color: #1677ff;
+	}
 
-.pay-name {
-  margin-left: 20rpx;
-  font-size: 30rpx;
-  color: #222222;
-}
+	.pay-name {
+		margin-left: 20rpx;
+		font-size: 30rpx;
+		color: #222222;
+	}
 
-.pay-empty {
-  margin-top: 28rpx;
-  font-size: 28rpx;
-  color: #999999;
-}
+	.pay-empty {
+		margin-top: 28rpx;
+		font-size: 28rpx;
+		color: #999999;
+	}
 
-.radio {
-  width: 36rpx;
-  height: 36rpx;
-  border: 2rpx solid #cccccc;
-  border-radius: 50%;
-}
+	.radio {
+		width: 36rpx;
+		height: 36rpx;
+		border: 2rpx solid #cccccc;
+		border-radius: 50%;
+	}
 
-.radio.checked {
-  border: 10rpx solid #ff5000;
-}
+	.radio.checked {
+		border: 10rpx solid #ff5000;
+	}
 
-.pay-button {
-  height: 88rpx;
-  margin: 56rpx 40rpx 0;
-  border-radius: 44rpx;
-  background-color: #ff5000;
-  color: #ffffff;
-  font-size: 32rpx;
-}
+	.pay-button {
+		height: 88rpx;
+		margin: 56rpx 40rpx 0;
+		border-radius: 44rpx;
+		background-color: #ff5000;
+		color: #ffffff;
+		font-size: 32rpx;
+	}
 
-.pay-button[disabled] {
-  opacity: 0.6;
-}
+	.pay-button[disabled] {
+		opacity: 0.6;
+	}
 
-.back-popup-mask {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.45);
-}
+	.back-popup-mask {
+		position: fixed;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		z-index: 999;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background-color: rgba(0, 0, 0, 0.45);
+	}
 
-.back-popup {
-  width: 540rpx;
-  border-radius: 16rpx;
-  background-color: #ffffff;
-  overflow: hidden;
-}
+	.back-popup {
+		width: 540rpx;
+		border-radius: 16rpx;
+		background-color: #ffffff;
+		overflow: hidden;
+	}
 
-.back-popup-body {
-  padding: 40rpx 30rpx 32rpx;
-  border-bottom: 1rpx solid #eeeeee;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+	.back-popup-body {
+		padding: 40rpx 30rpx 32rpx;
+		border-bottom: 1rpx solid #eeeeee;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
 
-.back-popup-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #222222;
-  line-height: 45rpx;
-  margin-bottom: 40rpx;
-  text-align: center;
-}
+	.back-popup-title {
+		font-size: 32rpx;
+		font-weight: 600;
+		color: #222222;
+		line-height: 45rpx;
+		margin-bottom: 40rpx;
+		text-align: center;
+	}
 
-.back-popup-desc {
-  font-size: 28rpx;
-  color: #666666;
-  line-height: 42rpx;
-  text-align: center;
-}
+	.back-popup-desc {
+		font-size: 28rpx;
+		color: #666666;
+		line-height: 42rpx;
+		text-align: center;
+	}
 
-.back-popup-countdown {
-  color: #ff5000;
-  font-weight: 600;
-}
+	.back-popup-countdown {
+		color: #ff5000;
+		font-weight: 600;
+	}
 
-.back-popup-actions {
-  display: flex;
-  flex-direction: row;
-}
+	.back-popup-actions {
+		display: flex;
+		flex-direction: row;
+	}
 
-.back-popup-btn {
-  flex: 1;
-  height: 110rpx;
-  line-height: 110rpx;
-  margin: 0;
-  padding: 0;
-  border: none;
-  border-radius: 0;
-  font-size: 32rpx;
-  background-color: #ffffff;
-}
+	.back-popup-btn {
+		flex: 1;
+		height: 110rpx;
+		line-height: 110rpx;
+		margin: 0;
+		padding: 0;
+		border: none;
+		border-radius: 0;
+		font-size: 32rpx;
+		background-color: #ffffff;
+	}
 
-.back-popup-btn::after {
-  border: none;
-}
+	.back-popup-btn::after {
+		border: none;
+	}
 
-.back-popup-btn.continue {
-  color: #666666;
-  border-right: 1rpx solid #eeeeee;
-}
+	.back-popup-btn.continue {
+		color: #666666;
+		border-right: 1rpx solid #eeeeee;
+	}
 
-.back-popup-btn.leave {
-  color: #ff5000;
-}
+	.back-popup-btn.leave {
+		color: #ff5000;
+	}
 </style>

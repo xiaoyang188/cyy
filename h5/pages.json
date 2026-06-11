@@ -93,6 +93,16 @@
                         "navigationBarTextStyle": "black",
                         "navigationBarBackgroundColor": "#ffffff"
                     }
+                },
+                {
+                    "path": "web-view/kefu-web-view",
+                    "style": {
+                        "navigationBarTitleText": "",
+                        "enablePullDownRefresh": false,
+                        "navigationStyle": "custom",
+                        "navigationBarTextStyle": "black",
+                        "navigationBarBackgroundColor": "#ffffff"
+                    }
                 }
             ]
         },

@@ -35,6 +35,7 @@ export const SHOP_PAY_TOKEN_PLUS_KEY = 'SHOP_USER_TOKEN'
 
 let nativePaySuccessHandler = null
 let nativePayCancelHandler = null
+let nativePayResultState = 'idle'
 
 /**
  * 解析 H5 商城登录 token（与接口 header user-token 一致）
@@ -208,13 +209,30 @@ export async function openNativePay({ orderSn, amount = '', orderType = 3, token
   return false
 }
 
+export function navigateToResultPayment(orderSn) {
+  if (!orderSn) return
+  const url = `/pages/sy/resultPayment/resultPayment?order_sn=${encodeURIComponent(orderSn)}`
+  if (typeof uni !== 'undefined' && typeof uni.reLaunch === 'function') {
+    uni.reLaunch({ url })
+  }
+}
+
+function markNativePaySucceeded() {
+  nativePayResultState = 'success'
+  unbindNativePayCancel()
+}
+
 export function bindNativePaySuccess(handler) {
   unbindNativePaySuccess()
+  nativePayResultState = 'idle'
   nativePaySuccessHandler = handler
-  window.onNativePaySuccess = () => {
+  window.onNativePaySuccess = (orderSn) => {
+    markNativePaySucceeded()
     if (typeof nativePaySuccessHandler === 'function') {
-      nativePaySuccessHandler()
+      nativePaySuccessHandler(orderSn)
+      return
     }
+    navigateToResultPayment(orderSn)
   }
 }
 
@@ -229,6 +247,7 @@ export function bindNativePayCancel(handler) {
   unbindNativePayCancel()
   nativePayCancelHandler = handler
   window.onNativePayCancel = () => {
+    if (nativePayResultState === 'success') return
     if (typeof nativePayCancelHandler === 'function') {
       nativePayCancelHandler()
     }

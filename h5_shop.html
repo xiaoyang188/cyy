@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>商品详情</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+            background: #f8f8f8;
+            color: #333;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .page {
+            max-width: 750px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+            background: #f8f8f8;
+        }
+
+        .state-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            padding: 24px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .state-wrap.error {
+            color: #e4393c;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #eee;
+            border-top-color: #e4393c;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 12px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .banner {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .banner-track {
+            display: flex;
+            width: 100%;
+            will-change: transform;
+            touch-action: pan-y;
+        }
+
+        .banner-slide {
+            flex: 0 0 100%;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+        }
+
+        .banner-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .banner-indicator {
+            position: absolute;
+            right: 12px;
+            bottom: 12px;
+            min-width: 44px;
+            height: 22px;
+            padding: 0 10px;
+            border-radius: 11px;
+            background: rgba(0, 0, 0, 0.45);
+            color: #fff;
+            font-size: 12px;
+            line-height: 22px;
+            text-align: center;
+        }
+
+        .price-block {
+            margin-top: 12px;
+            padding: 12px 12px 0;
+            background: #fff;
+        }
+
+        .price-row {
+            display: flex;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 4px 8px;
+        }
+
+        .price-symbol {
+            font-size: 18px;
+            font-weight: 500;
+            color: #f02325;
+            line-height: 1;
+            margin-bottom: 2px;
+        }
+
+        .price-main {
+            font-size: 28px;
+            font-weight: 700;
+            color: #f02325;
+            line-height: 1;
+        }
+
+        .price-decimal {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f02325;
+        }
+
+        .price-market {
+            margin-top: 2px;
+            font-size: 12px;
+            color: #999;
+            text-decoration: line-through;
+        }
+
+        .sales {
+            margin-left: auto;
+            font-size: 12px;
+            color: #999;
+            line-height: 28px;
+        }
+
+        .info-block {
+            margin-top: 12px;
+            padding: 16px 12px;
+            background: #fff;
+        }
+
+        .goods-name {
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1.45;
+            color: #333;
+        }
+
+        .goods-slogan {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #999;
+            line-height: 1.5;
+        }
+
+        .detail-block {
+            margin-top: 12px;
+            background: #fff;
+        }
+
+        .detail-title {
+            display: flex;
+            align-items: center;
+            padding: 16px 12px;
+        }
+
+        .detail-title-bar {
+            width: 4px;
+            height: 15px;
+            margin-right: 8px;
+            border-radius: 2px;
+            background: #e4393c;
+        }
+
+        .detail-title-text {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .detail-body {
+            padding: 0 12px 16px;
+            overflow: hidden;
+            word-break: break-word;
+        }
+
+        .detail-body img {
+            max-width: 100% !important;
+            height: auto !important;
+            display: block;
+        }
+
+        .section-block {
+            margin-top: 10px;
+            background: #fff;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            padding: 16px 12px;
+            line-height: 1.4;
+        }
+
+        .section-header-bar {
+            width: 4px;
+            height: 15px;
+            margin-right: 8px;
+            border-radius: 2px;
+            background: #e4393c;
+            flex-shrink: 0;
+        }
+
+        .section-header-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .section-header-extra {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+            white-space: nowrap;
+        }
+
+        .section-header-extra.muted {
+            color: #666;
+        }
+
+        .comment-item {
+            padding: 0 12px 16px;
+        }
+
+        .comment-user {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .comment-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            background: #e8f0fe;
+        }
+
+        .comment-user-main {
+            flex: 1;
+            min-width: 0;
+            margin-left: 8px;
+        }
+
+        .comment-user-top {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .comment-nickname {
+            flex: 1;
+            font-size: 14px;
+            color: #333;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .comment-date {
+            font-size: 12px;
+            color: #999;
+            margin-left: 8px;
+        }
+
+        .comment-stars {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .comment-star {
+            width: 9px;
+            height: 9px;
+            fill: #ff9a41;
+        }
+
+        .comment-star.empty {
+            fill: #ddd;
+        }
+
+        .comment-content {
+            margin: 0 12px;
+            font-size: 14px;
+            line-height: 1.45;
+            color: #333;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            overflow: hidden;
+        }
+
+        .comment-images {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 8px 6px 0;
+        }
+
+        .comment-images img {
+            width: 110px;
+            height: 110px;
+            margin: 6px;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+
+        .comment-footer {
+            display: flex;
+            align-items: center;
+            margin: 12px 12px 0;
+        }
+
+        .comment-spec {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .comment-actions {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            font-size: 11px;
+            color: #333;
+        }
+
+        .comment-actions span {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .comment-actions svg {
+            width: 13px;
+            height: 13px;
+            fill: #666;
+        }
+
+        .qa-item {
+            display: flex;
+            align-items: center;
+            margin: 0 12px 12px;
+        }
+
+        .qa-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4197fb;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .qa-text {
+            flex: 1;
+            min-width: 0;
+            margin: 0 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .qa-count {
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+            white-space: nowrap;
+        }
+
+        .section-empty {
+            padding: 0 12px 16px;
+            font-size: 13px;
+            color: #999;
+        }
+
+        .bottom-bar {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+            background: #fff;
+            box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .bottom-btn {
+            flex: 1;
+            height: 44px;
+            border: none;
+            border-radius: 22px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .bottom-btn.register {
+            color: #e4393c;
+            background: #fff;
+            border: 1px solid #e4393c;
+        }
+
+        .bottom-btn.download {
+            color: #fff;
+            background: linear-gradient(90deg, #ff6b6b 0%, #e4393c 100%);
+        }
+
+        .bottom-btn:active {
+            opacity: 0.85;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div id="loading" class="state-wrap">
+            <div class="spinner"></div>
+            <span>加载中...</span>
+        </div>
+
+        <div id="error" class="state-wrap error hidden">
+            <span id="errorText">加载失败</span>
+        </div>
+
+        <div id="content" class="hidden">
+            <section class="banner">
+                <div class="banner-track" id="bannerTrack"></div>
+                <div class="banner-indicator" id="bannerIndicator">1/1</div>
+            </section>
+
+            <section class="price-block">
+                <div class="price-row">
+                    <span class="price-symbol">￥</span>
+                    <span class="price-main" id="priceInt">0</span>
+                    <span class="price-decimal" id="priceDec" style="display: none;">.00</span>
+                    <span class="price-market hidden" id="marketPrice"></span>
+                    <span class="sales" id="salesText"></span>
+                </div>
+            </section>
+
+            <section class="info-block">
+                <h1 class="goods-name" id="goodsName"></h1>
+                <p class="goods-slogan hidden" style="display: none;" id="goodsSlogan"></p>
+            </section>
+
+            <section class="section-block" id="commentSection">
+                <div class="section-header">
+                    <span class="section-header-bar"></span>
+                    <span class="section-header-title" id="commentTitle">商品评价(0)</span>
+                    <span class="section-header-extra hidden" id="commentRate"></span>
+                </div>
+                <div id="commentBody"></div>
+            </section>
+
+            <section class="section-block" id="qaSection">
+                <div class="section-header">
+                    <span class="section-header-bar"></span>
+                    <span class="section-header-title" id="qaTitle">问答(0)</span>
+                    <span class="section-header-extra muted">查看全部</span>
+                </div>
+                <div id="qaBody"></div>
+            </section>
+
+            <section class="detail-block hidden" id="detailSection">
+                <div class="detail-title">
+                    <span class="detail-title-bar"></span>
+                    <span class="detail-title-text">商品详情</span>
+                </div>
+                <div class="detail-body" id="goodsBody"></div>
+            </section>
+        </div>
+    </div>
+
+    <div class="bottom-bar">
+        <button type="button" class="bottom-btn download" id="btnDownload">下载App</button>
+        <button type="button" class="bottom-btn register" id="btnRegister">注册</button>
+
+    </div>
+
+    <script>
+        (function () {
+            var CONFIG = {
+                API_BASE: 'https://shop.chongyueyue.cn/api',
+                API_VERSION: 'm20336',
+                H5_BASE: 'https://shop.chongyueyue.cn/h5/#/',
+                APP_NAME: '宠悦悦app',
+                APK_URL: 'https://cdn.chongyueyue.cn/static/app/2023_11_14_09_18_33.apk',
+                IOS_APP_STORE: ''
+            };
+
+            var GOODS_DETAIL_API = '/' + CONFIG.API_VERSION + '/641987361d887';
+
+            var params = getQueryParams();
+            var goodsId = params.id || params.goods_id || '';
+            var inviteCode = params.code || params.invite_code || '';
+
+            var bannerIndex = 0;
+            var bannerImages = [];
+
+            var els = {
+                loading: document.getElementById('loading'),
+                error: document.getElementById('error'),
+                errorText: document.getElementById('errorText'),
+                content: document.getElementById('content'),
+                bannerTrack: document.getElementById('bannerTrack'),
+                bannerIndicator: document.getElementById('bannerIndicator'),
+                priceInt: document.getElementById('priceInt'),
+                priceDec: document.getElementById('priceDec'),
+                marketPrice: document.getElementById('marketPrice'),
+                salesText: document.getElementById('salesText'),
+                goodsName: document.getElementById('goodsName'),
+                goodsSlogan: document.getElementById('goodsSlogan'),
+                detailSection: document.getElementById('detailSection'),
+                goodsBody: document.getElementById('goodsBody'),
+                commentTitle: document.getElementById('commentTitle'),
+                commentRate: document.getElementById('commentRate'),
+                commentBody: document.getElementById('commentBody'),
+                qaTitle: document.getElementById('qaTitle'),
+                qaBody: document.getElementById('qaBody'),
+                btnRegister: document.getElementById('btnRegister'),
+                btnDownload: document.getElementById('btnDownload')
+            };
+
+            function getQueryParams() {
+                var result = {};
+                var search = window.location.search.replace(/^\?/, '');
+                if (!search) return result;
+                search.split('&').forEach(function (part) {
+                    var pair = part.split('=');
+                    var key = decodeURIComponent(pair[0] || '');
+                    var value = decodeURIComponent((pair[1] || '').replace(/\+/g, ' '));
+                    if (key) result[key] = value;
+                });
+                return result;
+            }
+
+            function getApiHeaders() {
+                return {
+                    'Content-Type': 'application/json; charset=utf-8',
+                    'Accept-Language': 'zh-Hans',
+                    'lang': 'zh',
+                    'Accept-Platform': 'Web',
+                    'Accept-Serial': ''
+                };
+            }
+
+            function buildApiUrl(path, query) {
+                var url = CONFIG.API_BASE + path;
+                if (!query) return url;
+                var qs = Object.keys(query)
+                    .filter(function (key) { return query[key] !== undefined && query[key] !== null && query[key] !== ''; })
+                    .map(function (key) {
+                        return encodeURIComponent(key) + '=' + encodeURIComponent(query[key]);
+                    })
+                    .join('&');
+                return qs ? url + '?' + qs : url;
+            }
+
+            function splitPrice(value) {
+                var num = Number(value);
+                if (isNaN(num)) return { int: '0', dec: '.00' };
+                var fixed = num.toFixed(2);
+                var parts = fixed.split('.');
+                return { int: parts[0], dec: '.' + parts[1] };
+            }
+
+            function showLoading() {
+                els.loading.classList.remove('hidden');
+                els.error.classList.add('hidden');
+                els.content.classList.add('hidden');
+            }
+
+            function showError(message) {
+                els.loading.classList.add('hidden');
+                els.error.classList.remove('hidden');
+                els.content.classList.add('hidden');
+                els.errorText.textContent = message || '加载失败';
+            }
+
+            function showContent() {
+                els.loading.classList.add('hidden');
+                els.error.classList.add('hidden');
+                els.content.classList.remove('hidden');
+            }
+
+            function renderBanner(images) {
+                bannerImages = images && images.length ? images : [];
+                els.bannerTrack.innerHTML = '';
+
+                if (!bannerImages.length) {
+                    els.bannerIndicator.textContent = '0/0';
+                    return;
+                }
+
+                bannerImages.forEach(function (src) {
+                    var slide = document.createElement('div');
+                    slide.className = 'banner-slide';
+                    var img = document.createElement('img');
+                    img.src = src;
+                    img.alt = '商品图片';
+                    slide.appendChild(img);
+                    els.bannerTrack.appendChild(slide);
+                });
+
+                updateBannerIndicator();
+                bindBannerSwipe();
+            }
+
+            function updateBannerIndicator() {
+                els.bannerIndicator.textContent = (bannerIndex + 1) + '/' + (bannerImages.length || 1);
+                els.bannerTrack.style.transform = 'translateX(-' + (bannerIndex * 100) + '%)';
+                els.bannerTrack.style.transition = 'transform 0.35s ease';
+            }
+
+            function bindBannerSwipe() {
+                if (bannerImages.length <= 1) return;
+
+                var startX = 0;
+                var dragging = false;
+
+                els.bannerTrack.addEventListener('touchstart', function (e) {
+                    startX = e.touches[0].clientX;
+                    dragging = true;
+                }, { passive: true });
+
+                els.bannerTrack.addEventListener('touchend', function (e) {
+                    if (!dragging) return;
+                    dragging = false;
+                    var diff = e.changedTouches[0].clientX - startX;
+                    if (Math.abs(diff) < 40) return;
+                    if (diff < 0 && bannerIndex < bannerImages.length - 1) bannerIndex += 1;
+                    if (diff > 0 && bannerIndex > 0) bannerIndex -= 1;
+                    updateBannerIndicator();
+                }, { passive: true });
+            }
+
+            function escapeHtml(text) {
+                return String(text == null ? '' : text)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            function renderStars(star) {
+                var count = Math.max(0, Math.min(5, Number(star) || 0));
+                var html = '';
+                for (var i = 1; i <= 5; i += 1) {
+                    html += '<svg class="comment-star' + (i <= count ? '' : ' empty') + '" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01z"/></svg>';
+                }
+                return html;
+            }
+
+            function getDefaultAvatar() {
+                return 'data:image/svg+xml,' + encodeURIComponent(
+                    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect fill="#4197fb" width="40" height="40" rx="20"/><circle fill="#fff" cx="20" cy="15" r="7"/><path fill="#fff" d="M8 34c0-7 5.4-11 12-11s12 4 12 11"/></svg>'
+                );
+            }
+
+            function renderComments(data) {
+                var total = Number(data.comment_total) || 0;
+                els.commentTitle.textContent = '商品评价(' + total + ')';
+
+                if (total > 0 && data.praise_rate !== undefined && data.praise_rate !== null && data.praise_rate !== '') {
+                    els.commentRate.textContent = '好评率' + data.praise_rate + '%';
+                    els.commentRate.classList.remove('hidden');
+                } else {
+                    els.commentRate.classList.add('hidden');
+                }
+
+                var comments = Array.isArray(data.comment) ? data.comment : [];
+                if (!comments.length) {
+                    els.commentBody.innerHTML = total > 0 ? '' : '<div class="section-empty">暂无评价</div>';
+                    return;
+                }
+
+                var item = comments[0];
+                var thumbs = Array.isArray(item.thumb) ? item.thumb : [];
+                var imagesHtml = thumbs.map(function (src) {
+                    return '<img src="' + escapeHtml(src) + '" alt="评价图片">';
+                }).join('');
+
+                els.commentBody.innerHTML =
+                    '<div class="comment-item">' +
+                    '<div class="comment-user">' +
+                    '<img class="comment-avatar" src="' + escapeHtml(item.avatar || getDefaultAvatar()) + '" alt="">' +
+                    '<div class="comment-user-main">' +
+                    '<div class="comment-user-top">' +
+                    '<span class="comment-nickname">' + escapeHtml(item.nickname || '匿名用户') + '</span>' +
+                    '<span class="comment-date">' + escapeHtml(item.create_time || '') + '</span>' +
+                    '</div>' +
+                    '<div class="comment-stars">' + renderStars(item.star) + '</div>' +
+                    '</div>' +
+                    '</div>' +
+                    '<p class="comment-content">' + escapeHtml(item.content || '') + '</p>' +
+                    (imagesHtml ? '<div class="comment-images">' + imagesHtml + '</div>' : '') +
+                    '<div class="comment-footer">' +
+                    (item.key_name ? '<span class="comment-spec">' + escapeHtml(item.key_name) + '</span>' : '<span></span>') +
+                    '<div class="comment-actions">' +
+                    '<span><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>评论</span>' +
+                    '<span><svg viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>点赞</span>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>';
+            }
+
+            function renderQuestions(data) {
+                var total = Number(data.question_total) || 0;
+                els.qaTitle.textContent = '问答(' + total + ')';
+
+                var list = Array.isArray(data.question_list) ? data.question_list : [];
+                if (!list.length) {
+                    els.qaBody.innerHTML = total > 0 ? '' : '<div class="section-empty">暂无问答</div>';
+                    return;
+                }
+
+                els.qaBody.innerHTML = list.map(function (item) {
+                    return '<div class="qa-item">' +
+                        '<span class="qa-icon">问</span>' +
+                        '<span class="qa-text">' + escapeHtml(item.question_content || '') + '</span>' +
+                        '<span class="qa-count">' + (Number(item.answer_number) || 0) + '个回答</span>' +
+                        '</div>';
+                }).join('');
+            }
+
+            function renderGoods(data) {
+                var images = Array.isArray(data.images) && data.images.length ? data.images : (data.thumb ? [data.thumb] : []);
+                renderBanner(images);
+
+                var shopPrice = splitPrice(data.shop_price);
+                els.priceInt.textContent = shopPrice.int;
+                els.priceDec.textContent = shopPrice.dec;
+
+                if (data.market_price && Number(data.market_price) > Number(data.shop_price)) {
+                    els.marketPrice.textContent = '￥' + Number(data.market_price).toFixed(2);
+                    els.marketPrice.classList.remove('hidden');
+                } else {
+                    els.marketPrice.classList.add('hidden');
+                }
+
+                els.salesText.textContent = '销量 ' + (data.sales_sum || 0) + ' 件';
+                els.goodsName.textContent = data.name || '商品详情';
+                document.title = data.name || '商品详情';
+
+                if (data.adslogan || data.description) {
+                    els.goodsSlogan.textContent = data.adslogan || data.description;
+                    els.goodsSlogan.classList.remove('hidden');
+                } else {
+                    els.goodsSlogan.classList.add('hidden');
+                }
+
+                if (data.body) {
+                    els.goodsBody.innerHTML = data.body;
+                    els.detailSection.classList.remove('hidden');
+                } else {
+                    els.detailSection.classList.add('hidden');
+                }
+
+                renderComments(data);
+                renderQuestions(data);
+            }
+
+            function fetchGoodsDetail() {
+                if (!goodsId) {
+                    showError('缺少商品参数 id');
+                    return Promise.reject(new Error('missing goods id'));
+                }
+
+                return fetch(buildApiUrl(GOODS_DETAIL_API, { goods_id: goodsId }), {
+                    method: 'GET',
+                    headers: getApiHeaders()
+                })
+                    .then(function (res) {
+                        if (!res.ok) throw new Error('网络请求失败(' + res.status + ')');
+                        return res.json();
+                    })
+                    .then(function (json) {
+                        if (!json || json.code != 1) {
+                            throw new Error((json && json.msg) || '获取商品详情失败');
+                        }
+                        return json.data;
+                    });
+            }
+
+            // 下载App
+            function getDownloadUrl() {
+                let url = ''
+                return url
+            }
+            // 注册页面
+            function buildRegisterUrl() {
+                var url = 'https://shop.chongyueyue.cn/automatic/m20336.agreement/register_user.html?id=' + encodeURIComponent(inviteCode) + '&member_id=20336';
+                return url;
+            }
+
+            function openRegister() {
+                window.location.href = buildRegisterUrl();
+            }
+
+            function openDownload() {
+                if (!getDownloadUrl()) {
+                    //暂无下载链接
+                    alert('暂无下载链接');
+                    return;
+                }
+                window.location.href = getDownloadUrl();
+            }
+
+            els.btnRegister.addEventListener('click', openRegister);
+            els.btnDownload.addEventListener('click', openDownload);
+
+            showLoading();
+            fetchGoodsDetail()
+                .then(function (data) {
+                    renderGoods(data);
+                    showContent();
+                })
+                .catch(function (err) {
+                    showError(err && err.message ? err.message : '加载失败，请稍后重试');
+                });
+        })();
+    </script>
+</body>
+
+</html>

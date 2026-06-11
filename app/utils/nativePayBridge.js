@@ -57,10 +57,10 @@ export function navigateToNativePay({ orderSn, orderType = '3', amount = '', tok
   return true
 }
 
-function notifyH5PayEvent(callbackName) {
+function findAppWebview() {
   // #ifdef APP-PLUS
   const pages = getCurrentPages()
-  for (let i = pages.length - 2; i >= 0; i--) {
+  for (let i = pages.length - 1; i >= 0; i--) {
     const page = pages[i]
     if (!page || typeof page.$getAppWebview !== 'function') continue
 
@@ -73,22 +73,56 @@ function notifyH5PayEvent(callbackName) {
     const wv = children[0]
     if (!wv || typeof wv.evalJS !== 'function') continue
 
-    wv.evalJS(`
-      if (typeof window.${callbackName} === 'function') {
-        window.${callbackName}();
-      }
-    `)
-    return true
+    return wv
   }
   // #endif
-  return false
+  return null
+}
+
+function notifyH5PayEvent(callbackName, args) {
+  const wv = findAppWebview()
+  if (!wv) return false
+
+  const argList = args === undefined ? [] : Array.isArray(args) ? args : [args]
+  const serializedArgs = argList
+    .map((arg) => `'${String(arg).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`)
+    .join(', ')
+
+  wv.evalJS(`
+    if (typeof window.${callbackName} === 'function') {
+      window.${callbackName}(${serializedArgs});
+    }
+  `)
+  return true
 }
 
 /**
  * 从页面栈向上查找带 web-view 子页的页面，执行 onNativePaySuccess
  */
-export function notifyH5PaySuccess() {
-  return notifyH5PayEvent('onNativePaySuccess')
+export function notifyH5PaySuccess(orderSn = '') {
+  const wv = findAppWebview()
+  if (!wv) return false
+
+  const safeSn = String(orderSn || '')
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+
+  wv.evalJS(`
+    (function() {
+      var orderSn = '${safeSn}';
+      if (typeof window.onNativePaySuccess === 'function') {
+        window.onNativePaySuccess(orderSn);
+        return;
+      }
+      if (orderSn && typeof uni !== 'undefined' && typeof uni.reLaunch === 'function') {
+        window.onNativePayCancel = null;
+        uni.reLaunch({
+          url: '/pages/sy/resultPayment/resultPayment?order_sn=' + encodeURIComponent(orderSn),
+        });
+      }
+    })();
+  `)
+  return true
 }
 
 /**
