@@ -199,7 +199,7 @@
 
 	onBackPress(() => {
 		if (isLeaving.value) {
-			return true;
+			return false;
 		}
 		showBackConfirm();
 		return blockBack.value;
@@ -307,25 +307,36 @@
 		isLeaving.value = true;
 		loading.value = false;
 		clearCountdown();
+		blockBack.value = false;
 		uni.showToast({
 			title: "支付成功",
 			icon: "success",
 		});
-		goBack();
-		setTimeout(() => {
-			if (paySuccessNotified) return;
+		if (!paySuccessNotified) {
 			paySuccessNotified = true;
 			notifyH5PaySuccess(orderSn.value);
-		}, 350);
+		}
+		setTimeout(() => {
+			goBack();
+		}, 400);
 	}
 
 	function leaveCashier() {
+		if (isLeaving.value) {
+			goBack();
+			return;
+		}
+		isLeaving.value = true;
+		blockBack.value = false;
 		notifyH5PayCancel();
-		goBack();
+		setTimeout(() => {
+			goBack();
+		}, 400);
 	}
 
 	function showBackConfirm() {
 		if (isLeaving.value) {
+			goBack();
 			return;
 		}
 		if (orderType.value == "1") {

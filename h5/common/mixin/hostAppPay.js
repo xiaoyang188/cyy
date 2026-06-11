@@ -4,6 +4,7 @@ import {
   bindNativePayCancel,
   unbindNativePayCancel,
   navigateToResultPayment,
+  navigateToOrderList,
   openNativePay,
   goHostAppPay,
   resolveShopToken,
@@ -27,13 +28,13 @@ export default {
         }
         navigateToResultPayment(orderSn)
       })
-      bindNativePayCancel(() => {
-        if (typeof onCancel === 'function') {
-          onCancel.call(this)
-          return
-        }
-        this.$urouter.switchTab('/pages/ddgl/order/order?type=all')
-      })
+  bindNativePayCancel(() => {
+    if (typeof onCancel === 'function') {
+      onCancel.call(this)
+      return
+    }
+    navigateToOrderList()
+  })
     },
     teardownHostAppPaySuccess() {
       unbindNativePaySuccess()

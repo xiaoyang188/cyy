@@ -53,8 +53,10 @@
           >
             <text class="promotionTeam_bind_account_label_babdd">{{ $t('绑定提现账户') }}</text>
             <view class="flex flex-wrap align-center promotionTeam_bind_account_right_babdd">
-              <text class="promotionTeam_bind_account_status_babdd" :class="{ promotionTeam_bind_account_status_done_babdd: bindAccountBound }">
-              </text>
+              <text
+                class="promotionTeam_bind_account_status_babdd"
+                :class="{ promotionTeam_bind_account_status_done_babdd: bindAccountBound }"
+              ></text>
               <image class="promotionTeam_points_arrow_babdd" mode="aspectFit" :src="STATIC_URL + '273.png'"></image>
             </view>
           </view>
@@ -232,7 +234,7 @@
                       </view>
                       <view class="flex flex-wrap align-center">
                         <text class="promotionTeam_fd3_0_c1_c1_c1_c2_c0_c0_babdd">{{ item.award_total }}</text>
-                        <text class="promotionTeam_fd3_0_c1_c1_c1_c2_c0_c0_babdd">{{ $t('元') }}</text>
+                        <text class="promotionTeam_fd3_0_c1_c1_c1_c2_c0_c0_babdd">{{ $t('积分') }}</text>
                       </view>
                     </view>
                   </view>

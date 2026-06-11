@@ -129,7 +129,21 @@ export function notifyH5PaySuccess(orderSn = '') {
  * 用户离开收银台时通知 H5，执行 onNativePayCancel
  */
 export function notifyH5PayCancel() {
-  return notifyH5PayEvent('onNativePayCancel')
+  const wv = findAppWebview()
+  if (!wv) return false
+
+  wv.evalJS(`
+    (function() {
+      if (typeof window.onNativePayCancel === 'function') {
+        window.onNativePayCancel();
+        return;
+      }
+      if (typeof uni !== 'undefined' && typeof uni.reLaunch === 'function') {
+        uni.reLaunch({ url: '/pages/ddgl/order/order?type=all' });
+      }
+    })();
+  `)
+  return true
 }
 
 export function normalizeWebviewMessage(event) {

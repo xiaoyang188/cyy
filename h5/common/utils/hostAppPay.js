@@ -217,6 +217,13 @@ export function navigateToResultPayment(orderSn) {
   }
 }
 
+export function navigateToOrderList() {
+  const url = '/pages/ddgl/order/order?type=all'
+  if (typeof uni !== 'undefined' && typeof uni.reLaunch === 'function') {
+    uni.reLaunch({ url })
+  }
+}
+
 function markNativePaySucceeded() {
   nativePayResultState = 'success'
   unbindNativePayCancel()
@@ -250,7 +257,9 @@ export function bindNativePayCancel(handler) {
     if (nativePayResultState === 'success') return
     if (typeof nativePayCancelHandler === 'function') {
       nativePayCancelHandler()
+      return
     }
+    navigateToOrderList()
   }
 }
 

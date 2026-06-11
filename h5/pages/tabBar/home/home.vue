@@ -5,19 +5,13 @@
         class="flex flex-direction align-around benben-position-layout flex home_flex_0_babdd"
         :style="{ height: headerWrapHeightRpx + 'rpx', paddingTop: headerTopRpx + 'rpx' }"
       >
-        <view class="flex align-center justify-between home_fd0_0_babdd" style="margin-top: 24rpx">
-          <!-- <view
-            class="flex align-center invoiceDetail_fd0_0_c0_babdd"
-            style="margin-left: 32rpx"
-            @tap.stop="handleJumpDiy"
-            data-type="back"
-            data-url="1"
-          >
-            <text class="fu-iconfont2 invoiceDetail_fd0_0_c0_c0_babdd" style="color: #fff; font-size: 32rpx">&#xE794;</text>
-          </view> -->
-          <text class="home_fd0_0_c0_babdd">{{ $t('宠悦悦商城') }}</text>
+        <view class="flex align-center home_fd0_0_babdd" style="margin-top: 24rpx">
+          <view class="flex align-center home_fd0_0_side_babdd" @tap.stop="exitShopFunc">
+            <text class="fu-iconfont2 home_fd0_0_back_icon_babdd">&#xE794;</text>
+          </view>
+          <text class="home_fd0_0_c0_babdd flex-sub">{{ $t('宠悦悦商城') }}</text>
           <view
-            class="flex align-center home_fd0_0_c1_babdd"
+            class="flex align-center justify-end home_fd0_0_side_babdd home_fd0_0_c1_babdd"
             @tap="handleJumpDiy"
             data-type="navigateTo"
             :data-url="`/pages/wd/myNews/myNews`"
@@ -41,6 +35,7 @@
               v-if="messageNum.all != ''"
             ></benben-message-num>
           </view>
+          <view v-else class="home_fd0_0_side_babdd"></view>
         </view>
         <view class="flex flex-wrap align-center home_fd0_1_babdd" v-if="appSystemIdentification != 'Wechat'">
           <image class="home_fd0_1_c0_babdd" mode="aspectFit" :src="STATIC_URL + '16.png'"></image>
@@ -510,6 +505,8 @@
 <script>
 import pagingList from '@/common/mixin/paging_list.js'
 import { validate } from '@/common/utils/validate.js'
+import { getWebviewBridge, loadWebviewSdk } from '@/common/utils/hostAppPay.js'
+import { isAppWebviewLaunch } from '@/common/utils/appWebviewQuery.js'
 let mixin = {
   onShareAppMessage() {
     return {
@@ -820,6 +817,26 @@ export default {
   onReachBottom(e) {},
   onPageScroll(e) {},
   methods: {
+    async exitShopFunc() {
+      // #ifdef H5
+      if (global.__APP_WEBVIEW__ || isAppWebviewLaunch()) {
+        await loadWebviewSdk()
+        const bridge = getWebviewBridge()
+        if (bridge && typeof bridge.navigateBack === 'function') {
+          bridge.navigateBack({ delta: 1 })
+          return
+        }
+      }
+      // #endif
+      const pages = getCurrentPages()
+      if (pages && pages.length > 1) {
+        this.$urouter.navigateBack(1)
+        return
+      }
+      if (typeof window !== 'undefined' && window.history && window.history.length > 1) {
+        window.history.back()
+      }
+    },
     initSafeTopRpx() {
       try {
         const info = uni.getSystemInfoSync()
@@ -2079,14 +2096,27 @@ export default {
     background-size: 100% auto;
 
     .home_fd0_0_babdd {
-      margin: 10rpx 32rpx 0rpx 0rpx;
+      margin: 10rpx 0rpx 0rpx 0rpx;
+      padding: 0rpx 32rpx 0rpx 0rpx;
+
+      .home_fd0_0_side_babdd {
+        width: 180rpx;
+        min-height: 45rpx;
+      }
+
+      .home_fd0_0_back_icon_babdd {
+        color: #fff;
+        font-size: 32rpx;
+        margin-left: 32rpx;
+      }
 
       .home_fd0_0_c0_babdd {
         color: var(--benbenFontColor3);
         font-size: 30rpx;
         font-weight: 600;
         line-height: 45rpx;
-        margin: 0rpx 24rpx 0rpx 24rpx;
+        margin: 0rpx;
+        text-align: center;
         -webkit-line-clamp: 1;
         overflow: hidden;
         text-overflow: ellipsis;
