@@ -41,8 +41,11 @@ Vue.mixin({
         return
       }
       let infodatakefu = datadatakefu.data
-      this.datakefu = infodatakefu.data
-
+      let datakefu = infodatakefu.data
+      uni.navigateTo({
+        url: `/pages/benben-built-in/web-view/kefu-web-view?webPath=${encodeURIComponent(datakefu.chat_url)}`,
+      })
+      return
       this.dynamicJump(this.datakefu.chat_url)
     },
     // 获取三方授权信息
@@ -335,6 +338,7 @@ Vue.mixin({
       uni.previewImage({
         current: url,
         urls: arr,
+        indicator:"number"
       })
     },
   },

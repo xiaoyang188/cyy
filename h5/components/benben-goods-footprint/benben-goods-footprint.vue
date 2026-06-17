@@ -155,6 +155,13 @@ export default {
   background-color: #fff;
   border-radius: 50%;
   font-weight: 100;
+  width: 36rpx;
+  height: 36rpx;
+  line-height: 36rpx;
+  text-align: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  display: inline-block;
 }
 .myCollection_fd2_0_c0_c0 {
   position: absolute;

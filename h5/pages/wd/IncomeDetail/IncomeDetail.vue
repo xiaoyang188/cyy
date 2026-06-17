@@ -133,7 +133,6 @@
                   <text class="IncomeDetail_fd1_2_c0_c4_c0_c0_babdd" v-if="child.is_settle == 0">,</text>
                   <text class="IncomeDetail_fd1_2_c0_c4_c0_c2_1_babdd" v-if="child.is_settle != 0">{{ $t('，获得返佣') }}</text>
                   <text class="IncomeDetail_fd1_2_c0_c4_c0_c3_babdd" v-if="child.is_settle == 0">{{ $t('预计获得返佣') }}</text>
-                  <text class="IncomeDetail_fd1_2_c0_c4_c0_c2_1_babdd" v-if="child.is_settle != 0">{{ $t('获得返佣') }}</text>
                   <text class="IncomeDetail_fd1_2_c0_c4_c0_c0_babdd">{{ child.detail_bonus }}</text>
                   <text class="IncomeDetail_fd1_2_c0_c4_c0_c0_babdd">{{ $t('积分') }}</text>
                 </view>

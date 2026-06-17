@@ -72,7 +72,10 @@
       <!---flex布局flex布局开始-->
       <view class="flex flex-direction align-stretch benben-flex-layout">
         <view class="flex flex-direction align-stretch home_fd3_0_babdd">
-          <view class="flex flex-direction align-stretch" v-if="tabs == 0 && dataList.diy_cate_list.length > 0">
+          <view
+            class="flex flex-direction align-stretch"
+            v-if="Boolean(dataList) && Array.isArray(dataList.diy_cate_list) && dataList.diy_cate_list.length > 0"
+          >
             <view style="position: relative">
               <swiper
                 ref="benbenSwiperfd3_0_c0_c0"
@@ -121,7 +124,11 @@
           </view>
           <view
             style="position: relative"
-            v-if="tabs != 0 && secondaryClassifieds.diy_category_list && secondaryClassifieds.diy_category_list.length > 0"
+            v-if="
+              Boolean(secondaryClassifieds) &&
+              Array.isArray(secondaryClassifieds.diy_category_list) &&
+              secondaryClassifieds.diy_category_list.length > 0
+            "
           >
             <swiper
               ref="benbenSwiperfd3_0_c3"

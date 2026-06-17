@@ -321,3 +321,8 @@ benben-select-item {
   font-size: 32rpx;
 }
 /* #endif */
+
+/* uni.previewImage 预览层关闭按钮，避开顶部状态栏/导航栏 */
+.uni-system-preview-image .nav-btn-back {
+  top: 46px !important;
+}

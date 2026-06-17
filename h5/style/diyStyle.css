@@ -62,3 +62,4 @@ benben-textarea.auto-height{ min-height:150rpx }
 benben-select-item{ flex-shrink:0 }
 .benben-select-item{ flex-shrink:0 }
 .benben-input{ line-height:1.4em; font-size:32rpx }
+.uni-system-preview-image .nav-btn-back{ top:46px !important }

@@ -222,7 +222,7 @@
                 fontSize: `20rpx`,
                 color: `#999999`,
               }"
-              :text="$t('长按识别')"
+              :text="$t('长按保存图片')"
             ></l-painter-text>
           </l-painter-view>
         </template>
@@ -785,11 +785,13 @@
             </view>
             <view class="flex flex-wrap align-center justify-center">
               <view class="flex flex-direction flex-wrap align-stretch justify-around shopDetail_fd11_0_c1_c0_babdd">
-                <image class="shopDetail_fd11_0_c1_c0_c0_babdd" mode="widthFix" :src="fxImg"></image>
+                <image class="shopDetail_fd11_0_c1_c0_c0_babdd" @tap.stop="singleImagePreview(fxImg)" mode="widthFix" :src="fxImg"></image>
               </view>
             </view>
             <view class="flex flex-wrap align-center justify-center shopDetail_fd11_0_c2_babdd">
-              <button class="shopDetail_fd11_0_c2_c0_babdd" @tap.stop="SavePictureFunc()">{{ $t('保存图片') }}</button>
+              <button class="shopDetail_fd11_0_c2_c0_babdd" style="margin-right: 10rpx" @tap.stop="MysharedFunc(3)">{{ $t('复制分享链接') }}</button>
+
+              <button class="shopDetail_fd11_0_c2_c0_babdd" @tap.stop="singleImagePreview(fxImg)">{{ $t('查看大图') }}</button>
             </view>
           </view>
         </view>
@@ -1872,8 +1874,13 @@ export default {
         }
         let infodatakefu = datadatakefu.data
         this.datakefu = infodatakefu.data
-
-        this.dynamicJump(this.datakefu.chat_url)
+        console.log(`this.datakefu`, this.datakefu)
+        let url = infodatakefu.data.chat_url
+        if (url) {
+          uni.navigateTo({
+            url: `/pages/benben-built-in/web-view/kefu-web-view?webPath=${encodeURIComponent(url)}`,
+          })
+        }
       } else {
         uni.showToast({
           title: this.$t('请先登录'),
@@ -2006,6 +2013,7 @@ export default {
         // let infosharedInfo = datasharedInfo.data
         // this.sharedInfo = infosharedInfo.data
         this.copyText(this.sharedInfo.url)
+        this.popupShow1679645673274 = false
       } else if (this.isLogin === false) {
         this.toLoginDiy()
       }
@@ -2263,8 +2271,8 @@ export default {
       this.sharedInfo = infosharedInfo.data
     },
     //小程序
-    xcxcxcFunc(optionsscene) {
-      if (!options.scene) return
+    xcxcxcFunc(options) {
+      if (!options?.scene) return
       let scene = decodeURIComponent(options.scene)
       let resObj = {}
       let regParam = /([^&=]+)=([\w\W]*?)(&|$|#)/g
