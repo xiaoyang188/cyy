@@ -3,16 +3,22 @@
     <view class="flex flex-direction align-stretch benben-flex-layout footprint_flex_1">
       <view class="flex flex-direction align-stretch footprint_date_group" v-for="(item, i) in goodsList" :key="i">
         <view class="footprint_fd1_0_c0" @click="handleItemAllSelect(item)">
-          <text v-if="isEditor" :class="{ checked_icon: true, checked_active: isItemAllSelect(item) }" class="fu-iconfont2">
-            {{ isItemAllSelect(item) ? '&#59463;' : '&#59221;' }}
-          </text>
+          <image
+            v-if="isEditor"
+            class="check-box__icon"
+            mode="aspectFit"
+            :src="STATIC_URL + (isItemAllSelect(item) ? '448.png' : '277.png')"
+          />
           <text class="footprint_fd1_0_c0_date">{{ item.datetime | formatDate(timeFormat) }}</text>
         </view>
         <view class="flex flex-wrap footprint_goods_grid">
           <view @click="handleItem(val)" class="footprint_fd1_0_c1_c0" v-for="(val, j) in item.goods" :key="j">
-            <text v-if="isEditor" :class="{ checked_icon: true, checked_active: val.isSelected }" class="fu-iconfont2 myCollection_fd2_0_c0_c0">
-              {{ val.isSelected ? '&#59463;' : '&#59221;' }}
-            </text>
+            <image
+              v-if="isEditor"
+              class="check-box__icon check-box__icon--overlay"
+              mode="aspectFit"
+              :src="STATIC_URL + (val.isSelected ? '448.png' : '333.png')"
+            />
             <view class="footprint_fd1_0_c1_c0_img_wrap">
               <image class="footprint_fd1_0_c1_c0_c0" mode="aspectFill" :src="val.goods_thumb"></image>
             </view>
@@ -33,9 +39,11 @@
       <view class="flex align-center justify-between flex-sub myCollection_fd3_0">
         <view class="flex flex-wrap align-center">
           <view class="flex flex position-relative align-center" @click="isAllSelect = !isAllSelect">
-            <text :class="{ checked_icon: true, checked_active: isAllSelect }" class="fu-iconfont2">
-              {{ isAllSelect ? '&#59463;' : '&#59221;' }}
-            </text>
+            <image
+              class="check-box__icon"
+              mode="aspectFit"
+              :src="STATIC_URL + (isAllSelect ? '448.png' : '277.png')"
+            />
             <text class="myCollection_fd3_0_c0_c1">{{ $t('全选') }}</text>
           </view>
         </view>
@@ -149,29 +157,21 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.checked_icon {
-  color: #dddddd;
-  font-size: 36rpx;
-  background-color: #fff;
-  border-radius: 50%;
-  font-weight: 100;
+.check-box__icon {
+  width: 32rpx;
+  height: 32rpx;
+  flex-shrink: 0;
+}
+
+.check-box__icon--overlay {
+  position: absolute;
+  right: 12rpx;
+  top: 12rpx;
+  z-index: 5;
   width: 36rpx;
   height: 36rpx;
-  line-height: 36rpx;
-  text-align: center;
-  flex-shrink: 0;
-  box-sizing: border-box;
-  display: inline-block;
 }
-.myCollection_fd2_0_c0_c0 {
-  position: absolute;
-  right: 15rpx;
-  top: 15rpx;
-  z-index: 5;
-}
-.checked_active {
-  color: var(--checked-active);
-}
+
 .myCollection_fd3_0 {
   padding: 0rpx 24rpx 0rpx 32rpx;
 }
@@ -213,7 +213,7 @@ export default {
   color: #666666;
 
   .footprint_fd1_0_c0_date {
-    padding-left: 8rpx;
+    padding-left: 12rpx;
   }
 }
 

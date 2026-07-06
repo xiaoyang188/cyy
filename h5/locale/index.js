@@ -45,6 +45,7 @@ Vue.use(VueI18n);
 const i18nConfig = {
 	locale: uni.getLocale(),
 	messages,
+	silentTranslationWarn: true,
 };
 export const i18n = new VueI18n(i18nConfig);
 export const { t } = initVueI18n(messages);

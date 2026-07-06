@@ -1,270 +1,943 @@
 <template>
-    <page-body   >
-        <view class="page" >
-    <view class="flex benben-position-layout flex flex-wrap align-center member_flex_0_babdd"    :style="{height:(88+StatusBarRpx)+'rpx',paddingTop:StatusBarRpx+'rpx', }">
-            <view   class='flex flex-wrap align-center justify-between flex-sub member_fd0_0_babdd'      >
-            <view   class='flex flex-wrap align-center member_fd0_0_c0_babdd'   @tap.stop="handleJumpDiy" data-type="back" data-url="1"   >
-        <text class='fu-iconfont2  member_fd0_0_c0_c0_babdd'    >&#xE794;</text>
-</view>
-    <view   class='flex flex-wrap align-stretch justify-center'      >
-        <text class='member_fd0_0_c1_c0_babdd'  >{{$t('会员权益')}}</text>
-</view>
-    <view   class='flex flex-wrap align-center justify-end member_fd0_0_c0_babdd'      >
-        </view>
-</view>
+  <page-body>
+    <view class="page">
+      <view class="member-header-bg"></view>
 
+      <view class="member-nav benben-position-layout" :style="{ height: 88 + StatusBarRpx + 'rpx', paddingTop: StatusBarRpx + 'rpx' }">
+        <view class="member-nav__inner">
+          <view class="member-nav__side" @tap.stop="handleJumpDiy" data-type="back" data-url="1">
+            <text class="fu-iconfont2 member-nav__back" style="color: #fff">&#xE794;</text>
+          </view>
+          <text class="member-nav__title" style="color: #fff">{{ $t('会员权益') }}</text>
+          <view class="member-nav__side"></view>
         </view>
-<view :style="{height: (88+StatusBarRpx)+'rpx'}"  ></view>
-<!---购买前flex布局开始-->
- <view class="flex flex-direction flex-wrap align-stretch justify-center benben-flex-layout"    >
-            <view   class='flex flex-direction flex-wrap align-stretch member_fd1_0_babdd'    v-if= " isVIp===false"  >
-            <view   class='flex flex-wrap align-center member_fd1_0_c0_babdd'      >
-        <image class='member_fd1_0_c0_c0_babdd'  mode="aspectFit"  :src='STATIC_URL+"1675.png"'></image>
-    <view   class='flex flex-direction flex-wrap align-start'      >
-        <text class='member_fd1_0_c0_c1_c0_babdd'  >{{$t('蜡笔小新')}}</text>
-    <view   class='flex flex-wrap align-center'      >
-        <image class='member_fd1_0_c0_c1_c1_c0_babdd'  mode="aspectFit"  :src='STATIC_URL+"1676.png"'></image>
-<text class='member_fd1_0_c0_c1_c1_c1_babdd'  >Lv.0</text>
-<text class='member_fd1_0_c0_c1_c1_c2_babdd'  >。</text>
-</view>
-</view>
-</view>
-    <view   class='flex flex-wrap align-center member_fd1_0_c1_babdd'      >
-        <text class='member_fd1_0_c1_c0_babdd'  >{{$t('终身专属身份标识，购买会员可享折扣优惠')}}</text>
-</view>
-</view>
-    <view   class='flex flex-direction flex-wrap align-stretch member_fd1_1_babdd'    v-if= " isVIp===true"  >
-            <view   class='flex flex-wrap align-center member_fd1_0_c0_babdd'      >
-        <image class='member_fd1_0_c0_c0_babdd'  mode="aspectFit"  :src='STATIC_URL+"1675.png"'></image>
-    <view   class='flex flex-direction flex-wrap align-start'      >
-        <text class='member_fd1_0_c0_c1_c0_babdd'  >{{$t('蜡笔小新')}}</text>
-    <view   class='flex flex-wrap align-center'      >
-        <image class='member_fd1_0_c0_c1_c1_c0_babdd'  mode="aspectFit"  :src='STATIC_URL+"1678.png"'></image>
-<text class='member_fd1_0_c0_c1_c1_c1_babdd'  >Lv.1</text>
-<text class='member_fd1_0_c0_c1_c1_c2_babdd'  >。</text>
-</view>
-</view>
-</view>
-    <view   class='flex flex-direction flex-wrap align-stretch member_fd1_1_c1_babdd'      >
-            <view   class='flex flex-wrap align-center justify-between member_fd1_1_c1_c0_babdd'      >
-        <image class='member_fd1_1_c1_c0_c0_babdd'  mode="aspectFit"  :src='STATIC_URL+"1679.png"'></image>
-<image class='member_fd1_1_c1_c0_c0_babdd'  mode="aspectFit"  :src='STATIC_URL+"1680.png"'></image>
-</view>
-    <view   class='flex flex-wrap align-center'      >
-        <image class='member_fd1_1_c1_c1_c0_babdd'  mode="aspectFit"  :src='STATIC_URL+"1681.png"'></image>
-<view class='flex benben-progress-bar member_fd1_1_c1_c1_c1_babdd'  >
-    <view  class='benben-progress-bar-center member_progress1_fd1_1_c1_c1_c1_babdd' :style="{width: progress+'%'}"></view>
-    <image  class='benben-progress-bar-image member_progress2_fd1_1_c1_c1_c1_babdd' mode='aspectFit'   :style="{left: progress+'%'}"></image>
-</view>
-<image class='member_fd1_1_c1_c1_c0_babdd'  mode="aspectFit"  :src='STATIC_URL+"1682.png"'></image>
-</view>
-    <view   class='flex flex-wrap align-center justify-between member_fd1_1_c1_c2_babdd'      >
-        <text class='member_fd1_1_c1_c2_c0_babdd'  >{{$t('0成长值')}}</text>
-<text class='member_fd1_1_c1_c2_c0_babdd'  >{{$t('VIP2需12,000成长值')}}</text>
-</view>
-</view>
-</view>
-    <view   class='flex flex-wrap align-center member_fd1_2_babdd'      >
-        <text class='member_fd1_2_c0_babdd'  >{{$t('会员等级')}}</text>
-</view>
-<view style="position: relative" >
-    <swiper ref="benbenSwiperfd1_3"  @change="bannerIndexfd1_3 = $event.detail.current"  class='flex position-relative member_fd1_3_babdd'  previous-margin="10rpx" next-margin="10rpx" :display-multiple-items="1" :interval="5000" :duration="500" :autoplay='true' :circular='true' >
-        
-    
-        <swiper-item class='flex  member_fd1_3_c1_babdd'       >
-            <view   class='flex flex-direction align-stretch member_fd1_3_c1_c0_babdd'      >
-        <image class='member_fd1_3_c1_c0_c0_babdd'  mode="aspectFit"  :src='STATIC_URL+"1684.png"'></image>
-</view>
-</swiper-item>
-    
-    
-        <swiper-item class='flex'       >
-            <view   class='flex flex-direction align-stretch member_fd1_3_c2_c0_babdd'      >
-        <image class='member_fd1_3_c1_c0_c0_babdd'  mode="aspectFit"  :src='STATIC_URL+"1686.png"'></image>
-</view>
-</swiper-item>
-    
-    
-        <swiper-item class='flex'       >
-            <view   class='flex flex-direction align-stretch member_fd1_3_c3_c0_babdd'      >
-        <image class='member_fd1_3_c1_c0_c0_babdd'  mode="aspectFit"  :src='STATIC_URL+"1688.png"'></image>
-</view>
-</swiper-item>
-    
+      </view>
+      <view :style="{ height: 88 + StatusBarRpx + 'rpx' }"></view>
 
-    </swiper>
-</view>
-    <view   class='flex flex-direction align-stretch member_fd1_4_babdd'      >
-        <text class='member_fd1_4_c0_babdd'  >{{$t('特权说明')}}</text>
-<text class='member_fd1_4_c1_babdd'      >{{$t('后台规则设置')}}</text><text class='member_fd1_4_c1_babdd'    v-if= " isVIp===true"  >{{$t('1、专属身份标识2、购买全场商品9折优惠，特价商品除外')}}</text>
-</view>
-</view>
-        
-<!---购买前flex布局结束-->
-    
-    
+      <!-- 加载骨架 -->
+      <view v-if="pageLoading && isLogin" class="member-body">
+        <view class="member-skeleton member-skeleton--hero"></view>
+        <view class="member-skeleton member-skeleton--stats"></view>
+        <view class="member-skeleton member-skeleton--grid"></view>
+        <view class="member-skeleton member-skeleton--rules"></view>
+      </view>
+
+      <view v-else class="member-body">
+        <!-- 未登录 -->
+        <view v-if="!isLogin" class="guest-card" @tap.stop="toLoginDiy">
+          <view class="guest-card__icon-wrap">
+            <image class="guest-card__icon" mode="aspectFill" :src="STATIC_URL + '331.png'"></image>
+          </view>
+          <text class="guest-card__title">{{ $t('登录查看会员权益') }}</text>
+          <text class="guest-card__desc">{{ $t('登录后可查看等级、折扣与专属特权') }}</text>
+          <view class="guest-card__btn">
+            <text>{{ $t('立即登录') }}</text>
+          </view>
         </view>
-    </page-body>
+
+        <template v-else>
+          <!-- 会员主卡片 -->
+          <view class="hero-card" :class="{ 'hero-card--vip': isVip }" style="margin-top: 32rpx">
+            <view class="hero-card__shine"></view>
+            <view class="hero-card__top">
+              <view class="hero-card__avatar-wrap">
+                <image class="hero-card__avatar" mode="aspectFill" :src="userAvatar"></image>
+                <!-- <view v-if="levelIcon" class="hero-card__avatar-badge">
+                  <image mode="aspectFit" :src="levelIcon"></image>
+                </view> -->
+              </view>
+              <view class="hero-card__info">
+                <text class="hero-card__name">{{ userNickname }}</text>
+                <view class="hero-card__level-pill">
+                  <text>{{ levelName }}</text>
+                </view>
+                <text class="hero-card__slogan">{{ heroSlogan }}</text>
+              </view>
+            </view>
+
+            <!-- 非会员提示 -->
+            <view v-if="!isVip" class="hero-card__tip-bar">
+              <text>{{ $t('开通会员享专属折扣与身份标识，永久有效') }}</text>
+            </view>
+
+            <!-- 会员进度 -->
+            <view v-if="isVip && dataDetails.is_max_level != '1'" class="hero-card__progress">
+              <view class="hero-card__progress-head">
+                <view class="hero-card__progress-level">
+                  <text class="hero-card__progress-current">{{ dataDetails.name }}</text>
+                  <text class="hero-card__progress-arrow">→</text>
+                  <text class="hero-card__progress-next">{{ dataDetails.next_level_name }}</text>
+                </view>
+                <text class="hero-card__progress-percent">{{ progressWidth }}%</text>
+              </view>
+              <view class="hero-card__progress-track">
+                <view class="hero-card__progress-fill" :style="{ width: progressWidth + '%' }"></view>
+              </view>
+              <view v-if="upgradeHint" class="hero-card__progress-foot">
+                <text>{{ upgradeHint }}</text>
+              </view>
+            </view>
+            <view v-else-if="isVip" class="hero-card__progress hero-card__progress--max">
+              <text>
+                {{ $t('累计消费') }}
+                <text class="hero-card__highlight">{{ dataDetails.total_consumption_money || 0 }}</text>
+                {{ $t('元') }} · {{ $t('已达最高等级') }}
+              </text>
+            </view>
+          </view>
+
+          <!-- 数据概览 -->
+          <view class="stats-row">
+            <view class="stats-row__item">
+              <text class="stats-row__value" style="color: #fd513d">{{ statsConsumption }}</text>
+              <text class="stats-row__label">{{ $t('累计消费(元)') }}</text>
+            </view>
+            <view class="stats-row__divider"></view>
+            <view class="stats-row__item">
+              <text class="stats-row__value stats-row__value--gold" style="color: #fd513d">{{ statsDiscount }}</text>
+              <text class="stats-row__label">{{ $t('会员折扣') }}</text>
+            </view>
+            <view class="stats-row__divider"></view>
+            <view class="stats-row__item">
+              <text class="stats-row__value" style="color: #fd513d">{{ statsNextLevel }}</text>
+              <text class="stats-row__label">{{ $t('下一等级') }}</text>
+            </view>
+          </view>
+
+          <!-- 权益亮点 -->
+          <view class="section-block">
+            <view class="section-block__head">
+              <text class="section-block__title">{{ $t('尊享权益') }}</text>
+              <text class="section-block__sub">{{ $t('会员专属特权一览') }}</text>
+            </view>
+            <view class="privilege-grid">
+              <view
+                v-for="(item, index) in privilegeHighlights"
+                :key="index"
+                class="privilege-grid__item"
+                :class="{ 'privilege-grid__item--active': item.active }"
+              >
+                <view class="privilege-grid__icon" :class="'privilege-grid__icon--' + item.type">
+                  <text>{{ item.emoji }}</text>
+                </view>
+                <text class="privilege-grid__name">{{ item.title }}</text>
+                <text class="privilege-grid__desc">{{ item.desc }}</text>
+                <view v-if="item.active" class="privilege-grid__tag">
+                  <text>{{ $t('已享') }}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+
+          <!-- 特权详情 -->
+          <view class="section-block">
+            <view class="section-block__head">
+              <text class="section-block__title">{{ $t('特权说明') }}</text>
+            </view>
+            <view class="rules-card">
+              <view v-if="privilegeContent" class="rules-card__content">
+                <jyf-parser class="rules-card__parser" :html="privilegeContent | richTextFormat"></jyf-parser>
+              </view>
+              <view v-else class="rules-card__empty">
+                <text class="rules-card__empty-icon">📋</text>
+                <text class="rules-card__empty-text">{{ $t('暂无详细说明，请联系客服了解') }}</text>
+              </view>
+            </view>
+          </view>
+        </template>
+
+        <view class="member-body__safe-bottom" :class="{ 'member-body__safe-bottom--cta': showUpgradeBtn }"></view>
+      </view>
+
+      <!-- 底部升级按钮 -->
+      <view v-if="showUpgradeBtn" class="bottom-cta benben-position-layout">
+        <view class="bottom-cta__inner">
+          <view class="bottom-cta__info">
+            <text class="bottom-cta__label">{{ $t('升级至') }}{{ dataDetails.next_level_name || $t('更高等级') }}</text>
+            <text v-if="upgradeHint" class="bottom-cta__sub">{{ upgradeHint }}</text>
+          </view>
+          <view class="bottom-cta__btn" @tap.stop="goUpgrade">
+            <text>{{ $t('立即升级') }}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </page-body>
 </template>
 <script>
-    import {validate} from '@/common/utils/validate.js'
-    
-    export default {
-        components:{},
-        
-        
-        data(){
-			return {"bannerIndexfd1_3":0,"type":[{"name":"日排行","value":"1","image":""},{"name":"月排行","value":"2","image":""}],"id":1,"name":"日排行",/** start_time【开始时间】 **/ "start_time":"",/** end_time【结束时间】 **/ "end_time":"",/** NumList【邀请列表】 **/ "NumList":[],/** progress【进度条】 **/ "progress":"20",/** isVIp【是否是vip】 **/ "isVIp":false};
-		},
-		computed:{
-                         isLogin() {
-      return this.$store.state.token == '' ? false : true;
+export default {
+  data() {
+    return {
+      pageLoading: false,
+      dataMessage: {
+        nickname: '',
+        avatar: '',
+        userlevel_id: 0,
+        total_consumption_money: '',
+      },
+      dataDetails: {
+        name: '',
+        icon: '',
+        levelid: '',
+        content: '',
+        intro: '',
+        empirical: '',
+        next_speed: 0,
+        next_level_name: '',
+        is_max_level: '',
+        total_consumption_money: '',
+        discount: '',
+      },
     }
-		},
-		watch:{},
-		onLoad(options){
-            
-		},
-        onUnload() {
-                
+  },
+  computed: {
+    isLogin() {
+      return !!this.$store.state.token
+    },
+    isVip() {
+      const levelId = Number(this.dataDetails.levelid || this.dataMessage.userlevel_id || 0)
+      return levelId > 0
+    },
+    userNickname() {
+      return this.dataMessage.nickname || this.$t('会员用户')
+    },
+    userAvatar() {
+      return this.dataMessage.avatar || this.STATIC_URL + '331.png'
+    },
+    levelName() {
+      return this.dataDetails.name || (this.isVip ? 'Lv.1' : 'Lv.0')
+    },
+    levelIcon() {
+      return this.dataDetails.icon || (this.isVip ? this.STATIC_URL + '1678.png' : this.STATIC_URL + '1676.png')
+    },
+    progressWidth() {
+      const speed = Number(this.dataDetails.next_speed || 0)
+      return Math.min(Math.max(Math.round(speed), 0), 100)
+    },
+    privilegeContent() {
+      return this.dataDetails.content || ''
+    },
+    upgradeHint() {
+      return (this.dataDetails.intro || '').trim()
+    },
+    discountText() {
+      return this.formatMemberDiscount(this.dataDetails.discount)
+    },
+    heroSlogan() {
+      if (this.isVip) {
+        return this.discountText ? this.$t('尊贵身份 · 全场') + this.discountText + this.$t('特享') : this.$t('尊贵身份 · 会员特享')
+      }
+      return this.$t('开通会员，解锁专属折扣与特权')
+    },
+    statsConsumption() {
+      const val = this.dataDetails.total_consumption_money || this.dataMessage.total_consumption_money || 0
+      return val
+    },
+    statsDiscount() {
+      return this.discountText || '--'
+    },
+    statsNextLevel() {
+      if (this.dataDetails.is_max_level == '1') return this.$t('已满级')
+      return this.dataDetails.next_level_name || '--'
+    },
+    showUpgradeBtn() {
+      return this.isLogin && this.dataDetails.is_max_level != '1'
+    },
+    privilegeHighlights() {
+      const active = this.isVip
+      const discount = this.discountText
+      return [
+        {
+          type: 'discount',
+          emoji: '💰',
+          title: discount || this.$t('专属折扣'),
+          desc: discount ? this.$t('全场商品享会员价') : this.$t('开通即享折扣优惠'),
+          active,
         },
-		onReady(){
-            
-		},
-		onShow(){
-            
-		},
-		onHide(){
-            
-            
-		},
-		onResize(){
-            
-		},
-		onPullDownRefresh(){
-            
-		},
-		onReachBottom(e){
-            
-		},
-		onPageScroll(e){
-            
-		},
-		methods:{
-            
-            
-                            //切换
-                 toggleFunc(){
-                        this.isVIp = true;
-                    this.$message.info('已购买');
-                }
-		}
-    };
-</script> 
+        {
+          type: 'badge',
+          emoji: '👑',
+          title: this.$t('身份标识'),
+          desc: this.$t('专属会员等级徽章'),
+          active,
+        },
+      ]
+    },
+  },
+  onShow() {
+    if (this.isLogin) {
+      this.fetchMemberData()
+    }
+  },
+  onPullDownRefresh() {
+    if (this.isLogin) {
+      this.fetchMemberData(true)
+    } else {
+      uni.stopPullDownRefresh()
+    }
+  },
+  methods: {
+    formatMemberDiscount(val) {
+      const n = parseFloat(val)
+      if (!val || isNaN(n)) return ''
+      let zhe = n > 10 ? n / 10 : n
+      if (zhe >= 10 || zhe <= 0) return ''
+      const text = Number.isInteger(zhe) ? String(zhe) : zhe.toFixed(1).replace(/\.0$/, '')
+      return text + this.$t('折')
+    },
+    goUpgrade() {
+      this.$urouter.navigateTo('/pages/sy/gift/gift')
+    },
+    async fetchMemberData(fromRefresh = false) {
+      if (!fromRefresh) this.pageLoading = true
+      try {
+        await Promise.all([this.fetchUserInfo(), this.fetchLevelDetails()])
+      } finally {
+        this.pageLoading = false
+        if (fromRefresh) uni.stopPullDownRefresh()
+      }
+    },
+    async fetchUserInfo() {
+      const res = await this.$api.get(global.apiUrls.post5c78c4772da97, {})
+      if (res.data.code != 1) {
+        this.$message.info(res.data.msg)
+        return
+      }
+      this.dataMessage = res.data.data || this.dataMessage
+    },
+    async fetchLevelDetails() {
+      const res = await this.$api.get(global.apiUrls.post636de668c7eb0, {})
+      if (res.data.code != 1) {
+        this.$message.info(res.data.msg)
+        return
+      }
+      this.dataDetails = { ...this.dataDetails, ...(res.data.data || {}) }
+    },
+  },
+}
+</script>
 <style lang="scss" scoped>
-           .page{
-            width: 100vw;
-            overflow-x: hidden;
-            min-height: calc(100vh - var(--benben-window-bottom,0px));
-            background:url(#{image-path('1673.png')}) no-repeat #F8F8F8;background-size: 100% auto;
-            .member_fd1_0_babdd{
-        background:url(#{image-path('1674.png')}) no-repeat;background-size:100% auto !important;margin:40rpx 32rpx 0rpx 32rpx;height:360rpx;width:686rpx;
-        .member_fd1_0_c1_babdd{
-        margin:96rpx 40rpx 0rpx 40rpx;
-        .member_fd1_0_c1_c0_babdd{
-        font-size:20rpx;font-weight:400;color:#95661F;line-height:28rpx;
-    }}}
-    .member_fd1_0_c0_babdd{
-        margin:40rpx 40rpx 0rpx 40rpx;
+$primary: #f9bfb8;
+$primary-dark: #e8968e;
+$primary-darker: #d4766e;
+$primary-light: #fdf0ee;
+$primary-bg: #fdf5f4;
+$text-dark: #5c3d38;
+$text-accent: #c96860;
+
+.page {
+  width: 100vw;
+  overflow-x: hidden;
+  min-height: calc(100vh - var(--benben-window-bottom, 0px));
+  background: $primary-bg;
+  position: relative;
+}
+
+.member-header-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 420rpx;
+  background: linear-gradient(180deg, $primary-dark 0%, $primary 55%, $primary-bg 100%);
+  pointer-events: none;
+}
+
+.member-nav {
+  z-index: 10;
+  top: 0;
+  background: transparent;
+
+  &__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32rpx;
+    height: 88rpx;
+  }
+
+  &__side {
+    width: 80rpx;
+  }
+
+  &__back {
+    font-size: 36rpx;
+    color: $text-dark;
+  }
+
+  &__title {
+    font-size: 34rpx;
+    font-weight: 600;
+    color: $text-dark;
+    letter-spacing: 2rpx;
+  }
+}
+
+.member-body {
+  position: relative;
+  z-index: 1;
+  padding: 0 32rpx 0;
+  margin-top: -16rpx;
+
+  &__safe-bottom {
+    height: 48rpx;
+
+    &--cta {
+      height: calc(140rpx + env(safe-area-inset-bottom));
     }
-    .member_fd1_0_c0_c0_babdd{
-        width:100rpx;height:100rpx;border-radius:0rpx 0rpx 0rpx 0rpx;margin:0rpx 24rpx 0rpx 0rpx;
+  }
+}
+
+// 骨架屏
+.member-skeleton {
+  border-radius: 24rpx;
+  background: linear-gradient(90deg, #f5e8e6 25%, $primary-bg 50%, #f5e8e6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  margin-bottom: 24rpx;
+
+  &--hero {
+    height: 320rpx;
+  }
+
+  &--stats {
+    height: 140rpx;
+  }
+
+  &--grid {
+    height: 280rpx;
+  }
+
+  &--rules {
+    height: 200rpx;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+// 未登录
+.guest-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 64rpx 48rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.06);
+
+  &__icon-wrap {
+    width: 128rpx;
+    height: 128rpx;
+    border-radius: 50%;
+    background: linear-gradient(135deg, $primary-light, $primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 32rpx;
+    border: 4rpx solid rgba($primary-dark, 0.3);
+  }
+
+  &__icon {
+    width: 96rpx;
+    height: 96rpx;
+    border-radius: 50%;
+  }
+
+  &__title {
+    font-size: 34rpx;
+    font-weight: 700;
+    color: $text-dark;
+    line-height: 48rpx;
+    margin-bottom: 12rpx;
+  }
+
+  &__desc {
+    font-size: 26rpx;
+    color: #999;
+    line-height: 38rpx;
+    text-align: center;
+    margin-bottom: 40rpx;
+  }
+
+  &__btn {
+    padding: 0 64rpx;
+    height: 80rpx;
+    background: linear-gradient(90deg, $primary, $primary-dark);
+    border-radius: 40rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8rpx 24rpx rgba($primary-darker, 0.35);
+
+    text {
+      font-size: 28rpx;
+      font-weight: 600;
+      color: #fff;
     }
-    .member_fd1_0_c0_c1_c0_babdd{
-        font-size:32rpx;font-weight:700;color:#95661F;padding:0rpx 0rpx 8rpx 0rpx;line-height:45rpx;
+  }
+}
+
+// 主卡片
+.hero-card {
+  position: relative;
+  border-radius: 24rpx;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.08);
+  margin-bottom: 24rpx;
+
+  &--vip {
+    background: linear-gradient(145deg, #fff 0%, $primary-light 100%);
+  }
+
+  &__shine {
+    position: absolute;
+    top: -60rpx;
+    right: -40rpx;
+    width: 280rpx;
+    height: 280rpx;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  &__top {
+    display: flex;
+    align-items: center;
+    padding: 40rpx 36rpx 28rpx;
+  }
+
+  &__avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+    margin-right: 28rpx;
+  }
+
+  &__avatar {
+    width: 112rpx;
+    height: 112rpx;
+    border-radius: 50%;
+    border: 4rpx solid rgba(255, 255, 255, 0.8);
+    background: #fff;
+    box-shadow: 0 4rpx 16rpx rgba($primary-darker, 0.15);
+  }
+
+  &__avatar-badge {
+    position: absolute;
+    bottom: -4rpx;
+    right: -4rpx;
+    width: 44rpx;
+    height: 44rpx;
+    border-radius: 50%;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.12);
+
+    image {
+      width: 32rpx;
+      height: 28rpx;
     }
-    .member_fd1_0_c0_c1_c1_c0_babdd{
-        width:38rpx;height:32rpx;border-radius:0rpx 0rpx 0rpx 0rpx;
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__name {
+    display: block;
+    font-size: 36rpx;
+    font-weight: 700;
+    color: $text-dark;
+    line-height: 50rpx;
+    margin-bottom: 10rpx;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__level-pill {
+    display: inline-flex;
+    padding: 4rpx 20rpx;
+    background: linear-gradient(90deg, $primary, $primary-dark);
+    border-radius: 20rpx;
+    margin-bottom: 10rpx;
+
+    text {
+      font-size: 22rpx;
+      font-weight: 600;
+      color: #fff;
+      line-height: 32rpx;
     }
-    .member_fd1_0_c0_c1_c1_c1_babdd{
-        font-weight:400;font-size:22rpx;color:#95661F;line-height:25rpx;margin:0rpx 0rpx 0rpx 8rpx;
+  }
+
+  &__slogan {
+    display: block;
+    font-size: 24rpx;
+    color: $text-accent;
+    line-height: 34rpx;
+  }
+
+  &__tip-bar {
+    margin: 0 36rpx 36rpx;
+    padding: 20rpx 24rpx;
+    background: rgba($primary, 0.35);
+    border-radius: 16rpx;
+    border: 1rpx solid rgba($primary-dark, 0.25);
+
+    text {
+      font-size: 24rpx;
+      color: $text-accent;
+      line-height: 36rpx;
     }
-    .member_fd1_0_c0_c1_c1_c2_babdd{
-        font-size:24rpx;font-weight:400;color:#fff;
+  }
+
+  &__progress {
+    margin: 0 36rpx 36rpx;
+    padding: 24rpx;
+    background: $primary-light;
+    border-radius: 16rpx;
+
+    &--max {
+      padding: 20rpx 36rpx 36rpx;
+
+      text {
+        font-size: 24rpx;
+        color: $text-accent;
+        line-height: 34rpx;
+      }
     }
-    .member_fd1_1_babdd{
-        background:url(#{image-path('1677.png')}) no-repeat;background-size:100% auto !important;margin:40rpx 32rpx 0rpx 32rpx;height:360rpx;width:686rpx;
-        .member_fd1_1_c1_babdd{
-        margin:89rpx 32rpx 0rpx 32rpx;
-        .member_fd1_1_c1_c0_babdd{
-        margin:0rpx 0rpx 8rpx 0rpx;
-    }    .member_fd1_1_c1_c1_c1_babdd{
-        width:558rpx;height:6rpx;border-radius:16rpx 16rpx 16rpx 16rpx;background:#C48E70;background-size:100% auto;
-        .member_progress1_fd1_1_c1_c1_c1_babdd{
-        background:#fff;border-radius:10rpx 10rpx 10rpx 10rpx;
-    }    .member_progress2_fd1_1_c1_c1_c1_babdd{
-        width:32rpx;height:32rpx;
-    }}    .member_fd1_1_c1_c2_babdd{
-        margin:16rpx 0rpx 0rpx 0rpx;
-    }}}
-    .member_fd1_1_c1_c0_c0_babdd{
-        width:31rpx;height:20rpx;border-radius:0rpx 0rpx 0rpx 0rpx;
+  }
+
+  &__progress-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20rpx;
+  }
+
+  &__progress-level {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  &__progress-current {
+    font-size: 26rpx;
+    font-weight: 700;
+    color: $text-dark;
+    margin-right: 8rpx;
+  }
+
+  &__progress-arrow {
+    font-size: 22rpx;
+    color: $primary-dark;
+    margin-right: 8rpx;
+  }
+
+  &__progress-next {
+    font-size: 26rpx;
+    font-weight: 600;
+    color: $text-accent;
+  }
+
+  &__progress-max {
+    font-size: 22rpx;
+    color: $text-accent;
+    background: rgba($primary, 0.45);
+    padding: 2rpx 12rpx;
+    border-radius: 8rpx;
+  }
+
+  &__progress-percent {
+    font-size: 28rpx;
+    font-weight: 700;
+    color: $text-accent;
+  }
+
+  &__progress-track {
+    position: relative;
+    height: 12rpx;
+    background: rgba($primary, 0.5);
+    border-radius: 8rpx;
+    margin-bottom: 16rpx;
+  }
+
+  &__progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, $primary, $primary-dark);
+    border-radius: 6rpx;
+    transition: width 0.6s ease;
+  }
+
+  &__progress-foot {
+    text {
+      font-size: 22rpx;
+      color: $text-accent;
+      line-height: 32rpx;
     }
-    .member_fd1_1_c1_c1_c0_babdd{
-        width:27rpx;height:27rpx;border-radius:0rpx 0rpx 0rpx 0rpx;
+  }
+
+  &__highlight {
+    font-weight: 700;
+    color: $text-accent;
+    margin: 0 4rpx;
+  }
+}
+
+// 数据概览
+.stats-row {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 32rpx 0;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+
+  &__item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  &__value {
+    font-size: 36rpx;
+    font-weight: 700;
+    color: $text-dark;
+    line-height: 50rpx;
+    margin-bottom: 6rpx;
+
+    &--gold {
+      color: $text-accent;
     }
-    .member_fd1_1_c1_c2_c0_babdd{
-        color:#A16544;font-size:20rpx;font-weight:500;line-height:28rpx;
+  }
+
+  &__label {
+    font-size: 22rpx;
+    color: #999;
+    line-height: 30rpx;
+  }
+
+  &__divider {
+    width: 1rpx;
+    height: 60rpx;
+    background: rgba($primary, 0.5);
+  }
+}
+
+// 区块
+.section-block {
+  margin-bottom: 24rpx;
+
+  &__head {
+    margin-bottom: 20rpx;
+  }
+
+  &__title {
+    display: block;
+    font-size: 32rpx;
+    font-weight: 700;
+    color: $text-dark;
+    line-height: 44rpx;
+    margin-bottom: 4rpx;
+  }
+
+  &__sub {
+    display: block;
+    font-size: 24rpx;
+    color: #999;
+    line-height: 34rpx;
+  }
+}
+
+// 权益网格
+.privilege-grid {
+  display: flex;
+
+  &__item {
+    flex: 1;
+    margin-right: 16rpx;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 28rpx 16rpx 24rpx;
+    background: #fff;
+    border-radius: 20rpx;
+    box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+    border: 2rpx solid transparent;
+    transition: border-color 0.2s;
+
+    &--active {
+      border-color: rgba($primary-dark, 0.35);
+      background: $primary-light;
     }
-    .member_fd1_2_babdd{
-        margin:0rpx 32rpx 0rpx 32rpx;padding:40rpx 0rpx 32rpx 0rpx;
-        .member_fd1_2_c0_babdd{
-        color:#333333;font-size:32rpx;font-weight:500;line-height:42rpx;
-    }}
-    .member_fd1_3_babdd{
-        width:686rpx;height:360rpx;margin:32rpx 32rpx 0rpx 32rpx;
-        .member_fd1_3_c1_babdd{
-        width:686rpx;height:360rpx;
-        .member_fd1_3_c1_c0_babdd{
-        background:url(#{image-path('1683.png')}) no-repeat;background-size:100% auto !important;width:686rpx;height:360rpx;
-    }}    .member_fd1_3_c2_c0_babdd{
-        background:url(#{image-path('1685.png')}) no-repeat;background-size:100% auto !important;width:686rpx;height:360rpx;
-    }    .member_fd1_3_c3_c0_babdd{
-        background:url(#{image-path('1687.png')}) no-repeat;background-size:100% auto !important;width:686rpx;height:360rpx;
-    }}
-    .member_fd1_3_c1_c0_c0_babdd{
-        width:85rpx;height:60rpx;border-radius:0rpx 0rpx 0rpx 0rpx;margin:52rpx 0rpx 0rpx 40rpx;
+
+    &:last-child {
+      margin-right: 0;
     }
-    .member_numberfd1_3_c0_babdd{
-        position:absolute;bottom:20rpx;right:30rpx;width:80rpx;height:40rpx;background:#525050;border-radius:6rpx 6rpx 6rpx 6rpx;font-size:24rpx;color:#FFFFFF;line-height:46rpx;font-weight:400;
+  }
+
+  &__icon {
+    width: 72rpx;
+    height: 72rpx;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16rpx;
+    font-size: 36rpx;
+
+    &--discount {
+      background: linear-gradient(135deg, $primary-light, $primary);
     }
-    .member_fd1_4_babdd{
-        padding:32rpx 72rpx 40rpx 72rpx;background:#f8f8f8;background-size:100% auto !important;
-        .member_fd1_4_c0_babdd{
-        color:#333333;font-size:28rpx;font-weight:400;line-height:40rpx;margin:0rpx 0rpx 24rpx 0rpx;
-    }}
-    .member_fd1_4_c1_babdd{
-        color:#333333;font-size:24rpx;font-weight:400;line-height:40rpx;
+
+    &--badge {
+      background: linear-gradient(135deg, #fce8e6, $primary);
     }
-    .member_flex_0_babdd{
-        width:750rpx;height:88rpx;overflow:hidden;z-index:10;top:0rpx;background:url(#{image-path('1673.png')}) no-repeat;background-size:100% auto !important;
-        .member_fd0_0_babdd{
-        padding:0rpx 32rpx 0rpx 32rpx;
-        .member_fd0_0_c1_c0_babdd{
-        font-size:36rpx;font-weight:500;color:#FFFFFF;line-height:50rpx;
-    }}}
-    .member_fd0_0_c0_babdd{
-        width:120rpx;
-        .member_fd0_0_c0_c0_babdd{
-        font-size:36rpx;color:var(--benbenFontColor3);
-    }}}
-    ::v-deep .member_swiperDotfd1_3_babdd{
-        position:absolute;bottom:20rpx;left:0rpx;right:0rpx;
+
+    &--forever {
+      background: linear-gradient(135deg, #fdf0ee, #f5d4d0);
     }
-    ::v-deep .member_swiperDotSelectedfd1_3_babdd{
-        width:16rpx;height:16rpx;border-radius:100rpx 100rpx 100rpx 100rpx;background:#00A7FF;border:1px solid #00A7FF;margin:0rpx 6rpx 0rpx 0rpx;font-size:24rpx;color:#fff;
+  }
+
+  &__name {
+    font-size: 24rpx;
+    font-weight: 600;
+    color: $text-dark;
+    line-height: 34rpx;
+    text-align: center;
+    margin-bottom: 6rpx;
+  }
+
+  &__desc {
+    font-size: 20rpx;
+    color: #999;
+    line-height: 28rpx;
+    text-align: center;
+  }
+
+  &__tag {
+    position: absolute;
+    top: 12rpx;
+    right: 12rpx;
+    padding: 2rpx 10rpx;
+    background: $primary-dark;
+    border-radius: 8rpx;
+
+    text {
+      font-size: 18rpx;
+      color: #fff;
+      line-height: 26rpx;
     }
-    ::v-deep .member_swiperDotUnselectedfd1_3_babdd{
-        width:16rpx;height:16rpx;border-radius:100rpx 100rpx 100rpx 100rpx;background:rgba(0, 0, 0, 0.3);border:1px solid rgba(0, 0, 0, 0.3);margin:0rpx 6rpx 0rpx 0rpx;font-size:24rpx;color:#fff;
+  }
+}
+
+// 特权说明
+.rules-card {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+
+  &__content {
+    color: #666;
+    font-size: 26rpx;
+    line-height: 44rpx;
+  }
+
+  &__parser {
+    color: #666;
+    font-size: 26rpx;
+    line-height: 44rpx;
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32rpx 0;
+  }
+
+  &__empty-icon {
+    font-size: 48rpx;
+    margin-bottom: 16rpx;
+  }
+
+  &__empty-text {
+    font-size: 24rpx;
+    color: #999;
+    line-height: 36rpx;
+  }
+}
+
+// 底部 CTA
+.bottom-cta {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: #fff;
+  border-top: 1rpx solid #eee;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.04);
+
+  &__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20rpx 32rpx;
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__label {
+    display: block;
+    font-size: 28rpx;
+    font-weight: 600;
+    color: $text-dark;
+    line-height: 40rpx;
+  }
+
+  &__sub {
+    display: block;
+    font-size: 22rpx;
+    color: $text-accent;
+    line-height: 32rpx;
+    margin-top: 2rpx;
+  }
+
+  &__btn {
+    flex-shrink: 0;
+    margin-left: 24rpx;
+    padding: 0 48rpx;
+    height: 80rpx;
+    background: linear-gradient(90deg, $primary, $primary-dark);
+    border-radius: 40rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8rpx 24rpx rgba($primary-darker, 0.35);
+
+    text {
+      font-size: 28rpx;
+      font-weight: 600;
+      color: #fff;
     }
+  }
+}
 </style>

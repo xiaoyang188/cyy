@@ -759,7 +759,7 @@
                     "path": "member/member",
                     "style": {
                         "navigationBarTitleText": "会员",
-                        "enablePullDownRefresh": false,
+                        "enablePullDownRefresh": true,
                         "navigationBarTextStyle": "black",
                         "navigationStyle": "custom",
                         "navigationBarBackgroundColor": "#ffffff"

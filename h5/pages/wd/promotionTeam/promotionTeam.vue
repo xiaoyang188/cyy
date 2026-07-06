@@ -37,7 +37,7 @@
             :data-url="`/pages/jf/inteDetails/inteDetails`"
           >
             <view class="flex flex-direction flex-wrap align-stretch flex-sub promotionTeam_points_banner_left_babdd">
-              <text class="promotionTeam_points_label_babdd">{{ $t('可提现积分') }}</text>
+              <text class="promotionTeam_points_label_babdd">{{ $t('积分') }}</text>
               <text class="promotionTeam_points_hint_babdd">{{ $t('点击查看积分明细') }}</text>
             </view>
             <view class="flex flex-wrap align-end promotionTeam_points_banner_right_babdd">
@@ -45,7 +45,7 @@
             </view>
             <image class="promotionTeam_points_arrow_babdd" mode="aspectFit" :src="STATIC_URL + '273.png'"></image>
           </view>
-          <view
+          <!-- <view
             class="flex flex-wrap align-center promotionTeam_bind_account_babdd"
             @tap.stop="handleJumpDiy"
             data-type="navigateTo"
@@ -59,7 +59,7 @@
               ></text>
               <image class="promotionTeam_points_arrow_babdd" mode="aspectFit" :src="STATIC_URL + '273.png'"></image>
             </view>
-          </view>
+          </view> -->
           <view class="promotionTeam_fd2_body_babdd">
             <!-- <view
               class="flex flex-direction flex-wrap align-start"
@@ -253,7 +253,7 @@
 
       <!---flex布局flex布局结束-->
       <view :style="{ height: 'calc(140rpx + var(--benben-window-bottom, 0px))' }"></view>
-      <view class="flex flex-wrap align-center justify-center promotionTeam_fd5_babdd">
+      <!-- <view class="flex flex-wrap align-center justify-center promotionTeam_fd5_babdd">
         <button
           class="promotionTeam_fd5_c0_babdd"
           @tap.stop="handleJumpDiy"
@@ -262,7 +262,7 @@
         >
           {{ $t('去提现') }}
         </button>
-      </view>
+      </view> -->
       <benben-popup v-model="popupShow1679984842354" :mask="true" :mask-close-able="true" mode="center">
         <!---flex布局flex布局开始-->
         <view class="flex flex-direction flex-wrap align-stretch benben-flex-layout promotionTeam_flex_4_babdd">

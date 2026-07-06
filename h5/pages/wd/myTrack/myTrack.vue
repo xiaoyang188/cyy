@@ -80,7 +80,6 @@
       <benben-goods-footprint
         time-format="MM月DD日"
         price-before="￥"
-        class="myTrack_flex_footprint_4_babdd"
         :is-editor.sync="is_edit"
         :goods-list.sync="dataList"
         :goods-id.sync="shop_id"
@@ -476,10 +475,6 @@ export default {
         font-weight: 500;
       }
     }
-  }
-
-  .myTrack_flex_footprint_4_babdd {
-    --checked-active: var(--benbenFontColor4);
   }
 
   .myTrack_flex_3_babdd {

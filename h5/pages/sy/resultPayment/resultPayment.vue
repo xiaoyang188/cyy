@@ -29,14 +29,16 @@
           @tap.stop="handleJumpDiy"
           data-type="redirectTo"
           :data-url="`/pages/ddgl/order/order?type=all&isNativePay=1`"
-          v-if="payPath == ''"
+          v-if="showViewOrderBtn && payPath == ''"
         >
           {{ $t('查看订单') }}
         </button>
-        <button class="resultPayment_fd1_4_babdd" @tap.stop="handleJumpDiy" data-type="back" data-url="1" v-if="payPath != ''">
+        <button class="resultPayment_fd1_4_babdd" @tap.stop="handleJumpDiy" data-type="back" data-url="1" v-if="showViewOrderBtn && payPath != ''">
           {{ $t('查看订单') }}
         </button>
-        <button class="resultPayment_fd1_6_babdd" @tap.stop="toHomeDiy()">{{ $t('返回首页') }}</button>
+        <button class="resultPayment_fd1_6_babdd" :class="{ 'resultPayment_fd1_6_babdd--solo': !showViewOrderBtn }" @tap.stop="toHomeDiy()">
+          {{ $t('返回首页') }}
+        </button>
         <!-- <image class='resultPayment_fd1_7_babdd'  mode="aspectFit"  :src='STATIC_URL+"1490.png"' @tap="ddFunc()" v-if= " drawNumber.lottery_num>='1'"></image>
  -->
       </view>
@@ -62,16 +64,25 @@ export default {
        *   lottery_num【本次抽奖次数】 **/ drawNumber: { lottery_num: '', lottery_text: 0 },
       money: '',
       payPath: '',
+      order_type: '',
     }
   },
-  computed: {},
+  computed: {
+    showViewOrderBtn() {
+      const type = String(this.order_type || this.paymentResults.order_type || '')
+      return type !== '1'
+    },
+  },
   watch: {},
   onLoad(options) {
-    let { order_sn, money, payPath } = options
+    let { order_sn, money, payPath, order_type } = options
     if (order_sn !== undefined) this.order_sn = order_sn
     if (money !== undefined) this.money = money
     if (payPath !== undefined) this.payPath = payPath
-    this.paymentResultsFunc()
+    if (order_type !== undefined) this.order_type = order_type
+    setTimeout(() => {
+      this.paymentResultsFunc()
+    }, 500)
   },
   onUnload() {},
   onReady() {},
@@ -177,6 +188,9 @@ export default {
     border: 1px solid var(--benbenbdColor2);
     line-height: 72rpx;
     margin: 33rpx 0rpx 112rpx 0rpx;
+    &--solo {
+      margin-top: 87rpx;
+    }
   }
   .resultPayment_fd1_7_babdd {
     width: 686rpx;

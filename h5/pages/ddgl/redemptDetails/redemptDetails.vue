@@ -348,83 +348,24 @@
           </view>
         </view>
         <view class="flex flex-direction align-stretch justify-end redemptDetails_fd3_4_babdd">
-          <view class="flex align-center redemptDetails_fd3_4_bar_babdd">
-            <button class="redemptDetails_fd3_4_contact_babdd" @tap.stop="getKefuFunc()">{{ $t('联系商家') }}</button>
-            <view class="flex align-center justify-end flex-sub redemptDetails_fd3_4_actions_babdd">
-              <button
-                class="redemptDetails_fd3_4_c0_c0_babdd"
-                @tap.stop="popupShow1657247297312 = true"
-                v-if="dataDetails.btn_list.cancel_order == '1'"
-              >
-                {{ $t('取消订单') }}
-              </button>
-              <button
-                class="redemptDetails_fd3_4_c0_c0_babdd"
-                @tap.stop="isMultiplePackagesFunc(dataDetails.is_multiple_package)"
-                v-if="dataDetails.btn_list.view_logistics == '1'"
-              >
-                {{ $t('查看物流') }}
-              </button>
-              <button
-                class="redemptDetails_fd3_4_c0_c1_babdd"
-                @tap.stop="popupShow1679650134928 = true"
-                v-if="dataDetails.btn_list.apply_invoice == '1'"
-              >
-                {{ $t('申请开票') }}
-              </button>
-              <button
-                class="redemptDetails_fd3_4_c0_c1_babdd"
-                @tap.stop="handleJumpDiy"
-                data-type="navigateTo"
-                :data-url="`/pages/fp/invoiceDetail/invoiceDetail?order_id=${order_id}`"
-                v-if="dataDetails.btn_list.view_invoice == '1'"
-              >
-                {{ $t('查看发票') }}
-              </button>
-              <button
-                class="redemptDetails_fd3_4_c0_c1_babdd"
-                @tap.stop="popupShow1698806556276 = true"
-                v-if="dataDetails.btn_list.delete_order == '1'"
-              >
-                {{ $t('删除订单') }}
-              </button>
-              <button class="redemptDetails_fd3_4_c0_c2_babdd" @tap.stop="goPayFunc()" v-if="dataDetails.btn_list.go_pay == '1'">
-                {{ $t('去付款') }}
-              </button>
-              <button
-                class="redemptDetails_fd3_4_c0_c2_babdd"
-                @tap.stop="handleJumpDiy"
-                data-type="navigateTo"
-                :data-url="`/pages/sy/offerPay/offerPay?order_sn=${dataDetails.final_order_sn}&order_type=3`"
-                v-if="dataDetails.btn_list.pay_balance == '1' && dataDetails.order_type == '7'"
-              >
-                {{ $t('支付尾款') }}
-              </button>
-              <button
-                class="redemptDetails_fd3_4_c0_c3_babdd"
-                @tap.stop="remindShopFunc()"
-                v-if="dataDetails.status == '1' && dataDetails.btn_list.remind_send == '1'"
-              >
-                {{ $t('提醒发货') }}
-              </button>
-              <button class="redemptDetails_fd3_4_c0_c2_babdd" v-if="dataDetails.btn_list.remind_already == '1'">{{ $t('已提醒') }}</button>
-              <button
-                class="redemptDetails_fd3_4_c0_c3_babdd"
-                @tap.stop="popupShow1763608410324 = true"
-                v-if="dataDetails.btn_list.confirm_receive == '1'"
-              >
-                {{ $t('确认收货') }}
-              </button>
-              <button
-                class="redemptDetails_fd3_4_c0_c2_babdd"
-                @tap.stop="handleJumpDiy"
-                data-type="navigateTo"
-                :data-url="`/pages/ddgl/evaluation/evaluation?id=${order_id}`"
-                v-if="dataDetails.btn_list.evaluate == '1'"
-              >
-                {{ $t('评价') }}
-              </button>
-            </view>
+          <view
+            class="flex flex-wrap align-center justify-end redemptDetails_fd3_4_bar_babdd"
+            :class="{ 'redemptDetails_fd3_4_bar--expanded_babdd': orderActionExpanded }"
+          >
+            <button
+              v-for="(btn, btnIndex) in getVisibleOrderActionButtons()"
+              :key="btnIndex"
+              :class="btn.btnClass"
+              @tap.stop="btn.action()"
+            >
+              {{ btn.text }}
+            </button>
+            <button class="redemptDetails_fd3_4_action_babdd" v-if="showOrderActionExpand()" @tap.stop="orderActionExpanded = true">
+              {{ $t('展开') }}
+            </button>
+            <button class="redemptDetails_fd3_4_action_babdd" v-if="showOrderActionCollapse()" @tap.stop="orderActionExpanded = false">
+              {{ $t('收起') }}
+            </button>
           </view>
           <benben-safe-area></benben-safe-area>
         </view>
@@ -854,6 +795,7 @@ export default {
       usermerchant_id: '24',
       currentOrderSn: '',
       systemsInfo: '',
+      orderActionExpanded: false,
     }
   },
   computed: {
@@ -1189,6 +1131,33 @@ export default {
       this.popupShow1657247297312 = false
       this.popupShow1737680677873 = true
     },
+    //再来一单：将订单商品加入购物车并跳转购物车
+    async orderAgainFunc() {
+      if (this.$util.antiShakeThrottle()) return
+      const goodsList = this.dataDetails.order_goods_list || []
+      if (!goodsList.length) {
+        this.$message.info(this.$t('暂无可加入的商品'))
+        return
+      }
+      uni.showLoading({
+        title: this.$t('加入购物车中...'),
+        mask: true,
+      })
+      for (const goods of goodsList) {
+        let data6412f82acb5ba = await this.$api.post(global.apiUrls.post6412f82acb5ba, {
+          goods_id: goods.goods_id,
+          sku_id: goods.sku_id,
+          num: goods.num || 1,
+        })
+        if (data6412f82acb5ba.data.code != 1) {
+          uni.hideLoading()
+          this.$message.info(data6412f82acb5ba.data.msg)
+          return
+        }
+      }
+      uni.hideLoading()
+      this.$urouter.switchTab('/pages/tabBar/shopping/shopping')
+    },
     // 去付款（与 directOrder 提交后支付跳转逻辑一致）
     async goPayFunc() {
       const orderSn = this.dataDetails.order_sn
@@ -1200,6 +1169,78 @@ export default {
         source: 'redemptDetails',
         offerPayExtra: 'order_type=3&payPath=1',
       })
+    },
+    getOrderActionButtons() {
+      const item = this.dataDetails
+      const buttons = []
+      const pushBtn = (text, btnClass, action) => {
+        buttons.push({ text, btnClass, action })
+      }
+      pushBtn(this.$t('联系商家'), 'redemptDetails_fd3_4_contact_babdd', () => this.getKefuFunc())
+      if (item.order_goods_list && item.order_goods_list.length) {
+        pushBtn(this.$t('再来一单'), 'redemptDetails_fd3_4_action_babdd', () => this.orderAgainFunc())
+      }
+      if (item.btn_list.cancel_order == '1') {
+        pushBtn(this.$t('取消订单'), 'redemptDetails_fd3_4_action_babdd', () => {
+          this.popupShow1657247297312 = true
+        })
+      }
+      if (item.btn_list.view_logistics == '1') {
+        pushBtn(this.$t('查看物流'), 'redemptDetails_fd3_4_action_babdd', () => this.isMultiplePackagesFunc(item.is_multiple_package))
+      }
+      if (item.btn_list.apply_invoice == '1') {
+        pushBtn(this.$t('申请开票'), 'redemptDetails_fd3_4_action_babdd', () => {
+          this.popupShow1679650134928 = true
+        })
+      }
+      if (item.btn_list.view_invoice == '1') {
+        pushBtn(this.$t('查看发票'), 'redemptDetails_fd3_4_action_babdd', () => {
+          this.$urouter.navigateTo(`/pages/fp/invoiceDetail/invoiceDetail?order_id=${this.order_id}`)
+        })
+      }
+      if (item.btn_list.delete_order == '1') {
+        pushBtn(this.$t('删除订单'), 'redemptDetails_fd3_4_action_babdd', () => {
+          this.popupShow1698806556276 = true
+        })
+      }
+      if (item.btn_list.go_pay == '1') {
+        pushBtn(this.$t('去付款'), 'redemptDetails_fd3_4_action_primary_babdd', () => this.goPayFunc())
+      }
+      if (item.btn_list.pay_balance == '1' && item.order_type == '7') {
+        pushBtn(this.$t('支付尾款'), 'redemptDetails_fd3_4_action_primary_babdd', () => {
+          this.$urouter.navigateTo(`/pages/sy/offerPay/offerPay?order_sn=${item.final_order_sn}&order_type=3`)
+        })
+      }
+      if (item.status == '1' && item.btn_list.remind_send == '1') {
+        pushBtn(this.$t('提醒发货'), 'redemptDetails_fd3_4_action_primary_babdd', () => this.remindShopFunc())
+      }
+      if (item.btn_list.remind_already == '1') {
+        pushBtn(this.$t('已提醒'), 'redemptDetails_fd3_4_action_primary_babdd', () => {})
+      }
+      if (item.btn_list.confirm_receive == '1') {
+        pushBtn(this.$t('确认收货'), 'redemptDetails_fd3_4_action_primary_babdd', () => {
+          this.popupShow1763608410324 = true
+        })
+      }
+      if (item.btn_list.evaluate == '1') {
+        pushBtn(this.$t('评价'), 'redemptDetails_fd3_4_action_primary_babdd', () => {
+          this.$urouter.navigateTo(`/pages/ddgl/evaluation/evaluation?id=${this.order_id}`)
+        })
+      }
+      return buttons
+    },
+    getVisibleOrderActionButtons() {
+      const buttons = this.getOrderActionButtons()
+      if (this.orderActionExpanded || buttons.length <= 4) {
+        return buttons
+      }
+      return buttons.slice(0, 3)
+    },
+    showOrderActionExpand() {
+      return this.getOrderActionButtons().length > 4 && !this.orderActionExpanded
+    },
+    showOrderActionCollapse() {
+      return this.getOrderActionButtons().length > 4 && this.orderActionExpanded
     },
   },
 }
@@ -1933,89 +1974,52 @@ export default {
 
   .redemptDetails_fd3_4_bar_babdd {
     width: 100%;
-    align-items: center;
     flex-wrap: nowrap;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  .redemptDetails_fd3_4_bar--expanded_babdd {
+    flex-wrap: wrap;
   }
 
   .redemptDetails_fd3_4_contact_babdd {
     flex-shrink: 0;
-    border-radius: 40rpx;
+    border-radius: 32rpx;
     font-size: 24rpx;
     background: #ffffff;
     color: var(--benbenbtnColor0);
-    border: 2rpx solid var(--benbenbtnColor0);
+    border: 1px solid var(--benbenbtnColor0);
     min-width: 144rpx;
     height: 60rpx;
-    line-height: 56rpx;
+    line-height: 58rpx;
     font-weight: 500;
-    margin: 0 12rpx 0 0;
+    margin: 0 0 12rpx 12rpx;
     padding: 0 20rpx;
+    white-space: nowrap;
   }
 
-  .redemptDetails_fd3_4_actions_babdd {
-    min-width: 0;
-    flex: 1;
-    flex-wrap: nowrap;
-    justify-content: flex-end;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
-
-  .redemptDetails_fd3_4_c0_c0_babdd {
+  .redemptDetails_fd3_4_action_babdd,
+  .redemptDetails_fd3_4_action_primary_babdd {
     flex-shrink: 0;
-    border-radius: 50rpx 50rpx 50rpx 50rpx;
+    border-radius: 32rpx;
     font-size: 24rpx;
-    background: var(--benbenbtnColor3);
-    color: var(--benbenFontColor0);
-    width: 144rpx;
     height: 60rpx;
     line-height: 60rpx;
-    font-weight: 400;
-    margin: 0 0 0 12rpx;
-  }
-
-  .redemptDetails_fd3_4_c0_c1_babdd {
-    flex-shrink: 0;
-    border-radius: 30rpx 30rpx 30rpx 30rpx;
-    font-size: 24rpx;
-    background: var(--benbenbtnColor3);
-    color: var(--benbenFontColor0);
-    width: 144rpx;
-    height: 60rpx;
-    line-height: 60rpx;
-    font-weight: 400;
-    margin: 0 0 0 12rpx;
-  }
-
-  .redemptDetails_fd3_4_c0_c2_babdd {
-    flex-shrink: 0;
-    border-radius: 40rpx 40rpx 40rpx 40rpx;
-    font-size: 24rpx;
-    background: var(--benbenbtnColor0);
-    color: var(--benbenFontColor3);
-    width: 144rpx;
-    height: 60rpx;
-    line-height: 60rpx;
-    font-weight: 400;
-    margin: 0 0 0 12rpx;
-  }
-
-  .redemptDetails_fd3_4_c0_c3_babdd {
-    flex-shrink: 0;
-    border-radius: 40rpx 40rpx 40rpx 40rpx;
-    font-size: 24rpx;
-    background: var(--benbenbtnColor0);
-    color: var(--benbenFontColor3);
-    height: 60rpx;
-    line-height: 60rpx;
-    font-weight: 400;
-    margin: 0 0 0 12rpx;
     min-width: 144rpx;
     padding: 0 20rpx;
+    margin: 0 0 12rpx 12rpx;
+    white-space: nowrap;
+  }
+
+  .redemptDetails_fd3_4_action_babdd {
+    background: #f5f5f5;
+    color: #666666;
+  }
+
+  .redemptDetails_fd3_4_action_primary_babdd {
+    background: var(--benbenbtnColor0);
+    color: #fff;
   }
 
   .redemptDetails_fd2_0_babdd {

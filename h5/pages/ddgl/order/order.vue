@@ -176,63 +176,19 @@
                 <text class="order_price2_fd2_0_c1_c1_c2_c0_c1_babdd">{{ item.payable_money | laterPrice }}</text>
               </text>
             </view>
-            <view class="flex flex-wrap align-center justify-end order_fd2_0_c3_babdd">
-              <button class="order_fd2_0_c3_contact_babdd" @tap.stop="getKefuFunc()">{{ $t('联系商家') }}</button>
-              <button class="order_fd2_0_c3_c0_babdd" @tap.stop="getinvoice_order_idFunc(item.aid)" v-if="item.btn_list.apply_invoice == '1'">
-                {{ $t('申请开票') }}
+            <view
+              class="flex flex-wrap align-center justify-end order_fd2_0_c3_babdd order_fd2_0_c3_bar_babdd"
+              :class="{ 'order_fd2_0_c3_bar--expanded_babdd': expandedOrderActionMap[item.aid] }"
+            >
+              <button v-for="(btn, btnIndex) in getVisibleOrderActionButtons(item)" :key="btnIndex" :class="btn.btnClass" @tap.stop="btn.action()">
+                {{ btn.text }}
               </button>
-              <button
-                class="order_fd2_0_c3_c0_babdd"
-                @tap.stop="handleJumpDiy"
-                data-type="navigateTo"
-                :data-url="`/pages/fp/invoiceDetail/invoiceDetail?order_id=${item.aid}`"
-                v-if="item.btn_list.view_invoice == '1'"
-              >
-                {{ $t('查看发票') }}
+              <button class="order_fd2_0_c3_action_babdd" v-if="showOrderActionExpand(item)" @tap.stop="toggleOrderActionExpand(item.aid)">
+                {{ $t('展开') }}
               </button>
-              <button
-                class="order_fd2_0_c3_c1_babdd"
-                @tap.stop="isMultiplePackagesFunc(item.is_multiple_package, item.aid)"
-                v-if="item.btn_list.view_logistics == '1'"
-              >
-                {{ $t('查看物流') }}
+              <button class="order_fd2_0_c3_action_babdd" v-if="showOrderActionCollapse(item)" @tap.stop="toggleOrderActionExpand(item.aid)">
+                {{ $t('收起') }}
               </button>
-              <button class="order_fd2_0_c3_c1_babdd" @tap.stop="getDeleteIDFunc(item.aid)" v-if="item.btn_list.delete_order == '1'">
-                {{ $t('删除订单') }}
-              </button>
-              <button class="order_fd2_0_c3_c2_babdd" @tap.stop="getCancelIDFunc(item.aid)" v-if="item.btn_list.cancel_order == '1'">
-                {{ $t('取消订单') }}
-              </button>
-              <!--  <button class="order_fd2_0_c3_c2_babdd" v-if="item.btn_list.apply_refund == '1'">{{ $t('申请售后') }}</button>  -->
-              <button class="order_fd2_0_c3_c3_babdd" @tap.stop="goPayFunc(item)" v-if="item.btn_list.go_pay == '1'">
-                {{ $t('去付款') }}
-              </button>
-              <button class="order_fd2_0_c3_c3_1_babdd" @tap.stop="remindShipFunc(item.aid)" v-if="item.btn_list.remind_send == '1'">
-                {{ $t('提醒发货') }}
-              </button>
-              <button class="order_fd2_0_c3_c3_1_babdd" @tap.stop="gettakeoverIDFunc(item.aid)" v-if="item.btn_list.confirm_receive == '1'">
-                {{ $t('确认收货') }}
-              </button>
-              <button
-                class="order_fd2_0_c3_c3_3_babdd"
-                @tap.stop="handleJumpDiy"
-                data-type="navigateTo"
-                :data-url="`/pages/ddgl/evaluation/evaluation?id=${item.aid}`"
-                v-if="item.btn_list.evaluate == '1'"
-              >
-                {{ $t('评价') }}
-              </button>
-              <button
-                class="order_fd2_0_c3_c3_1_babdd"
-                @tap.stop="handleJumpDiy"
-                data-type="navigateTo"
-                :data-url="`/pages/sy/offerPay/offerPay?order_sn=${item.final_order_sn}&order_type=3`"
-                v-if="item.btn_list.pay_balance == '1' && item.order_type == '7'"
-              >
-                {{ $t('支付尾款') }}
-              </button>
-              <button class="order_fd2_0_c3_c3_3_babdd" v-if="item.status == '0' && item.order_type == 'offline_pay'">{{ $t('转账详情') }}</button>
-              <button class="order_fd2_0_c3_c3_3_babdd" v-if="item.btn_list.remind_already == '1'">{{ $t('已提醒') }}</button>
             </view>
           </view>
         </template>
@@ -615,6 +571,7 @@ export default {
       isNativePay: '',
       currentOrderSn: '',
       systemsInfo: '',
+      expandedOrderActionMap: {},
     }
   },
   computed: {},
@@ -968,6 +925,49 @@ export default {
       uni.$off('shenqingchengg')
       uni.$off('upinvoice')
     },
+    //再来一单：将订单商品加入购物车并跳转购物车
+    async orderAgainFunc(item) {
+      if (this.$util.antiShakeThrottle()) return
+      let goodsList = item.goods || []
+      if (!goodsList.length || !goodsList[0].goods_id) {
+        uni.showLoading({
+          title: this.$t('加载中...'),
+          mask: true,
+        })
+        let datadataDetails = await this.$api.post(global.apiUrls.post62c92b9d5ada3, {
+          order_id: item.aid,
+          order_type: '3',
+        })
+        uni.hideLoading()
+        if (datadataDetails.data.code != 1) {
+          this.$message.info(datadataDetails.data.msg)
+          return
+        }
+        goodsList = datadataDetails.data.data.order_goods_list || []
+      }
+      if (!goodsList.length) {
+        this.$message.info(this.$t('暂无可加入的商品'))
+        return
+      }
+      uni.showLoading({
+        title: this.$t('加入购物车中...'),
+        mask: true,
+      })
+      for (const goods of goodsList) {
+        let data6412f82acb5ba = await this.$api.post(global.apiUrls.post6412f82acb5ba, {
+          goods_id: goods.goods_id,
+          sku_id: goods.sku_id,
+          num: goods.num || 1,
+        })
+        if (data6412f82acb5ba.data.code != 1) {
+          uni.hideLoading()
+          this.$message.info(data6412f82acb5ba.data.msg)
+          return
+        }
+      }
+      uni.hideLoading()
+      this.$urouter.switchTab('/pages/tabBar/shopping/shopping')
+    },
     // 去付款（与 directOrder / redemptDetails 支付跳转逻辑一致）
     async goPayFunc(item) {
       const orderSn = item.order_sn
@@ -979,6 +979,75 @@ export default {
         source: 'order',
         offerPayExtra: 'order_type=3&payPath=1',
       })
+    },
+    toggleOrderActionExpand(orderId) {
+      this.$set(this.expandedOrderActionMap, orderId, !this.expandedOrderActionMap[orderId])
+    },
+    getOrderActionButtons(item) {
+      const buttons = []
+      const pushBtn = (text, btnClass, action) => {
+        buttons.push({ text, btnClass, action })
+      }
+      pushBtn(this.$t('联系商家'), 'order_fd2_0_c3_contact_babdd', () => this.getKefuFunc())
+      if (item.goods && item.goods.length) {
+        pushBtn(this.$t('再来一单'), 'order_fd2_0_c3_action_babdd', () => this.orderAgainFunc(item))
+      }
+      if (item.btn_list.apply_invoice == '1') {
+        pushBtn(this.$t('申请开票'), 'order_fd2_0_c3_action_babdd', () => this.getinvoice_order_idFunc(item.aid))
+      }
+      if (item.btn_list.view_invoice == '1') {
+        pushBtn(this.$t('查看发票'), 'order_fd2_0_c3_action_babdd', () => {
+          this.$urouter.navigateTo(`/pages/fp/invoiceDetail/invoiceDetail?order_id=${item.aid}`)
+        })
+      }
+      if (item.btn_list.view_logistics == '1') {
+        pushBtn(this.$t('查看物流'), 'order_fd2_0_c3_action_babdd', () => this.isMultiplePackagesFunc(item.is_multiple_package, item.aid))
+      }
+      if (item.btn_list.delete_order == '1') {
+        pushBtn(this.$t('删除订单'), 'order_fd2_0_c3_action_babdd', () => this.getDeleteIDFunc(item.aid))
+      }
+      if (item.btn_list.cancel_order == '1') {
+        pushBtn(this.$t('取消订单'), 'order_fd2_0_c3_action_babdd', () => this.getCancelIDFunc(item.aid))
+      }
+      if (item.btn_list.go_pay == '1') {
+        pushBtn(this.$t('去付款'), 'order_fd2_0_c3_action_primary_babdd', () => this.goPayFunc(item))
+      }
+      if (item.btn_list.remind_send == '1') {
+        pushBtn(this.$t('提醒发货'), 'order_fd2_0_c3_action_primary_babdd', () => this.remindShipFunc(item.aid))
+      }
+      if (item.btn_list.confirm_receive == '1') {
+        pushBtn(this.$t('确认收货'), 'order_fd2_0_c3_action_primary_babdd', () => this.gettakeoverIDFunc(item.aid))
+      }
+      if (item.btn_list.evaluate == '1') {
+        pushBtn(this.$t('评价'), 'order_fd2_0_c3_action_primary_babdd', () => {
+          this.$urouter.navigateTo(`/pages/ddgl/evaluation/evaluation?id=${item.aid}`)
+        })
+      }
+      if (item.btn_list.pay_balance == '1' && item.order_type == '7') {
+        pushBtn(this.$t('支付尾款'), 'order_fd2_0_c3_action_primary_babdd', () => {
+          this.$urouter.navigateTo(`/pages/sy/offerPay/offerPay?order_sn=${item.final_order_sn}&order_type=3`)
+        })
+      }
+      if (item.status == '0' && item.order_type == 'offline_pay') {
+        pushBtn(this.$t('转账详情'), 'order_fd2_0_c3_action_primary_babdd', () => {})
+      }
+      if (item.btn_list.remind_already == '1') {
+        pushBtn(this.$t('已提醒'), 'order_fd2_0_c3_action_primary_babdd', () => {})
+      }
+      return buttons
+    },
+    getVisibleOrderActionButtons(item) {
+      const buttons = this.getOrderActionButtons(item)
+      if (this.expandedOrderActionMap[item.aid] || buttons.length <= 4) {
+        return buttons
+      }
+      return buttons.slice(0, 3)
+    },
+    showOrderActionExpand(item) {
+      return this.getOrderActionButtons(item).length > 4 && !this.expandedOrderActionMap[item.aid]
+    },
+    showOrderActionCollapse(item) {
+      return this.getOrderActionButtons(item).length > 4 && this.expandedOrderActionMap[item.aid]
     },
   },
 }
@@ -1693,18 +1762,6 @@ export default {
         margin: 0rpx 0rpx 0rpx 0rpx;
         padding: 20rpx 0rpx 24rpx 0rpx;
         border-top: 1px solid var(--benbenbdColor0);
-
-        .order_fd2_0_c3_c3_babdd {
-          border-radius: 32rpx 32rpx 32rpx 32rpx;
-          font-size: 26rpx;
-          background: var(--benbenbtnColor0);
-          color: #fff;
-          height: 60rpx;
-          line-height: 60rpx;
-          margin: 0rpx 0rpx 0rpx 16rpx;
-          min-width: 152rpx;
-          padding: 0rpx 24rpx 0rpx 24rpx;
-        }
       }
     }
   }
@@ -1799,77 +1856,54 @@ export default {
     color: var(--benbenFontColor1);
   }
 
+  .order_fd2_0_c3_bar_babdd {
+    width: 100%;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  .order_fd2_0_c3_bar--expanded_babdd {
+    flex-wrap: wrap;
+  }
+
   .order_fd2_0_c3_contact_babdd {
+    flex-shrink: 0;
     border-radius: 32rpx;
-    font-size: 26rpx;
+    font-size: 24rpx;
     background: #ffffff;
     color: var(--benbenbtnColor0);
     border: 1px solid var(--benbenbtnColor0);
-    min-width: 152rpx;
+    min-width: 144rpx;
     height: 60rpx;
     line-height: 58rpx;
     font-weight: 500;
-    margin: 0 16rpx 0 0;
-    padding: 0 24rpx;
+    margin: 0 0 12rpx 12rpx;
+    padding: 0 20rpx;
+    white-space: nowrap;
   }
 
-  .order_fd2_0_c3_c0_babdd {
-    border-radius: 32rpx 32rpx 32rpx 32rpx;
-    font-size: 26rpx;
-    background: #f5f5f5;
-    color: var(--benbenFontColor0);
-    min-width: 152rpx;
+  .order_fd2_0_c3_action_babdd,
+  .order_fd2_0_c3_action_primary_babdd {
+    flex-shrink: 0;
+    border-radius: 32rpx;
+    font-size: 24rpx;
     height: 60rpx;
     line-height: 60rpx;
-    padding: 0 24rpx;
+    min-width: 144rpx;
+    padding: 0 20rpx;
+    margin: 0 0 12rpx 12rpx;
+    white-space: nowrap;
   }
 
-  .order_fd2_0_c3_c1_babdd {
-    border-radius: 32rpx 32rpx 32rpx 32rpx;
-    font-size: 26rpx;
+  .order_fd2_0_c3_action_babdd {
     background: #f5f5f5;
     color: #666666;
-    min-width: 152rpx;
-    height: 60rpx;
-    line-height: 60rpx;
-    margin: 0rpx 0rpx 0rpx 16rpx;
-    padding: 0 24rpx;
   }
 
-  .order_fd2_0_c3_c2_babdd {
-    border-radius: 32rpx 32rpx 32rpx 32rpx;
-    font-size: 26rpx;
-    background: #f5f5f5;
-    color: var(--benbenFontColor0);
-    height: 60rpx;
-    line-height: 60rpx;
-    margin: 0rpx 0rpx 0rpx 16rpx;
-    min-width: 152rpx;
-    padding: 0rpx 24rpx 0rpx 24rpx;
-  }
-
-  .order_fd2_0_c3_c3_1_babdd {
-    border-radius: 32rpx 32rpx 32rpx 32rpx;
-    font-size: 26rpx;
+  .order_fd2_0_c3_action_primary_babdd {
     background: var(--benbenbtnColor0);
     color: #fff;
-    height: 60rpx;
-    line-height: 60rpx;
-    margin: 0rpx 0rpx 0rpx 16rpx;
-    padding: 0rpx 24rpx 0rpx 24rpx;
-    min-width: 152rpx;
-  }
-
-  .order_fd2_0_c3_c3_3_babdd {
-    border-radius: 32rpx 32rpx 32rpx 32rpx;
-    font-size: 26rpx;
-    background: var(--benbenbtnColor0);
-    color: #fff;
-    height: 60rpx;
-    line-height: 60rpx;
-    margin: 0rpx 0rpx 0rpx 16rpx;
-    min-width: 152rpx;
-    padding: 0rpx 24rpx 0rpx 24rpx;
   }
 
   .checkTitlefd1_0_babdd {

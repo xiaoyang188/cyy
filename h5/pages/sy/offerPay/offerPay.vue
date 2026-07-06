@@ -786,7 +786,9 @@ export default {
     paySuccessFunc() {
       if (this.order_type != '4') {
         uni.$emit('shenqingchengg', this.payID)
-        this.$urouter.redirectTo(`/pages/sy/resultPayment/resultPayment?order_sn=${this.order_sn}&money=${this.money}&payPath=${this.payPath}`)
+        this.$urouter.redirectTo(
+          `/pages/sy/resultPayment/resultPayment?order_sn=${this.order_sn}&money=${this.money}&payPath=${this.payPath}&order_type=${this.order_type}`,
+        )
       } else {
         uni.$emit('upjflist', this.payID)
         this.$urouter.redirectTo(`/pages/jf/exchangeSuccessful/exchangeSuccessful`)

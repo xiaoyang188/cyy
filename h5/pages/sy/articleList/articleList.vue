@@ -19,7 +19,7 @@
       <view :style="{height: (88+StatusBarRpx)+'rpx'}"></view>
       <!---flex布局flex布局开始-->
       <view class="flex flex-direction align-stretch benben-flex-layout">
-        <view>
+       <!-- <view>
           <benben-flex-tabs class-text='articleList_benbenTabsfd1_0_babdd' v-model="tabs" ref="benben_tabsfd1_0"
             select-mark="benben_tabsfd1_0" key="benben_tabsfd1_0" :open-title-type='false' :open-sticky='true' :top='0'
             :is-show-content='false' :scrollspy='false' :tabs-info.sync="tabsInfofd1_0" @change="getListFunc()">
@@ -49,7 +49,7 @@
 
           </benben-flex-tabs>
 
-        </view>
+        </view> -->
         <view class='flex flex-direction align-stretch'>
           <template v-for='(item,key0) in dataList'>
             <view class='flex align-center articleList_fd1_1_c0_babdd' @tap.stop="handleJumpDiy" data-type="navigateTo"
@@ -97,7 +97,7 @@
         "minixPagingListsApi": "",
         "pageingListApiMethod": "",
         "allowOnloadGetList": false,
-        "tabs": "",
+        "tabs": "1",
         "dataType": [],
         "dataList": []
       };
@@ -107,7 +107,8 @@
     },
     watch: {},
     onLoad(options) {
-      this.getTypeFunc()
+      // this.getTypeFunc()
+      this.getListFunc()
     },
     onUnload() {
 
@@ -116,7 +117,6 @@
 
     },
     onShow() {
-
     },
     onHide() {
 
@@ -160,15 +160,23 @@
       },
       //获取文章列表
       getListFunc() {
-        this.minixPagingListsApi = global.apiUrls.post64219a95b6200;
+        this.minixPagingListsApi = global.apiUrls.post6415752f56d0f;
         this.pageingListApiMethod = 'get';
         this.allowOnloadGetList = false;
-        this.pagingListPostDataContent = {
-          category_id: this.tabs
-        }
+        this.pagingListPostDataContent = {}
         this.listData = [];
         this.dataList = this.listData;
         this.pagingListToggle();
+        return
+        // this.minixPagingListsApi = global.apiUrls.post64219a95b6200;
+        // this.pageingListApiMethod = 'get';
+        // this.allowOnloadGetList = false;
+        // this.pagingListPostDataContent = {
+        //   category_id: this.tabs
+        // }
+        // this.listData = [];
+        // this.dataList = this.listData;
+        // this.pagingListToggle();
 
       },
       pagingListPostData() {

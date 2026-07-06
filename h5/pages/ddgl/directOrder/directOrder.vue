@@ -191,20 +191,23 @@
         <view class="directOrder_coupon-section_babdd">
           <view class="flex flex-wrap align-center justify-between directOrder_coupon-head_babdd">
             <text class="directOrder_fd6_0_c0_babdd">{{ $t('优惠券') }}</text>
-            <view class="flex align-stretch directOrder_fd6_0_c4_babdd" v-if="coupon_id != '' && Number(dataEssayMessage.coupon_money) > 0">
-              <view class="flex flex-wrap align-center">
-                <image class="directOrder_fd6_0_c4_c0_c0_babdd" mode="aspectFit" :src="STATIC_URL + '825.png'"></image>
+            <view class="flex flex-wrap align-center">
+              <view class="flex align-stretch directOrder_fd6_0_c4_babdd" v-if="coupon_id != '' && Number(dataEssayMessage.coupon_money) > 0">
+                <view class="flex flex-wrap align-center">
+                  <image class="directOrder_fd6_0_c4_c0_c0_babdd" mode="aspectFit" :src="STATIC_URL + '825.png'"></image>
+                </view>
+                <view class="flex flex-wrap align-center directOrder_fd6_0_c4_c1_babdd">
+                  <text class="directOrder_fd6_0_c4_c1_c0_babdd">{{ $t('已减') }}</text>
+                  <text class="directOrder_fd6_0_c4_c1_c0_babdd">{{ dataEssayMessage.coupon_money }}</text>
+                  <text class="directOrder_fd6_0_c4_c1_c0_babdd">{{ $t('元') }}</text>
+                </view>
               </view>
-              <view class="flex flex-wrap align-center directOrder_fd6_0_c4_c1_babdd">
-                <text class="directOrder_fd6_0_c4_c1_c0_babdd">{{ $t('已减') }}</text>
-                <text class="directOrder_fd6_0_c4_c1_c0_babdd">{{ dataEssayMessage.coupon_money }}</text>
-                <text class="directOrder_fd6_0_c4_c1_c0_babdd">{{ $t('元') }}</text>
-              </view>
+              <text class="directOrder_coupon-more_babdd" v-if="couponType.length > 2" @tap.stop="openCouponPopupFunc()">{{ $t('查看更多') }}</text>
             </view>
           </view>
           <text class="directOrder_coupon-empty_babdd" v-if="couponType.length == 0">{{ $t('暂无可用优惠劵') }}</text>
           <view class="directOrder_coupon-grid_babdd" v-else>
-            <view class="directOrder_coupon-grid-col_babdd" @tap.stop="isokduoshopidFunc({}, 'remove')">
+            <view class="directOrder_coupon-grid-col_babdd" @tap.stop="removeCouponFunc()">
               <view class="directOrder_coupon-card_babdd" :class="{ 'directOrder_coupon-card--active': coupon_id == '' }">
                 <view class="directOrder_coupon-card-price_babdd">
                   <text class="directOrder_coupon-card-price-placeholder_babdd">—</text>
@@ -213,7 +216,13 @@
                 <text class="directOrder_coupon-card-desc_babdd">{{ $t('暂不使用') }}</text>
               </view>
             </view>
-            <view class="directOrder_coupon-grid-col_babdd" v-for="(item, key0) in couponType" :key="key0" @tap.stop="selectCouponFunc(item)">
+            <view
+              class="directOrder_coupon-grid-col_babdd"
+              v-for="(item, key0) in couponType"
+              :key="key0"
+              v-if="key0 < 2"
+              @tap.stop="selectCouponFunc(item)"
+            >
               <view class="directOrder_coupon-card_babdd" :class="{ 'directOrder_coupon-card--active': coupon_id == item.aid }">
                 <view class="directOrder_coupon-card-price_babdd">
                   <text class="directOrder_coupon-card-yen_babdd">￥</text>
@@ -228,17 +237,19 @@
             </view>
           </view>
         </view>
-        <view
-          class="flex flex-wrap align-center justify-between directOrder_fd6_1_babdd"
-          v-if="Number(userInfoMessage.score) > 0"
-          @tap="openScorePopupFunc()"
-        >
-          <text class="directOrder_fd6_1_c0_babdd">{{ $t('积分折扣') }}</text>
+        <view class="flex flex-wrap align-center justify-between directOrder_fd6_1_babdd" v-if="canUseScoreDeduct && package_id == ''">
+          <text class="directOrder_fd6_1_c0_babdd">{{ $t('积分抵扣') }}</text>
           <view class="flex flex-wrap align-center">
-            <text class="directOrder_fd6_1_c1_c0_babdd" v-if="Number(dataEssayMessage.order_discount_money) > 0">{{ $t('-￥') }}</text>
-            <text class="directOrder_fd6_1_c1_c0_babdd">{{ dataEssayMessage.order_discount_money || 0 }}</text>
+            <text class="directOrder_fd6_1_c2_babdd" @tap.stop="cancelUseScoreFunc()" v-if="scoreDeductEnabled">{{ $t('不使用积分') }}</text>
+            <view class="flex flex-wrap align-center" @tap.stop="openScorePopupFunc()">
+              <text class="directOrder_fd6_1_c1_c0_babdd" v-if="Number(dataEssayMessage.order_discount_money) > 0">{{ $t('-￥') }}</text>
+              <text class="directOrder_fd6_1_c1_c0_babdd" v-if="Number(dataEssayMessage.order_discount_money) > 0">
+                {{ dataEssayMessage.order_discount_money }}
+              </text>
+              <text class="directOrder_fd6_1_c3_babdd" v-if="!scoreDeductEnabled">{{ $t('暂未使用') }}</text>
+              <image class="directOrder_fd6_0_c5_babdd" mode="aspectFit" :src="STATIC_URL + '273.png'"></image>
+            </view>
           </view>
-          <image class="directOrder_fd6_0_c5_babdd" mode="aspectFit" :src="STATIC_URL + '273.png'"></image>
         </view>
         <view class="flex flex-wrap align-center justify-between directOrder_fd6_1_babdd" v-if="dataEssayMessage.all_discount_money > zeroNum">
           <text class="directOrder_fd6_1_c0_babdd">{{ $t('会员折扣') }}</text>
@@ -441,21 +452,30 @@
               <text class="directOrder_fd10_0_c1_c0_babdd">{{ $t('目前积分数量') }}</text>
               <text class="directOrder_fd10_0_c1_c1_babdd">{{ userInfoMessage.score || 0 }}</text>
             </view>
-            <!-- <view class="flex flex-direction flex-wrap align-stretch directOrder_fd10_0_c1_babdd" v-if="dataEssayMessage.order_discount_ratio">
-              <text class="directOrder_fd10_0_c1_c0_babdd">{{ $t('抵扣比例') }}</text>
-              <text class="directOrder_fd10_0_c1_c1_babdd">{{ dataEssayMessage.order_discount_ratio }}</text>
-            </view> -->
+            <view class="flex align-stretch justify-between directOrder_fd10_0_c1_babdd" v-if="Number(dataEssayMessage.max_deduct_score) > 0">
+              <text class="directOrder_fd10_0_c1_c0_babdd">{{ $t('本单最多可用积分') }}</text>
+              <text class="directOrder_fd10_0_c1_c1_babdd">{{ dataEssayMessage.max_deduct_score }}</text>
+            </view>
+            <view class="flex align-stretch justify-between directOrder_fd10_0_c1_babdd" v-if="Number(dataEssayMessage.max_deduct_money) > 0">
+              <text class="directOrder_fd10_0_c1_c0_babdd">{{ $t('最多抵扣金额') }}</text>
+              <text class="directOrder_fd10_0_c1_c1_babdd">{{ $t('￥') }}{{ dataEssayMessage.max_deduct_money }}</text>
+            </view>
+            <view class="flex align-stretch justify-between directOrder_fd10_0_c1_babdd" v-if="Number(dataEssayMessage.max_deduct_score_max) > 0">
+              <text class="directOrder_fd10_0_c1_c0_babdd">{{ $t('抵扣上限比例') }}</text>
+              <text class="directOrder_fd10_0_c1_c1_babdd">{{ dataEssayMessage.max_deduct_score_max }}%</text>
+            </view>
             <view class="flex flex-direction flex-wrap align-stretch directOrder_fd10_0_c1_babdd">
-              <text class="directOrder_fd10_0_c1_c1_babdd">{{ $t('请输入积分数量') }}</text>
+              <text class="directOrder_fd10_0_c1_c1_babdd">{{ $t('本单使用积分数量') }}</text>
               <view class="flex flex-direction flex-wrap align-stretch">
                 <benben-input
                   class="directOrder_fd10_0_c2_c1_c0_babdd"
                   type="number"
-                  :placeholder="$t('请输入要使用的积分数量')"
+                  :placeholder="scoreInputPlaceholder"
+                  :disabled="true"
                   confirm-type="done"
                   :maxlength="-1"
                   placeholder-style="color:rgba(142, 142, 147, 1);font-size:28rpx"
-                  v-model="inputUseScore"
+                  :value="autoUseScore"
                 />
               </view>
             </view>
@@ -465,13 +485,54 @@
                 <text class="directOrder_fd10_0_c1_c1_babdd">{{ $t('￥') }}{{ dataEssayMessage.order_discount_money }}</text>
               </view>
             </view>
-            <view class="flex flex-wrap align-center justify-center directOrder_fd10_0_c4_babdd">
+            <view class="flex flex-direction align-stretch directOrder_fd10_0_c4_babdd">
               <button class="directOrder_fd10_0_c4_c0_babdd" @tap.stop="confirmUseScoreFunc()">{{ $t('确定') }}</button>
+              <button class="directOrder_fd10_0_c5_babdd" @tap.stop="cancelUseScoreFunc()">{{ $t('不使用积分') }}</button>
             </view>
           </view>
         </view>
 
         <!---组件名称ayflex布局结束-->
+      </benben-popup>
+      <benben-popup v-model="popupShowCouponList" :mask="true" :mask-close-able="true" mode="bottom">
+        <view class="flex flex-direction align-stretch benben-flex-layout directOrder_coupon-popup_babdd">
+          <view class="flex flex-wrap align-center justify-between directOrder_coupon-popup-head_babdd">
+            <view class="directOrder_coupon-popup-head-placeholder_babdd"></view>
+            <text class="directOrder_coupon-popup-title_babdd">{{ $t('优惠券') }}</text>
+            <image
+              class="directOrder_coupon-popup-close_babdd"
+              mode="aspectFit"
+              :src="STATIC_URL + '1672.png'"
+              @tap.stop="popupShowCouponList = false"
+            ></image>
+          </view>
+          <scroll-view class="directOrder_coupon-popup-scroll_babdd" :scroll-x="false" :scroll-y="true" :show-scrollbar="false" :enhanced="true">
+            <view class="directOrder_coupon-grid_babdd">
+              <view class="directOrder_coupon-grid-col_babdd" @tap.stop="removeCouponFunc()">
+                <view class="directOrder_coupon-card_babdd" :class="{ 'directOrder_coupon-card--active': coupon_id == '' }">
+                  <view class="directOrder_coupon-card-price_babdd">
+                    <text class="directOrder_coupon-card-price-placeholder_babdd">—</text>
+                  </view>
+                  <text class="directOrder_coupon-card-name_babdd">{{ $t('不用券') }}</text>
+                  <text class="directOrder_coupon-card-desc_babdd">{{ $t('暂不使用') }}</text>
+                </view>
+              </view>
+              <view class="directOrder_coupon-grid-col_babdd" v-for="(item, key0) in couponType" :key="key0" @tap.stop="selectCouponFunc(item)">
+                <view class="directOrder_coupon-card_babdd" :class="{ 'directOrder_coupon-card--active': coupon_id == item.aid }">
+                  <view class="directOrder_coupon-card-price_babdd">
+                    <text class="directOrder_coupon-card-yen_babdd">￥</text>
+                    <text class="directOrder_coupon-card-money_babdd">
+                      <text class="directOrder_coupon-card-money-int_babdd">{{ item.money | frontPrice }}</text>
+                      <text class="directOrder_coupon-card-money-dec_babdd">{{ item.money | laterPrice }}</text>
+                    </text>
+                  </view>
+                  <text class="directOrder_coupon-card-name_babdd">{{ item.name }}</text>
+                  <text class="directOrder_coupon-card-desc_babdd">{{ item.content }}</text>
+                </view>
+              </view>
+            </view>
+          </scroll-view>
+        </view>
       </benben-popup>
     </view>
   </page-body>
@@ -487,6 +548,7 @@ export default {
   data() {
     return {
       popupShow1775099446273: false,
+      popupShowCouponList: false,
       popupShow1679650134928: false,
       popupShow1685773487026: false,
       popupShow1663558318653: false,
@@ -630,6 +692,9 @@ export default {
         use_score: '',
         order_discount_ratio: '',
         order_discount_money: '',
+        max_deduct_score_max: '',
+        max_deduct_money: '',
+        max_deduct_score: '',
         has_address: 0,
         coupon_search: {
           moeny: '',
@@ -676,11 +741,41 @@ export default {
       userInfoMessage: {
         score: 0,
       },
-      /** 用户输入的抵扣积分，确认后作为 use_score 传给预下单接口 **/
-      inputUseScore: '',
+      /** 是否启用积分抵扣（自动取 min(用户积分, 本单上限)） **/
+      scoreDeductEnabled: false,
     }
   },
-  computed: {},
+  computed: {
+    autoUseScore() {
+      const userScore = Number(this.userInfoMessage.score) || 0
+      if (userScore <= 0) {
+        return 0
+      }
+      const maxDeductScore = this.getMaxDeductScoreLimit()
+      if (maxDeductScore === null || maxDeductScore <= 0) {
+        return 0
+      }
+      return Math.min(userScore, maxDeductScore)
+    },
+    canUseScoreDeduct() {
+      const userScore = Number(this.userInfoMessage.score) || 0
+      if (userScore <= 0) {
+        return false
+      }
+      const maxDeductScore = this.dataEssayMessage.max_deduct_score
+      if (maxDeductScore === '' || maxDeductScore === null || maxDeductScore === undefined) {
+        return true
+      }
+      return Number(maxDeductScore) > 0
+    },
+    scoreInputPlaceholder() {
+      const autoScore = this.autoUseScore
+      if (autoScore > 0) {
+        return `${this.$t('本单使用')}${autoScore}${this.$t('积分')}`
+      }
+      return this.$t('暂无可使用积分')
+    },
+  },
   watch: {},
   onLoad(options) {
     let { goods_id, sku_id, num, money, address_id, shop_coupon_id, number, activity_id, invoice_id, cartid, package_id, orderinfo } = options
@@ -706,6 +801,7 @@ export default {
   },
   onReady() {},
   onShow() {
+    this.queryMessageFunc()
     this.panduanFunc()
     this.getInvoiceListFunc()
     this.getPackageMessageFunc()
@@ -762,44 +858,52 @@ export default {
       this.invoice_list[this.selectRow.shop_info.aid].invoice_id = ''
       this.popupShow1679650134928 = false
     },
-    // 构建预下单 use_score 参数：不使用或无积分则不传
+    getMaxDeductScoreLimit() {
+      const maxDeductScore = this.dataEssayMessage.max_deduct_score
+      if (maxDeductScore === '' || maxDeductScore === null || maxDeductScore === undefined) {
+        return null
+      }
+      const maxScore = Number(maxDeductScore)
+      return isNaN(maxScore) ? null : maxScore
+    },
+    // 构建预下单 use_score 参数：不使用积分时明确传 0
     buildUseScoreParams() {
       const userScore = Number(this.userInfoMessage.score) || 0
-      const useScore = Number(this.inputUseScore) || 0
-      if (userScore <= 0 || useScore <= 0) {
+      if (userScore <= 0) {
         return {}
       }
+      if (!this.scoreDeductEnabled) {
+        return { use_score: 0 }
+      }
+      const useScore = this.autoUseScore
+      if (useScore <= 0) {
+        return { use_score: 0 }
+      }
       return {
-        use_score: Math.min(useScore, userScore),
+        use_score: useScore,
       }
     },
     openScorePopupFunc() {
-      if (Number(this.dataEssayMessage.use_score) > 0) {
-        this.inputUseScore = String(this.dataEssayMessage.use_score)
-      }
       this.popupShow1775099446273 = true
     },
+    openCouponPopupFunc() {
+      this.popupShowCouponList = true
+    },
+    removeCouponFunc() {
+      this.isokduoshopidFunc({}, 'remove')
+      this.popupShowCouponList = false
+    },
     confirmUseScoreFunc() {
-      const userScore = Number(this.userInfoMessage.score) || 0
-      const inputScore = String(this.inputUseScore || '').trim()
-      if (inputScore !== '' && userScore <= 0) {
-        this.$message.info(this.$t('暂无可用积分'))
+      if (this.autoUseScore <= 0) {
+        this.$message.info(this.$t('当前订单不可使用积分抵扣'))
         return
       }
-      if (inputScore !== '') {
-        const useScore = Number(inputScore)
-        if (isNaN(useScore) || useScore < 0) {
-          this.$message.info(this.$t('请输入正确的积分数量'))
-          return
-        }
-        if (useScore > userScore) {
-          this.$message.info(this.$t('积分数量不足'))
-          return
-        }
-        this.inputUseScore = useScore > 0 ? String(useScore) : ''
-      } else {
-        this.inputUseScore = ''
-      }
+      this.scoreDeductEnabled = true
+      this.popupShow1775099446273 = false
+      this.panduanFunc()
+    },
+    cancelUseScoreFunc() {
+      this.scoreDeductEnabled = false
       this.popupShow1775099446273 = false
       this.panduanFunc()
     },
@@ -824,9 +928,7 @@ export default {
         let infodataEssayMessage = datadataEssayMessage.data
         this.dataDetails = infodataEssayMessage.data
         this.dataEssayMessage = infodataEssayMessage.data
-        if (Number(this.dataEssayMessage.use_score) > 0) {
-          this.inputUseScore = String(this.dataEssayMessage.use_score)
-        }
+        this.syncUseScoreInputFunc()
 
         if (this.dataEssayMessage.list_fail && this.dataEssayMessage.list_fail.length > 0) {
           this.popupShow1685773487026 = true
@@ -888,9 +990,7 @@ export default {
         this.dataDetails = infodataDetails.data
 
         this.dataEssayMessage = this.dataDetails
-        if (Number(this.dataEssayMessage.use_score) > 0) {
-          this.inputUseScore = String(this.dataEssayMessage.use_score)
-        }
+        this.syncUseScoreInputFunc()
 
         if (this.dataEssayMessage.list_fail && this.dataEssayMessage.list_fail.length > 0) {
           this.popupShow1685773487026 = true
@@ -985,7 +1085,11 @@ export default {
       })
       order_info.goods = newGoods
       order_info.address = this.dataEssayMessage.address
-      order_info.use_score = this.inputUseScore
+      if (this.scoreDeductEnabled && this.autoUseScore > 0) {
+        order_info.use_score = String(this.autoUseScore)
+      } else {
+        order_info.use_score = ''
+      }
       uni.showLoading({
         title: global.i18n.t('订单提交中'),
       })
@@ -1067,6 +1171,7 @@ export default {
         }
         let infodataDetails = data655c8794204e2.data
         this.dataEssayMessage = infodataDetails.data
+        this.syncUseScoreInputFunc()
         if (this.dataEssayMessage.list_fail && this.dataEssayMessage.list_fail.length > 0) {
           this.popupShow1685773487026 = true
           this.list_failName = this.dataEssayMessage.list_fail
@@ -1134,9 +1239,27 @@ export default {
       }
       this.couponType = datacouponType.data.data || []
     },
+    syncUseScoreInputFunc() {
+      if (!this.scoreDeductEnabled) {
+        return
+      }
+      if (Number(this.userInfoMessage.score) <= 0) {
+        this.scoreDeductEnabled = false
+        return
+      }
+      const maxDeductScore = this.getMaxDeductScoreLimit()
+      if (maxDeductScore !== null && maxDeductScore <= 0) {
+        this.scoreDeductEnabled = false
+        return
+      }
+      if (Number(this.dataEssayMessage.use_score) <= 0) {
+        this.scoreDeductEnabled = false
+      }
+    },
     selectCouponFunc(item) {
       const isSelected = this.youhuijuanId == 0 ? this.coupon_id == item.aid : this.shop_coupon_list[this.youhuijuanId].coupon_id == item.aid
       this.isokduoshopidFunc(item, isSelected ? 'remove' : '')
+      this.popupShowCouponList = false
     },
     //打开发票选择
     openPopupShowFunc(item) {
@@ -1244,15 +1367,33 @@ export default {
     .directOrder_fd10_0_c4_babdd {
       margin: 32rpx 0rpx 35rpx 0rpx;
 
-      .directOrder_fd10_0_c4_c0_babdd {
+      .directOrder_fd10_0_c4_c0_babdd,
+      .directOrder_fd10_0_c5_babdd {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
         border-radius: 44rpx 44rpx 44rpx 44rpx;
         font-size: 32rpx;
-        background: rgba(218, 55, 44, 1);
         color: var(--benbenFontColor3);
-        width: 638rpx;
+        font-weight: 500;
+
+        &::after {
+          border: none;
+        }
+      }
+
+      .directOrder_fd10_0_c4_c0_babdd {
+        background: rgba(218, 55, 44, 1);
         height: 88rpx;
         line-height: 88rpx;
-        font-weight: 500;
+        margin-bottom: 24rpx;
+      }
+
+      .directOrder_fd10_0_c5_babdd {
+        background: var(--benbenbtnColor0);
+        height: 80rpx;
+        line-height: 80rpx;
       }
     }
   }
@@ -1276,10 +1417,12 @@ export default {
   }
 
   .directOrder_fd10_0_c2_c1_c0_babdd {
+    width: 100%;
     border-radius: 16rpx 16rpx 16rpx 16rpx;
     background: #f8f8f8;
     height: 88rpx;
     padding: 0rpx 24rpx 0rpx 24rpx;
+    box-sizing: border-box;
   }
 
   .directOrder_flex_9_babdd {
@@ -1571,111 +1714,19 @@ export default {
       margin-bottom: 20rpx;
     }
 
+    .directOrder_coupon-more_babdd {
+      margin-left: 16rpx;
+      font-size: 24rpx;
+      color: var(--benbenFontColor1);
+      line-height: 38rpx;
+    }
+
     .directOrder_coupon-empty_babdd {
       display: block;
       font-size: 26rpx;
       color: var(--benbenFontColor1);
       line-height: 40rpx;
       padding: 8rpx 0 4rpx 0;
-    }
-
-    .directOrder_coupon-grid_babdd {
-      display: flex;
-      flex-wrap: wrap;
-      margin: 0 -6rpx;
-    }
-
-    .directOrder_coupon-grid-col_babdd {
-      box-sizing: border-box;
-      width: 33.3333%;
-      padding: 6rpx;
-    }
-
-    .directOrder_coupon-card_babdd {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      height: 156rpx;
-      padding: 16rpx 8rpx 12rpx;
-      border-radius: 12rpx;
-      background: #ffffff;
-      border: 2rpx solid #f0f0f0;
-      box-sizing: border-box;
-    }
-
-    .directOrder_coupon-card--active {
-      border-color: #ff4d4f;
-      background: #fffafa;
-      box-shadow: 0 2rpx 8rpx rgba(255, 77, 79, 0.12);
-    }
-
-    .directOrder_coupon-card-price_babdd {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: baseline;
-      justify-content: center;
-      width: 100%;
-      height: 48rpx;
-      line-height: 48rpx;
-    }
-
-    .directOrder_coupon-card-price-placeholder_babdd {
-      font-size: 32rpx;
-      font-weight: 600;
-      color: #d9d9d9;
-      line-height: 48rpx;
-    }
-
-    .directOrder_coupon-card-yen_babdd {
-      font-size: 20rpx;
-      font-weight: 600;
-      color: #ff4d4f;
-      line-height: 48rpx;
-    }
-
-    .directOrder_coupon-card-money_babdd {
-      color: #ff4d4f;
-      font-weight: 700;
-      line-height: 48rpx;
-    }
-
-    .directOrder_coupon-card-money-int_babdd {
-      font-size: 32rpx;
-      letter-spacing: -1rpx;
-    }
-
-    .directOrder_coupon-card-money-dec_babdd {
-      font-size: 20rpx;
-    }
-
-    .directOrder_coupon-card-name_babdd {
-      width: 100%;
-      height: 32rpx;
-      line-height: 32rpx;
-      font-size: 22rpx;
-      font-weight: 500;
-      color: #333333;
-      text-align: center;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .directOrder_coupon-card-desc_babdd {
-      width: 100%;
-      height: 28rpx;
-      line-height: 28rpx;
-      font-size: 20rpx;
-      color: #999999;
-      text-align: center;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .directOrder_coupon-card--active .directOrder_coupon-card-name_babdd {
-      color: #ff4d4f;
     }
 
     .directOrder_fd6_0_c0_babdd {
@@ -1766,6 +1817,21 @@ export default {
 
   .directOrder_fd6_1_c1_c0_babdd {
     color: var(--benbenFontColor0);
+    font-size: 28rpx;
+    font-weight: 400;
+    line-height: 40rpx;
+  }
+
+  .directOrder_fd6_1_c2_babdd {
+    color: var(--benbenFontColor1);
+    font-size: 24rpx;
+    font-weight: 400;
+    line-height: 40rpx;
+    margin-right: 16rpx;
+  }
+
+  .directOrder_fd6_1_c3_babdd {
+    color: var(--benbenFontColor1);
     font-size: 28rpx;
     font-weight: 400;
     line-height: 40rpx;
@@ -2278,6 +2344,132 @@ export default {
       font-size: 36rpx;
       color: var(--benbeniconColor1);
     }
+  }
+
+  .directOrder_coupon-popup_babdd {
+    background: #ffffff;
+    border-radius: 24rpx 24rpx 0 0;
+    padding: 24rpx 28rpx calc(24rpx + env(safe-area-inset-bottom));
+  }
+
+  .directOrder_coupon-popup-head_babdd {
+    margin-bottom: 24rpx;
+  }
+
+  .directOrder_coupon-popup-head-placeholder_babdd,
+  .directOrder_coupon-popup-close_babdd {
+    width: 40rpx;
+    height: 40rpx;
+  }
+
+  .directOrder_coupon-popup-title_babdd {
+    font-size: 32rpx;
+    font-weight: 500;
+    color: var(--benbenFontColor0);
+    line-height: 40rpx;
+  }
+
+  .directOrder_coupon-popup-scroll_babdd {
+    max-height: 60vh;
+  }
+
+  .directOrder_coupon-grid_babdd {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -6rpx;
+  }
+
+  .directOrder_coupon-grid-col_babdd {
+    box-sizing: border-box;
+    width: 33.3333%;
+    padding: 6rpx;
+  }
+
+  .directOrder_coupon-card_babdd {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 156rpx;
+    padding: 16rpx 8rpx 12rpx;
+    border-radius: 12rpx;
+    background: #ffffff;
+    border: 2rpx solid #f0f0f0;
+    box-sizing: border-box;
+  }
+
+  .directOrder_coupon-card--active {
+    border-color: #ff4d4f;
+    background: #fffafa;
+    box-shadow: 0 2rpx 8rpx rgba(255, 77, 79, 0.12);
+  }
+
+  .directOrder_coupon-card-price_babdd {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: center;
+    width: 100%;
+    height: 48rpx;
+    line-height: 48rpx;
+  }
+
+  .directOrder_coupon-card-price-placeholder_babdd {
+    font-size: 32rpx;
+    font-weight: 600;
+    color: #d9d9d9;
+    line-height: 48rpx;
+  }
+
+  .directOrder_coupon-card-yen_babdd {
+    font-size: 20rpx;
+    font-weight: 600;
+    color: #ff4d4f;
+    line-height: 48rpx;
+  }
+
+  .directOrder_coupon-card-money_babdd {
+    color: #ff4d4f;
+    font-weight: 700;
+    line-height: 48rpx;
+  }
+
+  .directOrder_coupon-card-money-int_babdd {
+    font-size: 32rpx;
+    letter-spacing: -1rpx;
+  }
+
+  .directOrder_coupon-card-money-dec_babdd {
+    font-size: 20rpx;
+  }
+
+  .directOrder_coupon-card-name_babdd {
+    width: 100%;
+    height: 32rpx;
+    line-height: 32rpx;
+    font-size: 22rpx;
+    font-weight: 500;
+    color: #333333;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .directOrder_coupon-card-desc_babdd {
+    width: 100%;
+    height: 28rpx;
+    line-height: 28rpx;
+    font-size: 20rpx;
+    color: #999999;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .directOrder_coupon-card--active .directOrder_coupon-card-name_babdd {
+    color: #ff4d4f;
   }
 }
 </style>
